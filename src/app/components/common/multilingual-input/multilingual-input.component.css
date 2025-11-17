@@ -1,0 +1,77 @@
+.multilingual-input {
+  width: 100%;
+}
+
+.language-tabs {
+  margin-bottom: 16px;
+}
+
+.tab-content {
+  padding: 16px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.content-indicator {
+  color: #4caf50;
+  font-size: 20px;
+}
+
+.completion-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.language-status {
+  display: flex;
+  gap: 4px;
+}
+
+.language-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ccc;
+  transition: all 0.2s ease;
+}
+
+.language-dot.completed {
+  background-color: #4caf50;
+}
+
+.language-dot.current {
+  border: 2px solid #1976d2;
+  transform: scale(1.2);
+}
+
+.completion-text {
+  color: #666;
+}
+
+.mat-mdc-tab-group {
+  --mdc-tab-indicator-active-indicator-color: #1976d2;
+}
+
+.mat-mdc-tab {
+  min-width: 120px;
+}
+
+@media (max-width: 768px) {
+  .mat-mdc-tab {
+    min-width: 80px;
+  }
+  
+  .completion-indicator {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+

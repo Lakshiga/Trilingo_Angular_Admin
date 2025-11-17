@@ -1,0 +1,61 @@
+<div class="container" *ngIf="hasContent; else noContent">
+  
+  <mat-card class="flashcard">
+      
+      <ng-container *ngIf="!isDetailedDesign">
+          <mat-card-content class="card-content vowel-design">
+              <span class="word large-vowel-text">{{ mainWordToDisplay }}</span>
+              
+              <button
+                *ngIf="audioPath"
+                mat-icon-button
+                color="primary"
+                (click)="playAudio()"
+                class="audio-button large-audio-button"
+              >
+                <mat-icon>volume_up</mat-icon>
+              </button>
+          </mat-card-content>
+      </ng-container>
+
+      <ng-container *ngIf="isDetailedDesign">
+          
+          <h3 *ngIf="referenceTitleToDisplay" class="reference-title">
+              {{ referenceTitleToDisplay }}
+          </h3>
+          
+          <img 
+            *ngIf="imagePath"
+            mat-card-image 
+            [src]="imagePath" 
+            [alt]="mainWordToDisplay || 'Flashcard Image'"
+            class="card-image"
+          />
+
+          <mat-card-content class="card-content detailed-content">
+            
+            <p class="secondary-label">{{ labelToDisplay }}</p> 
+            
+            <div class="word-container">
+              <span class="word">{{ mainWordToDisplay }}</span>
+              <button
+                *ngIf="audioPath"
+                mat-icon-button
+                color="primary"
+                (click)="playAudio()"
+                class="audio-button"
+              >
+                <mat-icon>volume_up</mat-icon>
+              </button>
+            </div>
+          </mat-card-content>
+      
+  </ng-container>
+
+  <audio #audioPlayer style="display: none;"></audio>
+  </mat-card>
+</div>
+
+<ng-template #noContent>
+  <div class="error-message">No flashcard content to display.</div>
+</ng-template>

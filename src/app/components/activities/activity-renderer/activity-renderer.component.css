@@ -1,0 +1,11 @@
+.activity-renderer {
+  width: 100%;
+  height: 100%;
+}
+
+.not-implemented {
+  padding: 16px;
+  color: #666;
+  text-align: center;
+  font-style: italic;
+}

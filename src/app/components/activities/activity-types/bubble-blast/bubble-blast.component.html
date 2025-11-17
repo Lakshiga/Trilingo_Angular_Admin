@@ -1,0 +1,78 @@
+<div class="p-4 sm:p-8 min-h-screen bg-gray-50 flex flex-col items-center w-full">
+
+    <header class="text-center mb-6 max-w-2xl w-full p-4 bg-white shadow-lg rounded-xl">
+      <h1 class="text-3xl font-extrabold text-indigo-700 mb-1">{{ text(content.title) }}</h1>
+      <p class="text-gray-600 italic">{{ text(content.instruction) }}</p>
+      <div class="mt-3 text-sm font-semibold text-gray-700">
+        Score: <span class="text-lg font-extrabold text-indigo-600">{{ score() }}</span>
+      </div>
+    </header>
+  
+    @if (content.fixedBubbles.length > 0) {
+      <main class="max-w-xl w-full space-y-8 p-6 bg-white rounded-xl shadow-2xl">
+        
+        <section class="p-4 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
+          <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">நிலையான பபிள்கள் (Targets)</h3>
+          <div class="flex flex-wrap justify-center gap-4">
+            @for (bubble of fixedBubbles(); track bubble.id) {
+              <div 
+                (click)="shoot(bubble)"
+                [innerHTML]="renderContent(bubble)"
+                class="bubble fixed-bubble"
+                [class.exploded]="bubble.isExploded"
+                [class.cursor-not-allowed]="bubble.isExploded || !shooterBubble()"
+                [ngClass]="{
+                  'bg-blue-300 text-white hover:bg-blue-400': !bubble.isExploded,
+                  'animate-shake': isChecking()
+                }"
+              >
+              </div>
+            }
+          </div>
+        </section>
+  
+        <section class="text-center p-4">
+          <h3 class="text-lg font-bold mb-2">சுடப்படும் பபிள் (Shooter)</h3>
+          <div class="bubble shooter-slot mx-auto"
+            [ngClass]="{'bg-indigo-600 text-white border-4 border-yellow-300': shooterBubble()}"
+          >
+            @if (shooterBubble()) {
+              <div [innerHTML]="renderContent(shooterBubble()!)"></div>
+            } @else {
+              <span class="text-sm text-gray-400">இங்கே ஏற்றவும்</span>
+            }
+          </div>
+        </section>
+  
+        <section class="p-4 border-t pt-4">
+          <h3 class="text-lg font-bold text-gray-700 mb-3 text-center">தேர்வுப் பபிள்கள் (Tray)</h3>
+          <div class="flex flex-wrap justify-center gap-3">
+            @for (bubble of availableProjectiles(); track bubble.id) {
+              <div 
+                (click)="loadShooter(bubble)"
+                [innerHTML]="renderContent(bubble)"
+                class="bubble shootable-bubble bg-green-400 text-white hover:bg-green-500"
+              >
+              </div>
+            }
+          </div>
+        </section>
+  
+        <footer class="mt-6 text-center">
+          <p class="font-bold text-lg" 
+             [ngClass]="{'text-green-600': feedbackMessage().includes('வெற்றி'), 'text-red-600': feedbackMessage().includes('தவறு')}"
+          >
+            {{ feedbackMessage() }}
+          </p>
+          
+          @if (isGameWon()) {
+            <button mat-raised-button color="accent" class="mt-4" (click)="initializeGame()">
+              மீண்டும் விளையாடவும்
+            </button>
+          }
+        </footer>
+      </main>
+    } @else {
+      <p class="text-xl text-gray-500">பபிள் பிளாஸ்டர் தரவு ஏற்றப்படவில்லை.</p>
+    }
+  </div>

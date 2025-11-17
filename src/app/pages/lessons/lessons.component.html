@@ -1,0 +1,28 @@
+<div class="lessons-page" *ngIf="levelId && apiService">
+  <app-dependent-inline-crud-table
+    entityName="Lesson"
+    [parentName]="'Level #' + levelId"
+    parentRoute="/levels"
+    [parentId]="levelId"
+    [apiService]="apiService"
+    [columns]="columns"
+    idField="lessonId"
+    [renderCustomActions]="renderCustomLessonActions"
+    pageTitle="Manage Lessons">
+  </app-dependent-inline-crud-table>
+</div>
+
+<div class="error-page" *ngIf="!levelId || !apiService">
+  <mat-card>
+    <mat-card-content>
+      <h2>Error: No Level ID provided.</h2>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="goBackToLevels()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Levels
+      </button>
+    </mat-card-content>
+  </mat-card>
+</div>

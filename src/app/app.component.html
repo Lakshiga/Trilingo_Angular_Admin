@@ -1,0 +1,255 @@
+<ng-container *ngIf="isLoginPage || !(isAuthenticated$ | async); else adminLayout">
+  <router-outlet />
+</ng-container>
+
+<ng-template #adminLayout>
+  <div class="admin-layout flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar w-full bg-white shadow-xl border-b border-gray-200">
+      <div class="navbar-content">
+        <div class="navbar-left">
+          <div class="brand-container">
+            <img src="/assets/images/logo.png" alt="Trilingo Logo" class="brand-logo">
+            <h1 class="brand-name">Trilingo</h1>
+          </div>
+        </div>
+        
+        <!-- Navigation centered -->
+        <nav class="navbar-center">
+          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">📊</span>
+            <span>Dashboard</span>
+          </a>
+          <a routerLink="/main-activities" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">🎯</span>
+            <span>Main Activities</span>
+          </a>
+          <a routerLink="/activity-types" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">🏷️</span>
+            <span>Activity Types</span>
+          </a>
+          <a routerLink="/levels" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">📚</span>
+            <span>Levels</span>
+          </a>
+        </nav>
+        
+        <div class="navbar-right">
+          <div class="profile-dropdown relative">
+            <div class="profile-icon flex items-center space-x-3 cursor-pointer bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 px-4 py-2 rounded-full transition-all duration-300 shadow-md border border-indigo-100 hover:shadow-lg" (click)="toggleProfileDropdown()">
+              <span class="user-avatar text-2xl">👤</span>
+              <span class="user-name font-semibold text-gray-800 hidden md:inline">Admin User</span>
+              <span class="dropdown-arrow text-gray-600 transition-transform duration-300" [class.rotate-180]="showProfileDropdown">▼</span>
+            </div>
+            <div class="dropdown-menu absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl py-3 z-50 transition-all duration-300 origin-top-right border border-gray-100" 
+                 [class.opacity-0]="!showProfileDropdown" 
+                 [class.opacity-100]="showProfileDropdown" 
+                 [class.scale-95]="!showProfileDropdown" 
+                 [class.scale-100]="showProfileDropdown"
+                 [class.invisible]="!showProfileDropdown"
+                 [class.visible]="showProfileDropdown">
+              <a href="#" class="dropdown-item flex items-center px-5 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 rounded-xl mx-2 font-medium">
+                <span class="dropdown-icon mr-3 text-lg">👤</span>
+                <span>My Profile</span>
+              </a>
+              <a href="#" class="dropdown-item flex items-center px-5 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 rounded-xl mx-2 font-medium">
+                <span class="dropdown-icon mr-3 text-lg">⚙️</span>
+                <span>Settings</span>
+              </a>
+              <div class="border-t border-gray-100 my-2"></div>
+              <a href="#" class="dropdown-item flex items-center px-5 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 rounded-xl mx-2 font-medium" (click)="logout(); $event.preventDefault(); $event.stopPropagation();">
+                <span class="dropdown-icon mr-3 text-lg">🚪</span>
+                <span>Logout</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-wrapper flex flex-1">
+      <!-- Sidebar removed and navigation moved to top -->
+      <main class="main-content flex-1 p-6 bg-gradient-to-br from-gray-50 to-gray-100">
+          <router-outlet />
+      </main>
+    </div>
+  </div>
+</ng-template>
+
+<style>
+  .admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 24px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  }
+
+  .top-navbar {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    height: 72px;
+    position: relative;
+    z-index: 100;
+  }
+
+  .navbar-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .brand-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .brand-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .navbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0.5rem;
+    font-weight: 500;
+    white-space: nowrap;
+    position: relative;
+    z-index: 11;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+  }
+  
+  .nav-link:active {
+    transform: scale(0.98);
+  }
+
+  .nav-link:hover {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  }
+
+  .nav-link.active {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+    font-weight: 600;
+  }
+
+  .nav-icon {
+    font-size: 18px;
+  }
+
+  .navbar-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .profile-dropdown .dropdown-menu {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  @media (max-width: 1024px) {
+    .navbar-center {
+      position: static;
+      transform: none;
+      flex: 1;
+      justify-content: center;
+      margin: 0 16px;
+    }
+
+    .navbar-content {
+      flex-wrap: wrap;
+      height: auto;
+      padding: 16px 24px;
+      gap: 16px;
+    }
+
+    .navbar-left {
+      flex: 0 0 auto;
+    }
+
+    .navbar-right {
+      flex: 0 0 auto;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .admin-layout {
+      flex-direction: column;
+    }
+
+    .navbar-content {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 16px;
+    }
+
+    .navbar-left {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .navbar-center {
+      width: 100%;
+      overflow-x: auto;
+      justify-content: flex-start;
+      margin: 0;
+      padding-bottom: 8px;
+    }
+
+    .navbar-right {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .brand-name {
+      font-size: 20px;
+    }
+
+    .brand-logo {
+      height: 32px;
+    }
+  }
+</style>

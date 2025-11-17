@@ -1,0 +1,33 @@
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.crud-table {
+  width: 100%;
+}
+
+.edit-field {
+  width: 100%;
+  min-width: 120px;
+}
+
+mat-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.mat-mdc-cell, .mat-mdc-header-cell {
+  padding: 8px 16px;
+}
+

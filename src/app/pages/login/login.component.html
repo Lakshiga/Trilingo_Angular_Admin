@@ -1,0 +1,59 @@
+<div class="login-container">
+  <div class="login-box">
+    <div class="login-header">
+      <h1 class="login-title">Admin Panel</h1>
+      <p class="login-subtitle">Sign in to access your dashboard</p>
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Username or Email</mat-label>
+        <input 
+          matInput 
+          formControlName="identifier"
+          type="text"
+          autocomplete="username"
+          required>
+        <mat-icon matPrefix>person</mat-icon>
+      </mat-form-field>
+      
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Password</mat-label>
+        <input 
+          matInput 
+          formControlName="password"
+          [type]="hidePassword ? 'password' : 'text'"
+          autocomplete="current-password"
+          required>
+        <mat-icon matPrefix>lock</mat-icon>
+        <button 
+          mat-icon-button 
+          matSuffix 
+          type="button"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-pressed]="hidePassword">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+      </mat-form-field>
+      
+      <div class="error-message" *ngIf="error">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+      
+      <button 
+        mat-raised-button 
+        color="primary" 
+        type="submit"
+        class="full-width login-button"
+        [disabled]="isLoading || loginForm.invalid">
+        <span *ngIf="isLoading" class="button-content">
+          <mat-spinner diameter="20" class="spinner"></mat-spinner>
+          <span>Signing in...</span>
+        </span>
+        <span *ngIf="!isLoading">Sign In</span>
+      </button>
+    </form>
+  </div>
+</div>

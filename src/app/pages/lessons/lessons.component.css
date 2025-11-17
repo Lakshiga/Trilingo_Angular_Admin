@@ -1,0 +1,21 @@
+.lessons-page {
+  padding: 24px;
+}
+
+.error-page {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.error-page mat-card {
+  max-width: 400px;
+  text-align: center;
+}
+
+.error-page h2 {
+  color: #f44336;
+  margin-bottom: 16px;
+}

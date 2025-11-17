@@ -1,0 +1,76 @@
+/* Custom CSS for the Game Grid and Tile Animations */
+
+.game-grid {
+    /* Define a flexible, responsive grid (4x3 or 3x4 depending on content length) */
+    display: grid;
+    grid-template-columns: repeat(4, minmax(60px, 1fr)); /* Assuming 12 tiles in 4 columns */
+    grid-gap: 12px;
+    padding: 16px;
+    margin: 0 auto;
+}
+
+.tile {
+    /* Basic tile styling */
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tile:hover:not(.selected):not(.hidden) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Selected state */
+.tile.selected {
+    border-color: #2563EB; /* Tailwind blue-600 */
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+    transform: scale(1.05);
+}
+
+/* Matched state (Temporary visual feedback before removal) */
+.tile.matched_temp {
+    border-color: #10B981; /* Tailwind emerald-500 */
+    background-color: #D1FAE5 !important;
+    animation: blast 0.5s forwards;
+    pointer-events: none;
+}
+
+/* Hidden state */
+.tile.hidden {
+    opacity: 0;
+    pointer-events: none;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    transition: opacity 0.5s, height 0.5s, margin 0.5s, padding 0.5s;
+}
+
+/* Failure state */
+.tile.incorrect_temp {
+    border-color: #EF4444; /* Tailwind red-500 */
+    background-color: #FEE2E2 !important;
+    animation: shake 0.4s;
+}
+
+
+/* Blast animation (for removing tiles) */
+@keyframes blast {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.5; }
+    100% { transform: scale(0); opacity: 0; }
+}
+
+/* Shake animation for incorrect match */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}

@@ -1,0 +1,155 @@
+.device-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  height: 100%;
+}
+
+.preview-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.preview-header h3 {
+  margin: 0 0 4px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.preview-header p {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.control-group {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 4px;
+}
+
+.control-group mat-button-toggle {
+  border: none;
+  background: transparent;
+}
+
+.preview-container {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  overflow: auto;
+}
+
+.device-frame {
+  border-radius: 8px;
+  overflow: hidden;
+  transition: width 0.4s ease, height 0.4s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ddd;
+}
+
+.content-area {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.placeholder-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: #bbb;
+}
+
+.placeholder-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  color: #555;
+}
+
+.placeholder-text {
+  margin: 0 0 16px 0;
+  color: #777;
+}
+
+.preview-instructions {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  font-size: 14px;
+  border-left: 3px solid #1976d2;
+}
+
+.preview-instructions p {
+  margin: 8px 0;
+  color: #555;
+}
+
+.preview-footer {
+  text-align: center;
+  padding: 8px;
+  color: #777;
+  font-size: 0.8rem;
+}
+
+/* Device dimensions */
+.device-frame.phone.portrait {
+  width: 375px;
+  height: 667px;
+}
+
+.device-frame.phone.landscape {
+  width: 667px;
+  height: 375px;
+}
+
+.device-frame.tablet.portrait {
+  width: 540px;
+  height: 720px;
+}
+
+.device-frame.tablet.landscape {
+  width: 720px;
+  height: 540px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .device-frame.phone.portrait,
+  .device-frame.phone.landscape {
+    transform: scale(0.9);
+  }
+  
+  .device-frame.tablet.portrait,
+  .device-frame.tablet.landscape {
+    transform: scale(0.85);
+  }
+}

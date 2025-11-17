@@ -1,0 +1,82 @@
+<div class="p-4 sm:p-8 min-h-screen bg-gray-100 flex flex-col items-center w-full">
+
+    <!-- Activity Header -->
+    
+    <header class="text-center mb-6 max-w-2xl w-full p-4 bg-white shadow-lg rounded-xl">
+    <h1 class="text-3xl font-extrabold text-green-700 mb-1">{{ text(contentData?.title) }}</h1>
+    <p class="text-gray-600 italic">{{ text(contentData?.instruction) }}</p>
+    <div class="mt-3 text-sm font-semibold text-gray-700">
+    Question {{ currentQuestionIndex() + 1 }} of {{ contentData?.questions?.length || 0 }} | Score: {{ score() }}
+    </div>
+    </header>
+    
+    @if (currentQuestion()) {
+    <main class="max-w-2xl w-full space-y-8">
+    
+      <!-- 1. Statement Card -->
+      <section class="p-6 bg-white border-2 border-indigo-500 rounded-xl shadow-2xl">
+        <div class="text-xl font-bold text-gray-800 mb-4 text-center">கூற்று:</div>
+        <div class="flex justify-center items-center p-4 min-h-20 bg-indigo-50 rounded-lg">
+          <p class="text-2xl text-center text-gray-900 font-medium">{{ text(currentQuestion().statement) }}</p>
+        </div>
+      </section>
+    
+      <!-- 2. Options (True/False Buttons) -->
+      <section class="grid grid-cols-2 gap-6 max-w-lg mx-auto">
+        @for (option of currentQuestion().options; track $index) {
+          <button 
+            (click)="selectAnswer(option.value)" 
+            [disabled]="feedback() !== 'default'"
+            class="tf-button p-6 rounded-xl transition-all duration-300 transform shadow-lg h-full min-h-[100px] flex items-center justify-center text-center focus:outline-none border-4 font-extrabold text-2xl"
+            [ngClass]="{
+              'bg-white text-gray-800 hover:bg-gray-100 border-gray-300': userSelection() !== option.value && feedback() === 'default',
+              'bg-indigo-300 border-indigo-700 shadow-2xl scale-[1.05]': userSelection() === option.value && feedback() === 'default',
+              'bg-green-300 border-green-700 shadow-xl pointer-events-none': option.value === currentQuestion().correctAnswer && feedback() !== 'default',
+              'bg-red-300 border-red-700 animate-shake shadow-xl': userSelection() === option.value && option.value !== currentQuestion().correctAnswer && feedback() !== 'default',
+              'opacity-60 pointer-events-none': feedback() !== 'default' && option.value !== currentQuestion().correctAnswer && userSelection() !== option.value
+            }"
+          >
+            {{ text(option.label) }}
+          </button>
+        }
+      </section>
+      
+      <!-- 3. Feedback and Action -->
+      <footer class="text-center pt-4">
+        @if (feedback() !== 'default' && feedback() !== 'completed') {
+          <p class="text-xl font-bold p-3 rounded-lg shadow-md"
+             [ngClass]="{
+              'bg-green-100 text-green-800 border border-green-400': feedback() === 'correct',
+              'bg-red-100 text-red-800 border border-red-400': feedback() === 'incorrect'
+             }">
+             @if (feedback() === 'correct') {
+              சரியான விடை! 🎉
+             } @else {
+              தவறான விடை.
+             }
+          </p>
+        }
+    
+        @if (feedback() !== 'default') {
+          <button mat-flat-button color="primary" class="mt-4 p-4 text-lg font-semibold w-full sm:w-auto" (click)="goToNextQuestion()">
+            <mat-icon>arrow_forward</mat-icon> {{ currentQuestionIndex() + 1 < contentData.questions.length ? 'அடுத்த கூற்று' : 'விளையாட்டை முடிக்கவும்' }}
+          </button>
+        }
+      </footer>
+    </main>
+    
+    
+    } @else if (feedback() === 'completed') {
+    <!-- Game Completed Screen -->
+    <div class="max-w-xl w-full text-center p-8 bg-white shadow-2xl rounded-xl">
+    <h2 class="text-4xl font-extrabold text-green-600 mb-4">விளையாட்டு முடிந்தது!</h2>
+    <p class="text-xl text-gray-700">நீங்கள் பெற்ற மதிப்பெண்: <span class="font-bold text-indigo-700">{{ score() }} / {{ contentData.questions.length }}</span></p>
+    <button mat-raised-button color="accent" class="mt-6 p-4 text-lg" (click)="restartGame()">
+    <mat-icon>refresh</mat-icon> மீண்டும் தொடங்கவும்
+    </button>
+    </div>
+    } @else {
+    <p class="text-xl text-gray-500">தரவு ஏற்றப்படவில்லை.</p>
+    }
+    
+    </div>

@@ -1,0 +1,53 @@
+<div class="p-4 sm:p-8 min-h-screen bg-gray-100 flex flex-col items-center w-full">
+
+    <header class="text-center mb-6 max-w-2xl w-full p-4 bg-white shadow-lg rounded-xl">
+      <h1 class="text-3xl font-extrabold text-indigo-700 mb-1">{{ text(content.title) }}</h1>
+      <p class="text-gray-600 italic">{{ text(content.instruction) }}</p>
+      <div class="mt-3 text-sm font-semibold text-gray-700">
+        Score: <span class="font-bold text-indigo-700">{{ score() }}</span> / {{ content.cards.length / 2 }}
+      </div>
+    </header>
+  
+    @if (content.cards.length > 0) {
+      <main class="max-w-xl w-full p-6 bg-white shadow-2xl rounded-2xl">
+          
+          <section class="game-grid mx-auto">
+              @for (card of gameCards(); track card.id) {
+                  <div 
+                      class="card-container"
+                      [class.is-flipped]="card.isFlipped"
+                      [class.is-matched]="card.isMatched"
+                      (click)="flipCard(card.id)"
+                      [class.pointer-events-none]="card.isMatched || isLocked()"
+                  >
+                      <div class="card-face-back bg-indigo-600">
+                          <mat-icon class="text-4xl">flip_to_front</mat-icon>
+                      </div>
+  
+                      <div class="card-face-front bg-white">
+                          @if (card.contentType === 'image') {
+                              <img [src]="getCardFaceContent(card)" alt="Card Image" />
+                          } @else if (card.contentType === 'word' || card.contentType === 'letter') {
+                              <span class="text-xl font-bold p-2">{{ getCardFaceContent(card) }}</span>
+                          } @else {
+                              <span class="text-sm">Content N/A</span>
+                          }
+                      </div>
+                  </div>
+              }
+          </section>
+  
+          @if (isGameWon()) {
+              <div class="mt-8 p-6 bg-green-100 text-green-800 text-2xl font-bold text-center rounded-xl shadow-xl">
+                  வாழ்த்துக்கள்! அனைத்து இணைகளும் கண்டறியப்பட்டன! 🎉
+                  <button mat-raised-button color="accent" class="mt-4 p-4 text-lg" (click)="initializeGame()">
+                      மீண்டும் விளையாடவும்
+                  </button>
+              </div>
+          }
+          
+      </main>
+    } @else {
+      <p class="text-xl text-gray-500">தரவு ஏற்றப்படவில்லை.</p>
+    }
+  </div>

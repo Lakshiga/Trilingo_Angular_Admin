@@ -1,0 +1,99 @@
+<div class="p-4 sm:p-8 min-h-screen bg-gray-100 flex flex-col items-center w-full">
+
+    <header class="text-center mb-6 max-w-4xl w-full p-4 bg-white shadow-lg rounded-xl">
+        <h1 class="text-3xl font-extrabold text-indigo-700 mb-1">{{ text(content.title) }}</h1>
+        <p class="text-gray-600 italic">{{ text(content.instruction) }}</p>
+    </header>
+
+    <main class="max-w-4xl w-full space-y-6">
+
+        <section class="p-6 bg-white rounded-xl shadow-2xl">
+            <h3 class="text-xl font-bold text-gray-700 mb-4">இலக்குக் குழுக்கள் (Drag Items Here)</h3>
+            
+            <div class="grid grid-cols-2 gap-6">
+                @for (group of groupDefinitions(); track group.groupId) {
+                    <mat-card class="p-4 border-t-4 border-indigo-600 drop-list-container" [ngClass]="{'bg-indigo-50': isChecking()}">
+                        
+                        <h4 class="text-lg font-extrabold text-indigo-800 mb-3">{{ text(group.groupName) }}</h4>
+
+                        <div 
+                            cdkDropList
+                            [id]="'group-' + group.groupId"
+                            [cdkDropListData]="assignedGroups().get(group.groupId)"
+                            [cdkDropListConnectedTo]="getConnectedListIds()"
+                            class="item-list p-2"
+                        >
+                            @for (item of assignedGroups().get(group.groupId); track item.id) {
+                                <mat-card 
+                                    cdkDrag
+                                    class="item-card bg-white p-3 text-center text-base font-semibold"
+                                    [ngClass]="{
+                                        'bg-green-100 text-green-800 border-green-500': item.status === 'correct',
+                                        'bg-red-100 text-red-800 border-red-500': item.status === 'incorrect'
+                                    }"
+                                >
+                                    <div [innerHTML]="renderContent(item)"></div>
+                                </mat-card>
+                            }
+                            @if (assignedGroups().get(group.groupId)?.length === 0) {
+                                <p class="text-sm text-gray-400 italic text-center p-4">வார்த்தைகளை இங்கே விடுங்கள்.</p>
+                            }
+                        </div>
+                    </mat-card>
+                }
+            </div>
+        </section>
+
+        <section class="p-6 bg-white rounded-xl shadow-2xl">
+            <h3 class="text-xl font-bold text-gray-700 mb-4">வகைப்படுத்தப்படாத வார்த்தைகள் (Source)</h3>
+            
+            <div 
+                cdkDropList
+                [id]="'unassigned-list'"
+                [cdkDropListData]="unassignedItems()"
+                [cdkDropListConnectedTo]="getConnectedListIds()"
+                (cdkDropListDropped)="drop($event)"
+                class="item-list flex flex-wrap gap-3 p-3 border-2 border-dashed border-gray-300 rounded-lg"
+            >
+                @for (item of unassignedItems(); track item.id) {
+                    <mat-card 
+                        cdkDrag
+                        class="item-card bg-indigo-500 text-white hover:bg-indigo-600 p-3 text-center font-semibold"
+                        [ngClass]="{'text-lg': content.contentType === 'word'}"
+                    >
+                        <div [innerHTML]="renderContent(item)"></div>
+                    </mat-card>
+                }
+                @if (unassignedItems().length === 0) {
+                    <p class="text-sm text-gray-500 italic p-4">அனைத்து வார்த்தைகளும் குழுக்களுக்குள் சேர்க்கப்பட்டன.</p>
+                }
+            </div>
+        </section>
+
+        <footer class="mt-6 text-center">
+            @if (!isFinished()) {
+                <button 
+                    mat-raised-button 
+                    color="accent" 
+                    class="p-4 text-lg font-semibold w-full sm:w-auto"
+                    (click)="checkAnswers()"
+                    [disabled]="isChecking() || !isComplete()"
+                >
+                    <mat-icon>check_circle</mat-icon> விடைகளைச் சரிபார்க்கவும்
+                </button>
+            } @else {
+                <div class="feedback-message p-4 rounded-lg font-bold text-xl bg-green-100 text-green-800 shadow-md">
+                    சரிபார்ப்பு முடிந்தது!
+                </div>
+                <button 
+                    mat-raised-button 
+                    color="primary" 
+                    class="mt-4 p-4 text-lg font-semibold"
+                    (click)="initializeGame()"
+                >
+                    மீண்டும் தொடங்கவும்
+                </button>
+            }
+        </footer>
+    </main>
+</div>

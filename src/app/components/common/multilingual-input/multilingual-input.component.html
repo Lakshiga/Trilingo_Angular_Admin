@@ -1,0 +1,41 @@
+<div class="multilingual-input">
+  <mat-tab-group class="language-tabs" (selectedTabChange)="onTabChange($event)">
+    <mat-tab 
+      *ngFor="let language of languages" 
+      [label]="getLanguageLabel(language.code)"
+      [disabled]="disabled">
+      <div class="tab-content">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ label }} ({{ language.nativeName }})</mat-label>
+          <input 
+            matInput 
+            [value]="getValue(language.code)"
+            (input)="onInputChange($event, language.code)"
+            [placeholder]="getPlaceholder(language.code)"
+            [disabled]="disabled"
+            [required]="required">
+          <mat-icon matSuffix *ngIf="getValue(language.code)" class="content-indicator">
+            check_circle
+          </mat-icon>
+        </mat-form-field>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+  
+  <!-- Language completion indicator -->
+  <div class="completion-indicator" *ngIf="showCompletionIndicator">
+    <div class="language-status">
+      <span 
+        *ngFor="let language of languages" 
+        class="language-dot"
+        [class.completed]="hasContent(language.code)"
+        [class.current]="currentLanguage === language.code"
+        [matTooltip]="getLanguageLabel(language.code)">
+      </span>
+    </div>
+    <span class="completion-text">
+      {{ getCompletionText() }}
+    </span>
+  </div>
+</div>
+

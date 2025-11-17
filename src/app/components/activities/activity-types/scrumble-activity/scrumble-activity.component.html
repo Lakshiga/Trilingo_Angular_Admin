@@ -1,0 +1,109 @@
+<div class="p-4 sm:p-8 min-h-screen bg-gray-50 flex flex-col items-center w-full">
+
+    <!-- Header -->
+    <header class="text-center mb-6 max-w-2xl w-full p-4 bg-white shadow-lg rounded-xl">
+        <h1 class="text-3xl font-extrabold text-indigo-700 mb-1">{{ text(content.title) }}</h1>
+        <p class="text-gray-600 italic">{{ text(content.instruction) }}</p>
+    </header>
+    
+    @if (currentTask()) {
+        <main class="max-w-xl w-full space-y-6 p-6 bg-white rounded-xl shadow-2xl">
+            
+            <!-- 1. Hint Section -->
+            <section class="p-4 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-700 mb-2">துப்பு (Hint)</h3>
+                <div class="flex items-center space-x-4 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                    
+                    @if (currentTask().hint.hintImageUrl) {
+                        <img [src]="currentTask().hint.hintImageUrl" alt="Hint Image" class="w-16 h-16 object-contain rounded"/>
+                    }
+                    
+                    <div>
+                        <p class="text-gray-700 italic">{{ text(currentTask().hint.hintText) }}</p>
+                        @if (currentTask().hint.hintAudioUrl) {
+                            <button mat-icon-button color="accent" (click)="playSound(currentTask().hint.hintAudioUrl)">
+                                <mat-icon>volume_up</mat-icon>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </section>
+    
+            <!-- 2. Target Slots (Answer Display) -->
+            <section class="text-center">
+                <div class="flex justify-center space-x-2 p-4 min-h-16 border border-gray-300 rounded-lg bg-gray-100">
+                    @for (slot of currentSlots(); track $index) {
+                        <div 
+                            class="tile-slot bg-white flex items-center justify-center rounded-lg shadow-inner"
+                            [ngClass]="{'border-green-600 bg-green-50': feedback() === 'correct', 'border-red-600 bg-red-50 animate-shake': feedback() === 'incorrect'}"
+                            (dragover)="handleDragOver($event)"
+                            (dragleave)="handleDragLeave($event)"
+                            (drop)="handleDrop($event, $index)"
+                            (click)="removeTile($index)"
+                        >
+                            @if (slot.letter) {
+                                <span class="text-2xl font-bold p-2" [ngClass]="{'text-gray-800': feedback() === 'default', 'text-green-700': feedback() === 'correct', 'text-red-700': feedback() === 'incorrect'}">{{ slot.letter }}</span>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+    
+            <!-- 3. Available Tiles (Source) -->
+            <section class="text-center border-t pt-4">
+                <h3 class="text-lg font-bold text-gray-700 mb-3">கிடைக்கக்கூடிய எழுத்துக்கள்</h3>
+                <div class="flex justify-center flex-wrap gap-2">
+                    @for (tile of availableTiles(); track tile.originalIndex) {
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            class="tile text-xl font-bold bg-indigo-500 hover:bg-indigo-600 text-white p-3 rounded-lg shadow-md"
+                            [attr.draggable]="true"
+                            [attr.data-original-index]="tile.originalIndex"
+                            (dragstart)="handleDragStart($event, tile.letter, tile.originalIndex)"
+                            (dragend)="handleDragEnd($event)"
+                            (click)="addTileToNextSlot(tile.letter, tile.originalIndex)"
+                        >
+                            {{ tile.letter }}
+                        </button>
+                    }
+                </div>
+            </section>
+            
+            <!-- 4. Action and Feedback -->
+            <footer class="mt-6 pt-4 border-t text-center">
+                
+                <p class="text-sm text-gray-500 mb-3" *ngIf="feedback() === 'default'">
+                    எழுத்துக்களை மேலே உள்ள காலி பெட்டிகளில் இழுத்துச் செல்லவும் (அல்லது கிளிக் செய்யவும்).
+                </p>
+    
+                @if (feedback() !== 'default') {
+                    <div class="feedback-box p-3 rounded-lg text-lg font-bold shadow-md"
+                        [ngClass]="{
+                            'bg-green-100 text-green-700 correct': feedback() === 'correct',
+                            'bg-red-100 text-red-700': feedback() === 'incorrect'
+                        }">
+                        @if (feedback() === 'correct') {
+                            சரியான விடை! 🎉 ({{ getAnswerText() }})
+                        } @else {
+                            தவறான வரிசை. மீண்டும் முயற்சி செய்யவும்.
+                        }
+                    </div>
+                }
+    
+                <div class="flex justify-center space-x-4 mt-4">
+                    <button mat-raised-button color="accent" (click)="checkAnswer()" [disabled]="feedback() !== 'default' || !isAllSlotsFilled()">
+                        விடையைச் சரிபார்க்கவும்
+                    </button>
+                    <button mat-stroked-button color="warn" (click)="resetGame()">
+                        மீண்டும் தொடங்கவும்
+                    </button>
+                </div>
+            </footer>
+        </main>
+    } @else {
+        <p class="text-xl text-gray-500">பயிற்சி தரவு ஏற்றப்படவில்லை.</p>
+    }
+    
+    
+    </div>

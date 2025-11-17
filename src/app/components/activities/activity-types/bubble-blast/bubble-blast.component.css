@@ -1,0 +1,60 @@
+/* Custom CSS for the Bubble Blaster Game */
+
+.bubble {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%; /* Makes it a circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    font-size: 0.9rem;
+}
+
+.fixed-bubble {
+    cursor: pointer;
+    border: 3px solid #3B82F6; /* Tailwind blue-500 */
+}
+
+.shooter-slot {
+    width: 90px;
+    height: 90px;
+    background-color: #E0E7FF; /* Light indigo */
+    border: 4px dashed #9CA3AF;
+    box-shadow: none;
+    font-size: 1rem;
+}
+
+.shootable-bubble {
+    cursor: pointer;
+}
+
+/* Exploded state transition */
+.bubble.exploded {
+    opacity: 0;
+    transform: scale(0.5);
+    pointer-events: none;
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+/* Media content adjustments */
+.bubble img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 50%;
+}
+
+/* Simple shake animation for miss */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+    animation: shake 0.4s;
+}

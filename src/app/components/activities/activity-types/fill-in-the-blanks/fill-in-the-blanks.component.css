@@ -1,0 +1,14 @@
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.02);
+    }
+}
+
+.animate-pulse {
+    animation: pulse 0.8s ease-in-out 3; /* Pulse 3 times on check */
+}

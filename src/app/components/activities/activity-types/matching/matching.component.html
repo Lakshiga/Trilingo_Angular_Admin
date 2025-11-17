@@ -1,0 +1,104 @@
+<div class="mt-8 pt-8 border-t-2 border-gray-300">
+  
+  <mat-card class="p-6 bg-gray-50">
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-indigo-700 mb-2">{{ getPreviewTitle() }}</h2>
+      <p class="text-gray-600">{{ getPreviewInstruction() }}</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <h4 class="text-lg font-semibold mb-3 text-indigo-600 pb-2 border-b-2 border-indigo-300">
+          Side A
+        </h4>
+        <div class="space-y-3">
+          @if (getSideACards().length === 0) {
+            <p class="text-gray-400 italic text-sm">No cards yet</p>
+          }
+          @for (card of getSideACards(); track card.id || $index) {
+            <mat-card class="p-3 border-l-4 border-indigo-500 bg-white shadow-md">
+              
+              @if (card.type === 'text') {
+                <div class="p-3 bg-gray-50 rounded text-center">
+                  <p class="text-lg font-medium">{{ getCardDisplayContent(card) || '(Text Content)' }}</p>
+                </div>
+              }
+              
+              @if (card.type === 'image') {
+                <div class="p-2 bg-gray-50 rounded">
+                  @if (getCardMediaUrl(card)) {
+                    <img [src]="getCardMediaUrl(card)" 
+                          [alt]="getCardDisplayContent(card)" 
+                          class="w-full h-32 object-contain rounded"
+                          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23ddd\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' font-family=\'sans-serif\' font-size=\'14\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EImage%3C/text%3E%3C/svg%3E'">
+                    <p class="text-xs text-gray-500 mt-1 text-center">{{ getCardDisplayContent(card) }}</p>
+                  } @else {
+                    <div class="w-full h-32 bg-gray-200 rounded flex items-center justify-center">
+                      <span class="text-gray-400">No image URL</span>
+                    </div>
+                  }
+                </div>
+              }
+              
+              @if (card.type === 'audio') {
+                <div class="p-3 bg-gray-50 rounded">
+                  @if (getCardMediaUrl(card)) {
+                    <audio [src]="getCardMediaUrl(card)" controls class="w-full mb-2"></audio>
+                  }
+                  <p class="text-sm font-medium text-center">{{ getCardDisplayContent(card) || '(Audio Label)' }}</p>
+                </div>
+              }
+            </mat-card>
+          }
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-lg font-semibold mb-3 text-green-600 pb-2 border-b-2 border-green-300">
+          Side B
+        </h4>
+        <div class="space-y-3">
+          @if (getSideBCards().length === 0) {
+            <p class="text-gray-400 italic text-sm">No cards yet</p>
+          }
+          @for (card of getSideBCards(); track card.id || $index) {
+            <mat-card class="p-3 border-l-4 border-green-500 bg-white shadow-md">
+              
+              @if (card.type === 'text') {
+                <div class="p-3 bg-gray-50 rounded text-center">
+                  <p class="text-lg font-medium">{{ getCardDisplayContent(card) || '(Text Content)' }}</p>
+                </div>
+              }
+              
+              @if (card.type === 'image') {
+                <div class="p-2 bg-gray-50 rounded">
+                  @if (getCardMediaUrl(card)) {
+                    <img [src]="getCardMediaUrl(card)" 
+                          [alt]="getCardDisplayContent(card)" 
+                          class="w-full h-32 object-contain rounded"
+                          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23ddd\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' font-family=\'sans-serif\' font-size=\'14\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EImage%3C/text%3E%3C/svg%3E'">
+                    <p class="text-xs text-gray-500 mt-1 text-center">{{ getCardDisplayContent(card) }}</p>
+                  } @else {
+                    <div class="w-full h-32 bg-gray-200 rounded flex items-center justify-center">
+                      <span class="text-gray-400">No image URL</span>
+                    </div>
+                  }
+                </div>
+              }
+              
+              @if (card.type === 'audio') {
+                <div class="p-3 bg-gray-50 rounded">
+                  @if (getCardMediaUrl(card)) {
+                    <audio [src]="getCardMediaUrl(card)" controls class="w-full mb-2"></audio>
+                  }
+                  <p class="text-sm font-medium text-center">{{ getCardDisplayContent(card) || '(Audio Label)' }}</p>
+                </div>
+              }
+            </mat-card>
+          }
+        </div>
+      </div>
+    </div>
+    
+  </mat-card>
+</div>

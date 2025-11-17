@@ -1,0 +1,15 @@
+/* Custom animation for incorrect answer feedback */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+  
+  .animate-shake {
+    animation: shake 0.5s;
+  }
+  
+  /* Ensure font is readable */
+  .tf-button {
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  }

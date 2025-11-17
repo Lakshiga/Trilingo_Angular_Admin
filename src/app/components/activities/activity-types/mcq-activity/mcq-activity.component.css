@@ -1,0 +1,28 @@
+.animate-shake {
+  animation: shake 0.5s;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.audio-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #4f46e5;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.image-content img {
+    max-height: 100px; 
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.option-card {
+    border-radius: 12px;
+}

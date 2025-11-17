@@ -1,0 +1,113 @@
+<div class="activity-renderer">
+  <ng-template #generic>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ text(content?.title) || 'Preview' }}</mat-card-title>
+        <mat-card-subtitle *ngIf="content?.instruction">{{ text(content?.instruction) }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <img *ngIf="image(content?.imageUrl)" [src]="image(content?.imageUrl)" alt="" style="max-width:100%; margin-bottom:8px;" />
+        <audio *ngIf="audio(content?.audioUrl)" [src]="audio(content?.audioUrl)" controls style="width:100%; margin-bottom:8px;"></audio>
+
+        <div *ngIf="content?.mediaUrl">
+          <video *ngIf="content?.mediaUrl" [src]="content?.mediaUrl" controls style="width:100%; margin-bottom:8px;"></video>
+        </div>
+
+        <div *ngIf="content?.mediaItems?.length">
+          <h4 style="margin:8px 0;">Media</h4>
+          <div *ngFor="let m of content.mediaItems" style="margin-bottom:12px;">
+            <img *ngIf="m?.type === 'image'" [src]="m?.url" alt="" style="max-width:100%; display:block; margin-bottom:6px;" />
+            <video *ngIf="m?.type === 'video'" [src]="m?.url" controls style="width:100%; display:block; margin-bottom:6px;"></video>
+            <audio *ngIf="m?.audioUrl" [src]="m?.audioUrl" controls style="width:100%; display:block; margin-bottom:6px;"></audio>
+            <div *ngIf="m?.text">{{ text(m.text) }}</div>
+          </div>
+        </div>
+
+        <div *ngIf="content?.words?.length">
+          <h4 style="margin:8px 0;">Words</h4>
+          <mat-chip-set>
+            <mat-chip *ngFor="let w of content.words">{{ text(w?.text || w?.word || w) }}</mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <div *ngIf="content?.sentences?.length">
+          <h4 style="margin:8px 0;">Sentences</h4>
+          <ol>
+            <li *ngFor="let s of content.sentences">{{ text(s?.text || s) }}</li>
+          </ol>
+        </div>
+
+        <div *ngIf="content?.choices?.length || content?.options?.length">
+          <h4 style="margin:8px 0;">Options</h4>
+          <mat-chip-set>
+            <mat-chip *ngFor="let c of (content?.choices || content?.options)">{{ text(c?.text || c) }}</mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <div *ngIf="!(content?.words?.length || content?.sentences?.length || content?.choices?.length || content?.options?.length)">
+          <pre>{{ content | json }}</pre>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </ng-template>
+  <!-- Flashcard -->
+  <app-flashcard *ngIf="activityTypeId === 1" [content]="content"></app-flashcard>
+  
+  <!-- Matching -->
+  <app-matching *ngIf="activityTypeId === 2" [content]="content"></app-matching>
+  
+  <!-- Fill in the Blanks -->
+  <app-fill-in-the-blanks *ngIf="activityTypeId === 3" [content]="content"></app-fill-in-the-blanks>
+  
+  <!-- MCQ Activity -->
+  <app-mcq-activity *ngIf="activityTypeId === 4" [content]="content"></app-mcq-activity>
+
+  <!-- True False -->
+  <app-true-false *ngIf="activityTypeId === 5" [content]="content"></app-true-false>
+
+  <!-- Song Player -->
+  <app-song-player *ngIf="activityTypeId === 6" [content]="content"></app-song-player>
+  
+  <!-- Story Player -->
+  <app-story-player *ngIf="activityTypeId === 7" [content]="content"></app-story-player>
+
+  <!-- Pronunciation Activity -->
+  <app-pronunciation-activity *ngIf="activityTypeId === 8" [content]="content"></app-pronunciation-activity>
+  
+  <!-- Scrumble Activity -->
+  <app-scrumble-activity *ngIf="activityTypeId === 9" [content]="content"></app-scrumble-activity>
+
+  <!-- Triple Blast Activity -->
+  <app-triple-blast *ngIf="activityTypeId === 10" [content]="content"></app-triple-blast>
+
+  <!-- Bubble Blast Activity -->
+  <app-bubble-blast *ngIf="activityTypeId === 11" [content]="content"></app-bubble-blast>
+
+  <!-- Memory Pair Activity -->
+  <app-memory-pair *ngIf="activityTypeId === 12" [content]="content"></app-memory-pair>
+
+  <!-- Group Sorter Activity -->
+  <app-group-sorter *ngIf="activityTypeId === 13" [content]="content"></app-group-sorter>
+
+
+  <!-- All other activity types use generic template -->
+  <ng-container *ngIf="
+    activityTypeId !== 1 &&
+    activityTypeId !== 2 && 
+    activityTypeId !== 3 && 
+    activityTypeId !== 4 && 
+    activityTypeId !== 5 &&
+    activityTypeId !== 6 &&
+    activityTypeId !== 7 && 
+    activityTypeId !== 8 && 
+    activityTypeId !== 9 && 
+    activityTypeId !== 10 &&
+    activityTypeId !== 11 && 
+    activityTypeId !== 12 && 
+    activityTypeId !== 13" 
+    [ngTemplateOutlet]="generic">
+  </ng-container>
+  
+  <!-- Default case for unknown activity types -->
+  <ng-container *ngIf="!isKnownActivityType()" [ngTemplateOutlet]="generic"></ng-container>
+</div>

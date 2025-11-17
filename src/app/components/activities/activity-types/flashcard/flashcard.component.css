@@ -1,0 +1,74 @@
+/* Existing container and title styles */
+.container {
+  padding: 24px;
+  font-family: sans-serif;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.flashcard {
+  width: 320px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.reference-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+    padding: 16px 16px 0;
+    margin: 0;
+    color: #3f51b5; /* Primary Material color */
+}
+
+/* Image and common word styles */
+.card-image {
+  height: 240px;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.word-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.word {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.audio-button mat-icon {
+  font-size: 2rem;
+}
+
+/* 🟢 DESIGN 1 Specific Styles (Vowel/Simple Look) */
+.card-content.vowel-design {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 300px; /* Larger area for the big letter */
+}
+
+.word.large-vowel-text {
+    font-size: 10rem; 
+    line-height: 1;
+    margin-bottom: 20px;
+}
+
+.audio-button.large-audio-button mat-icon {
+    font-size: 3rem; 
+}
+
+/* 🔵 DESIGN 2 Specific Styles (Detailed Look) */
+.secondary-label {
+    font-size: 0.9rem;
+    color: #777;
+    margin: 0 0 10px 0;
+    font-style: italic;
+}

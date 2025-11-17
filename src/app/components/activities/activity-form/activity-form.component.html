@@ -1,0 +1,63 @@
+<mat-card class="activity-form-card">
+  <mat-card-content>
+    <h2>Activity Details</h2>
+    
+    <!-- Multilingual Activity Title -->
+    <div class="form-section">
+      <app-multilingual-input
+        [value]="getTitleValue()"
+        [label]="'Activity Title'"
+        [placeholder]="getTitlePlaceholder()"
+        [required]="true"
+        (valueChange)="onTitleChange($event)">
+      </app-multilingual-input>
+    </div>
+    
+    <!-- Sequence Order -->
+    <div class="form-section">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Sequence Order</mat-label>
+        <input 
+          matInput 
+          type="number" 
+          name="sequenceOrder" 
+          [(ngModel)]="activityData.sequenceOrder" 
+          (ngModelChange)="onDataChange()"
+          placeholder="Enter sequence order"
+          required>
+      </mat-form-field>
+    </div>
+    
+    <!-- Main Activity Category -->
+    <div class="form-section">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Main Activity Category</mat-label>
+        <mat-select 
+          name="mainActivityId" 
+          [(ngModel)]="activityData.mainActivityId" 
+          (selectionChange)="onMainActivityChange($event)"
+          required>
+          <mat-option *ngFor="let ma of mainActivities" [value]="ma.id">
+            {{ ma.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    
+    <!-- Activity Type -->
+    <div class="form-section">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Activity Type</mat-label>
+        <mat-select 
+          name="activityTypeId" 
+          [(ngModel)]="activityData.activityTypeId" 
+          (selectionChange)="onActivityTypeChange($event)"
+          required>
+          <mat-option *ngFor="let at of activityTypes" [value]="at.activityTypeId">
+            {{ at.activityName }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+</mat-card>

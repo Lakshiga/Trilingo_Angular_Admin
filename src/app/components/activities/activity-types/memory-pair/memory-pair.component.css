@@ -1,0 +1,72 @@
+.game-grid {
+    display: grid;
+    /* Responsive Grid: Adjust columns based on available space, keeping minimum size 110px */
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
+    gap: 1rem;
+    perspective: 1000px; /* Perspective for 3D flip effect */
+    min-height: 400px;
+    max-width: 600px;
+}
+
+.card-container {
+    height: 120px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.6s;
+    transform-style: preserve-3d; /* Key for 3D flip */
+}
+
+/* Base state: Not Flipped */
+.card-container:not(.is-flipped) .card-face-front {
+    transform: rotateY(180deg);
+}
+
+/* Flipped state */
+.card-container.is-flipped .card-face-back {
+    transform: rotateY(-180deg);
+}
+
+/* Match Found state */
+.card-container.is-matched {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); /* Tailwind emerald shadow */
+    pointer-events: none; /* Disable clicking matched cards */
+}
+
+/* Front and Back faces styling */
+.card-face-front,
+.card-face-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; /* Hide the back face when facing away */
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.6s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Face Specific Styles --- */
+.card-face-back {
+    background-color: #4F46E5; /* Tailwind Indigo-600 */
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.card-face-front {
+    background-color: white;
+    color: #333;
+    border: 2px solid #E5E7EB;
+    overflow: hidden; 
+    padding: 8px;
+    text-align: center;
+}
+
+/* Content specific styles */
+.card-face-front img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}

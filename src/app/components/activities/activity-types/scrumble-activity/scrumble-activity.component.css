@@ -1,0 +1,46 @@
+/* Custom CSS for drag-and-drop aesthetics */
+
+.tile {
+    /* Base styles for the draggable letter tiles */
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.2s, background-color 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tile:hover:not(.empty-slot) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.tile.dragging {
+    /* Visual feedback when actively dragging */
+    opacity: 0.7;
+    transform: scale(1.05);
+}
+
+.tile-slot {
+    /* Base styles for the target slots */
+    border: 2px dashed #D1D5DB; /* Tailwind gray-300 */
+    min-width: 40px;
+    min-height: 40px;
+    transition: background-color 0.2s;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.tile-slot.drag-over {
+    /* Visual feedback when a tile is hovering over the slot */
+    background-color: #E0F2F7; /* Tailwind cyan-50 */
+    border-color: #06B6D4; /* Tailwind cyan-500 */
+}
+
+/* Feedback Styles */
+.feedback-box.correct {
+    animation: bounce-in 0.5s ease-out;
+}
+
+@keyframes bounce-in {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}

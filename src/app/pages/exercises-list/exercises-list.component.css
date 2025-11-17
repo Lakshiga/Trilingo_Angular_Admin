@@ -1,0 +1,152 @@
+.table-page-wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.table-card {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  display: block;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+  padding: 20px 24px;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 16px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+  min-height: 300px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+.exercises-table {
+  width: 100%;
+  min-width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  display: table;
+}
+
+.mat-mdc-cell, .mat-mdc-header-cell {
+  padding: 16px 24px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mat-mdc-header-cell {
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mat-mdc-cell {
+  color: #1f2937;
+  font-size: 14px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.mat-mdc-row:hover .mat-mdc-cell {
+  background-color: #f9fafb;
+}
+
+.exercise-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.json-snippet {
+  max-width: 500px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  background-color: #f9fafb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.json-snippet code {
+  color: #1f2937;
+}
+
+.empty-state {
+  min-height: 300px;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  mat-card-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .header-leading,
+  .header-title,
+  .header-trailing {
+    flex: none;
+    justify-content: center;
+  }
+
+  mat-card-title {
+    text-align: center !important;
+    font-size: 1.25rem !important;
+  }
+
+  .json-snippet {
+    max-width: 200px;
+  }
+}
