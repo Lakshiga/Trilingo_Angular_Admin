@@ -24,16 +24,52 @@ jobs:
       - name: Build Angular
         run: npm run build:cloudfront
 
-      - name: Sync files to S3
-        uses: jakejarvis/s3-sync-action@master
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          args: --delete
-        env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          SOURCE_DIR: dist/trilingo-admin-angular
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Sync Angular files to S3 (protect level-01 folder)
+        run: |
+          # IMPORTANT: Protect level-01/ folder and other data folders from deletion
+          # The --exclude patterns prevent these folders from being deleted by --delete flag
+          
+          # Step 1: Sync JS/CSS files (with long cache, exclude level folders from deletion)
+          aws s3 sync dist/trilingo-admin-angular/ \
+            s3://${{ secrets.AWS_BUCKET }}/ \
+            --delete \
+            --exclude "level-01/*" \
+            --exclude "level-01/**" \
+            --exclude "level-02/*" \
+            --exclude "level-02/**" \
+            --exclude "level-03/*" \
+            --exclude "level-03/**" \
+            --exclude "dist/*" \
+            --exclude "dist/**" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "*.html" \
+            --exclude "*.json"
+          
+          # Step 2: Sync HTML and JSON files (with no-cache, exclude level folders from deletion)
+          aws s3 sync dist/trilingo-admin-angular/ \
+            s3://${{ secrets.AWS_BUCKET }}/ \
+            --delete \
+            --exclude "level-01/*" \
+            --exclude "level-01/**" \
+            --exclude "level-02/*" \
+            --exclude "level-02/**" \
+            --exclude "level-03/*" \
+            --exclude "level-03/**" \
+            --exclude "dist/*" \
+            --exclude "dist/**" \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --include "*.html" \
+            --include "*.json"
+          
+          echo "✅ Deployment complete! level-01/, level-02/, level-03/ folders are protected."
+          echo "📁 Only Angular build files in root were updated."
 
       - name: Invalidate CloudFront Cache
         uses: chetan/invalidate-cloudfront-action@v2
