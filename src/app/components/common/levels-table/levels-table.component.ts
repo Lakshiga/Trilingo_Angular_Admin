@@ -1,17 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { LevelApiService, LevelResponse, LevelCreateDto } from '../../../services/level-api.service';
-import { LanguageApiService, LanguageResponse } from '../../../services/language-api.service';
-import { MultilingualFormComponent, MultilingualFormData } from '../multilingual-form/multilingual-form.component';
+import { MultilingualText } from '../../../types/multilingual.types';
+import { MultilingualInputComponent } from '../multilingual-input/multilingual-input.component';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -19,13 +20,16 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatDialogModule,
     MatProgressSpinnerModule,
-    MultilingualFormComponent,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTooltipModule,
+    MultilingualInputComponent,
     RouterLink
   ],
   templateUrl: './levels-table.component.html',
@@ -34,15 +38,13 @@ import { RouterLink } from '@angular/router';
 export class LevelsTableComponent implements OnInit, OnDestroy {
   levels: LevelResponse[] = [];
   isLoading = false;
-  showDialog = false;
-  dialogMode: 'add' | 'edit' = 'add';
-  currentLevel: LevelResponse | null = null;
-  selectedLanguageId: number = 1; // Default language (hidden from UI)
-  currentFormData: MultilingualFormData = {
-    name_en: '',
-    name_ta: '',
-    name_si: ''
-  };
+  error: string | null = null;
+  
+  editRowId: number | null = null;
+  editedLevel: Partial<LevelCreateDto> | null = null;
+  isAdding = false;
+  newLevel: Partial<LevelCreateDto> = {};
+  selectedLanguageId: number = 1; // Default language
   
   displayedColumns: string[] = ['id', 'name_en', 'name_ta', 'name_si', 'manageLessons', 'actions'];
   private destroy$ = new Subject<void>();
@@ -60,111 +62,133 @@ export class LevelsTableComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  get dialogTitle(): string {
-    return this.dialogMode === 'add' ? 'Add Level' : 'Edit Level';
-  }
-
   loadData(): void {
     this.isLoading = true;
-    this.levelApiService.getAll().toPromise()
-      .then(levels => {
-        this.levels = levels || [];
-        this.isLoading = false;
-      })
-      .catch(error => {
-        console.error('Error loading data:', error);
-        this.isLoading = false;
+    this.error = null;
+    
+    this.levelApiService.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (levels) => {
+          this.levels = levels;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading levels:', err);
+          this.error = 'Failed to load levels';
+          this.isLoading = false;
+        }
       });
   }
 
-  openAddDialog(): void {
-    this.dialogMode = 'add';
-    this.currentLevel = null;
-    this.currentFormData = {
+  startAdding(): void {
+    this.isAdding = true;
+    this.newLevel = {
       name_en: '',
       name_ta: '',
-      name_si: ''
+      name_si: '',
+      languageId: this.selectedLanguageId
     };
-    this.showDialog = true;
   }
 
-  openEditDialog(level: LevelResponse): void {
-    this.dialogMode = 'edit';
-    this.currentLevel = level;
-    // Keep existing languageId internally but do not expose selector
+  startEditing(level: LevelResponse): void {
+    this.editRowId = level.id;
     this.selectedLanguageId = level.languageId ?? 1;
-    this.currentFormData = {
+    this.editedLevel = {
       name_en: level.name_en,
       name_ta: level.name_ta,
-      name_si: level.name_si
+      name_si: level.name_si,
+      languageId: level.languageId
     };
-    this.showDialog = true;
   }
 
-  closeDialog(): void {
-    this.showDialog = false;
-    this.currentLevel = null;
+  cancelEdit(): void {
+    this.editRowId = null;
+    this.editedLevel = null;
+    this.isAdding = false;
+    this.newLevel = {};
   }
 
-  onFormDataChange(formData: MultilingualFormData): void {
-    this.currentFormData = formData;
+  saveLevel(level?: LevelResponse): void {
+    if (this.isAdding) {
+      this.createLevel();
+    } else if (level && this.editedLevel) {
+      this.updateLevel(level);
+    }
   }
 
-  isFormValid(): boolean {
-    return !!(this.currentFormData.name_en || this.currentFormData.name_ta || this.currentFormData.name_si);
-  }
-
-  onSave(): void {
-    if (!this.isFormValid()) {
+  createLevel(): void {
+    if (!this.newLevel.name_en && !this.newLevel.name_ta && !this.newLevel.name_si) {
       return;
     }
 
     const createDto: LevelCreateDto = {
-      name_en: this.currentFormData.name_en,
-      name_ta: this.currentFormData.name_ta,
-      name_si: this.currentFormData.name_si,
+      name_en: this.newLevel.name_en || '',
+      name_ta: this.newLevel.name_ta || '',
+      name_si: this.newLevel.name_si || '',
       languageId: this.selectedLanguageId
     };
 
-    if (this.dialogMode === 'add') {
-      this.levelApiService.create(createDto)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.closeDialog();
-            this.loadData();
-          },
-          error: (error) => {
-            console.error('Error creating level:', error);
-          }
-        });
-    } else if (this.dialogMode === 'edit' && this.currentLevel) {
-      this.levelApiService.update(this.currentLevel.id, createDto)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.closeDialog();
-            this.loadData();
-          },
-          error: (error) => {
-            console.error('Error updating level:', error);
-          }
-        });
-    }
+    this.isLoading = true;
+    this.levelApiService.create(createDto)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.cancelEdit();
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Error creating level:', err);
+          this.error = 'Failed to create level';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  updateLevel(level: LevelResponse): void {
+    if (!this.editedLevel) return;
+
+    const updateDto: Partial<LevelCreateDto> = {
+      name_en: this.editedLevel.name_en,
+      name_ta: this.editedLevel.name_ta,
+      name_si: this.editedLevel.name_si,
+      languageId: this.editedLevel.languageId
+    };
+
+    this.isLoading = true;
+    this.levelApiService.update(level.id, updateDto)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.cancelEdit();
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Error updating level:', err);
+          this.error = 'Failed to update level';
+          this.isLoading = false;
+        }
+      });
   }
 
   deleteLevel(level: LevelResponse): void {
-    if (confirm(`Are you sure you want to delete "${level.name_en}"?`)) {
-      this.levelApiService.deleteItem(level.id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.loadData();
-          },
-          error: (error) => {
-            console.error('Error deleting level:', error);
-          }
-        });
+    if (!confirm(`Are you sure you want to delete this level?`)) {
+      return;
     }
+
+    this.isLoading = true;
+    this.levelApiService.deleteItem(level.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Error deleting level:', err);
+          this.error = 'Failed to delete level';
+          this.isLoading = false;
+        }
+      });
   }
+
 }

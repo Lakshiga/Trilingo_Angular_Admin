@@ -18,7 +18,7 @@ export const routes: Routes = [
   },
   {
     path: 'lessons',
-    loadComponent: () => import('./components/lessons/lessons.component').then(m => m.LessonsComponent),
+    loadComponent: () => import('./pages/lessons/lessons.component').then(m => m.LessonsPageComponent),
     canActivate: [AuthGuard]
   },
   {

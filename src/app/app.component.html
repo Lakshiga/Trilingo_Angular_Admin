@@ -3,253 +3,147 @@
 </ng-container>
 
 <ng-template #adminLayout>
-  <div class="admin-layout flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+  <div class="admin-layout flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+    
     <!-- Top Navigation Bar -->
-    <header class="top-navbar w-full bg-white shadow-xl border-b border-gray-200">
+    <header class="top-navbar">
       <div class="navbar-content">
+        
+        <!-- Left: Logo and Brand -->
         <div class="navbar-left">
           <div class="brand-container">
-            <img src="/assets/images/logo.png" alt="Trilingo Logo" class="brand-logo">
+            <div class="brand-logo-wrapper">
+              <img src="/assets/images/logo.png" alt="Trilingo Admin Logo" class="brand-logo">
+            </div>
             <h1 class="brand-name">Trilingo</h1>
           </div>
         </div>
         
-        <!-- Navigation centered -->
+        <!-- Center: Desktop Navigation -->
         <nav class="navbar-center">
-          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
-            <span class="nav-icon">📊</span>
-            <span>Dashboard</span>
+          <a routerLink="/dashboard" routerLinkActive="active" #dashboardLink="routerLinkActive" [ngClass]="{'active': dashboardLink.isActive}" class="nav-link">
+            <span class="nav-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" /><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+              </svg>
+            </span>
+            <span class="nav-text">Dashboard</span>
           </a>
-          <a routerLink="/main-activities" routerLinkActive="active" class="nav-link">
-            <span class="nav-icon">🎯</span>
-            <span>Main Activities</span>
+          <a routerLink="/main-activities" routerLinkActive="active" #mainActivitiesLink="routerLinkActive" [ngClass]="{'active': mainActivitiesLink.isActive}" class="nav-link">
+            <span class="nav-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </span>
+            <span class="nav-text">Main Activities</span>
           </a>
-          <a routerLink="/activity-types" routerLinkActive="active" class="nav-link">
-            <span class="nav-icon">🏷️</span>
-            <span>Activity Types</span>
+          <a routerLink="/activity-types" routerLinkActive="active" #activityTypesLink="routerLinkActive" [ngClass]="{'active': activityTypesLink.isActive}" class="nav-link">
+            <span class="nav-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+              </svg>
+            </span>
+            <span class="nav-text">Activity Types</span>
           </a>
-          <a routerLink="/levels" routerLinkActive="active" class="nav-link">
-            <span class="nav-icon">📚</span>
-            <span>Levels</span>
+          <a routerLink="/levels" routerLinkActive="active" #levelsLink="routerLinkActive" [ngClass]="{'active': levelsLink.isActive}" class="nav-link">
+            <span class="nav-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3.5a1 1 0 000 1.74l7 3.5c.267.133.585.133.852 0l7-3.5a1 1 0 000-1.74l-7-3.5zM10 9.42L3.05 6 10 2.58 16.95 6 10 9.42z" />
+                <path d="M10 11.42l-7-3.5a1 1 0 00-.788 1.74l7 3.5c.267.133.585.133.852 0l7-3.5a1 1 0 00-.788-1.74l-7 3.5z" />
+                <path d="M10 13.42l-7-3.5a1 1 0 00-.788 1.74l7 3.5c.267.133.585.133.852 0l7-3.5a1 1 0 00-.788-1.74l-7 3.5z" />
+              </svg>
+            </span>
+            <span class="nav-text">Levels</span>
           </a>
         </nav>
         
+        <!-- Right: Profile Dropdown -->
         <div class="navbar-right">
-          <div class="profile-dropdown relative">
-            <div class="profile-icon flex items-center space-x-3 cursor-pointer bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 px-4 py-2 rounded-full transition-all duration-300 shadow-md border border-indigo-100 hover:shadow-lg" (click)="toggleProfileDropdown()">
-              <span class="user-avatar text-2xl">👤</span>
-              <span class="user-name font-semibold text-gray-800 hidden md:inline">Admin User</span>
-              <span class="dropdown-arrow text-gray-600 transition-transform duration-300" [class.rotate-180]="showProfileDropdown">▼</span>
+          <div class="profile-dropdown">
+            <div class="profile-trigger" (click)="toggleProfileDropdown()">
+              <div class="profile-avatar-wrapper">
+                <img src="https://i.pravatar.cc/40?u=sarah" alt="User Avatar" class="profile-avatar">
+                <span class="profile-status"></span>
+              </div>
+              <div class="profile-info">
+                <span class="profile-name">Sarah Connor</span>
+                <span class="profile-role">Administrator</span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="profile-chevron" [class.rotated]="showProfileDropdown" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
-            <div class="dropdown-menu absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl py-3 z-50 transition-all duration-300 origin-top-right border border-gray-100" 
-                 [class.opacity-0]="!showProfileDropdown" 
-                 [class.opacity-100]="showProfileDropdown" 
-                 [class.scale-95]="!showProfileDropdown" 
-                 [class.scale-100]="showProfileDropdown"
-                 [class.invisible]="!showProfileDropdown"
+            
+            <div class="dropdown-menu" 
                  [class.visible]="showProfileDropdown">
-              <a href="#" class="dropdown-item flex items-center px-5 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 rounded-xl mx-2 font-medium">
-                <span class="dropdown-icon mr-3 text-lg">👤</span>
-                <span>My Profile</span>
-              </a>
-              <a href="#" class="dropdown-item flex items-center px-5 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 rounded-xl mx-2 font-medium">
-                <span class="dropdown-icon mr-3 text-lg">⚙️</span>
-                <span>Settings</span>
-              </a>
-              <div class="border-t border-gray-100 my-2"></div>
-              <a href="#" class="dropdown-item flex items-center px-5 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200 rounded-xl mx-2 font-medium" (click)="logout(); $event.preventDefault(); $event.stopPropagation();">
-                <span class="dropdown-icon mr-3 text-lg">🚪</span>
+              
+              <div class="dropdown-header">
+                <div class="dropdown-avatar-large">
+                  <img src="https://i.pravatar.cc/40?u=sarah" alt="User Avatar" class="profile-avatar-large">
+                </div>
+                <div class="dropdown-user-info">
+                  <p class="dropdown-name">Sarah Connor</p>
+                </div>
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              <div class="dropdown-items">
+                <a href="#" class="dropdown-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                  </svg>
+                  <span>My Profile</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+                <a href="#" class="dropdown-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Settings</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              <a href="#" class="dropdown-item logout-item" (click)="logout(); $event.preventDefault();">
+                <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-icon logout-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
+                </svg>
                 <span>Logout</span>
               </a>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Mobile Navigation -->
+      <nav class="navbar-center-mobile">
+        <a routerLink="/dashboard" routerLinkActive="active" #dashboardLinkMobile="routerLinkActive" [ngClass]="{'active': dashboardLinkMobile.isActive}" class="nav-link-mobile">
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/main-activities" routerLinkActive="active" #mainActivitiesLinkMobile="routerLinkActive" [ngClass]="{'active': mainActivitiesLinkMobile.isActive}" class="nav-link-mobile">
+          <span>Main Activities</span>
+        </a>
+        <a routerLink="/activity-types" routerLinkActive="active" #activityTypesLinkMobile="routerLinkActive" [ngClass]="{'active': activityTypesLinkMobile.isActive}" class="nav-link-mobile">
+          <span>Activity Types</span>
+        </a>
+        <a routerLink="/levels" routerLinkActive="active" #levelsLinkMobile="routerLinkActive" [ngClass]="{'active': levelsLinkMobile.isActive}" class="nav-link-mobile">
+          <span>Levels</span>
+        </a>
+      </nav>
     </header>
 
-    <div class="content-wrapper flex flex-1">
-      <!-- Sidebar removed and navigation moved to top -->
-      <main class="main-content flex-1 p-6 bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Main Content -->
+    <div class="content-wrapper flex flex-1 w-full">
+      <main class="main-content flex-1 p-4 sm:p-6">
           <router-outlet />
       </main>
     </div>
   </div>
 </ng-template>
-
-<style>
-  .admin-layout {
-    display: flex;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
-  }
-
-  .main-content {
-    flex: 1;
-    padding: 24px;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  }
-
-  .top-navbar {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  }
-
-  .navbar-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 24px;
-    height: 72px;
-    position: relative;
-    z-index: 100;
-  }
-
-  .navbar-left {
-    flex: 1;
-    display: flex;
-    align-items: center;
-  }
-
-  .brand-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .brand-logo {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
-  }
-
-  .brand-name {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 0;
-    letter-spacing: -0.5px;
-  }
-
-  .navbar-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 10;
-  }
-
-  .nav-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    color: #374151;
-    text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 0.5rem;
-    font-weight: 500;
-    white-space: nowrap;
-    position: relative;
-    z-index: 11;
-    cursor: pointer;
-    pointer-events: auto;
-    user-select: none;
-  }
-  
-  .nav-link:active {
-    transform: scale(0.98);
-  }
-
-  .nav-link:hover {
-    background-color: #e0e7ff;
-    color: #4f46e5;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  }
-
-  .nav-link.active {
-    background-color: #e0e7ff;
-    color: #4f46e5;
-    font-weight: 600;
-  }
-
-  .nav-icon {
-    font-size: 18px;
-  }
-
-  .navbar-right {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-
-  .profile-dropdown .dropdown-menu {
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.95);
-  }
-
-  @media (max-width: 1024px) {
-    .navbar-center {
-      position: static;
-      transform: none;
-      flex: 1;
-      justify-content: center;
-      margin: 0 16px;
-    }
-
-    .navbar-content {
-      flex-wrap: wrap;
-      height: auto;
-      padding: 16px 24px;
-      gap: 16px;
-    }
-
-    .navbar-left {
-      flex: 0 0 auto;
-    }
-
-    .navbar-right {
-      flex: 0 0 auto;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .admin-layout {
-      flex-direction: column;
-    }
-
-    .navbar-content {
-      flex-direction: column;
-      align-items: stretch;
-      padding: 16px;
-    }
-
-    .navbar-left {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .navbar-center {
-      width: 100%;
-      overflow-x: auto;
-      justify-content: flex-start;
-      margin: 0;
-      padding-bottom: 8px;
-    }
-
-    .navbar-right {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .brand-name {
-      font-size: 20px;
-    }
-
-    .brand-logo {
-      height: 32px;
-    }
-  }
-</style>

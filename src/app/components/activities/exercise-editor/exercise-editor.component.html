@@ -1,93 +1,99 @@
-<mat-card class="exercise-editor">
+<mat-card class="exercise-editor p-4">
   <mat-card-header>
-    <mat-card-title>Exercises</mat-card-title>
+    <mat-card-title class="text-xl font-semibold">Exercises</mat-card-title>
   </mat-card-header>
-  
-  <mat-card-content>   
+
+  <mat-card-content>
     <mat-accordion multi="false">
-      <mat-expansion-panel 
+
+      <mat-expansion-panel
         *ngFor="let exercise of exercises; let i = index"
         [expanded]="expandedExercise === i"
         (opened)="onExpansionChange(i, true)"
-        (closed)="onExpansionChange(i, false)">
-        
+        (closed)="onExpansionChange(i, false)"
+        class="mb-4 shadow border border-gray-200 rounded-xl"
+      >
+
+        <!-- Header -->
         <mat-expansion-panel-header>
-          <mat-panel-title>
-            <div class="panel-header">
-              <span class="exercise-title">Exercise #{{ i + 1 }}</span>
-              <div class="panel-actions">
-                <button 
-                  mat-button 
-                  (click)="onCopyExercise(exercise, $event)"
-                  class="copy-button">
-                  <mat-icon>content_copy</mat-icon>
-                  Copy
-                </button>
-                <button 
-                  mat-button 
-                  color="primary" 
+          <mat-panel-title class="w-full">
+            <div class="flex justify-between items-center w-full">
+
+              <span class="font-medium text-gray-900">
+                Exercise #{{ i + 1 }}
+              </span>
+
+              <!-- ⭐ Save + Preview side-by-side -->
+              <div class="flex items-center gap-2">
+
+                <button
+                  mat-stroked-button
+                  color="primary"
                   (click)="onPreviewExercise(exercise, $event)"
                   [disabled]="hasJsonError(exercise)"
-                  class="preview-button">
-                  <mat-icon>preview</mat-icon>
+                  class="!rounded-lg !px-4"
+                >
+                  <mat-icon class="mr-1 text-base">visibility</mat-icon>
                   Preview
                 </button>
-                <button 
-                  mat-icon-button 
-                  color="warn" 
-                  (click)="onDeleteExercise(exercise, $event)"
-                  [disabled]="exercises.length <= 1"
-                  class="delete-button">
-                  <mat-icon>delete</mat-icon>
+
+                <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="saveExercise(exercise)"
+                  [disabled]="hasJsonError(exercise)"
+                  class="!rounded-lg !px-4"
+                >
+                  <mat-icon class="mr-1 text-base">save</mat-icon>
+                  Save
                 </button>
+
               </div>
+
             </div>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Exercise JSON</mat-label>
-          <textarea 
-            matInput 
-            [ngModel]="getExerciseJson(exercise)"
-            (ngModelChange)="handleExerciseChange(exercise, $event)"
-            rows="15"
-            [class.error]="hasJsonError(exercise)"
-            placeholder="Enter exercise JSON content based on the template...">
-          </textarea>
-          <mat-error *ngIf="hasJsonError(exercise)">{{ getJsonError(exercise) }}</mat-error>
-        </mat-form-field>
-        
-        <div class="exercise-actions">
-          <button 
-            mat-raised-button 
-            color="accent"
-            (click)="saveExercise(exercise)"
-            [disabled]="hasJsonError(exercise)"
-            class="save-button">
-            <mat-icon>save</mat-icon>
-            Save Changes
-          </button>
-          <button 
-            mat-button 
-            (click)="onPreviewExercise(exercise)"
-            [disabled]="hasJsonError(exercise)"
-            class="preview-full-button">
-            <mat-icon>preview</mat-icon>
-            Preview This Exercise
-          </button>
+
+        <!-- JSON TEXTAREA -->
+        <div class="mt-4">
+
+          <!-- ⭐ Floating label remove → using normal label outside -->
+          <label class="block mb-1 text-gray-700 font-medium">
+            Exercise JSON
+          </label>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <textarea
+              matInput
+              rows="15"
+              [ngModel]="getExerciseJson(exercise)"
+              (ngModelChange)="handleExerciseChange(exercise, $event)"
+              placeholder="Enter exercise JSON..."
+              class="font-mono text-sm"
+              [class.error]="hasJsonError(exercise)"
+            >
+            </textarea>
+
+            <mat-error *ngIf="hasJsonError(exercise)">
+              {{ getJsonError(exercise) }}
+            </mat-error>
+          </mat-form-field>
+
         </div>
+
       </mat-expansion-panel>
     </mat-accordion>
-  
-    
-    <button 
-      mat-raised-button 
-      [color]="activityId ? 'primary' : 'accent'"
+
+    <!-- ADD EXERCISE BUTTON -->
+    <button
+      mat-raised-button
+      color="accent"
       (click)="onAddExercise()"
-      class="add-exercise-button">
+      class="w-full mt-5 py-3 text-lg !rounded-xl flex items-center justify-center gap-2"
+    >
       <mat-icon>add_circle_outline</mat-icon>
       Add Exercise
     </button>
+
   </mat-card-content>
 </mat-card>

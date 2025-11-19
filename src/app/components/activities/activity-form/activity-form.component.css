@@ -1,39 +1,29 @@
-.activity-form-card {
-  margin: 16px 0;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+.mat-form-field-appearance-outline {
+
+  .mat-form-field-outline-thick, .mat-form-field-outline {
+    color: #cbd5e1; /* slate-300 */
+  }
+  .mat-form-field-flex {
+    border-radius: 0.5rem;
+  }
+  
+  .mat-form-field-label {
+    color: #64748b; /* slate-500 */
+  }
+
+  .mat-input-element, .mat-select-value-text {
+    color: #1e293b; /* slate-800 */
+  }
+  .mat-select-arrow {
+    color: #64748b; /* slate-500 */
+  }
 }
 
-.activity-form-card mat-card-content {
-  padding: 24px;
-}
-
-.form-section {
-  margin-bottom: 24px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-h2 {
-  margin: 0 0 24px 0;
-  font-weight: 500;
-  color: #1976d2;
-  border-bottom: 2px solid #e3f2fd;
-  padding-bottom: 12px;
-}
-
-.activity-type-info {
-  background-color: #e3f2fd;
-  padding: 12px 16px;
-  border-radius: 4px;
-  margin-top: 8px;
-  border-left: 4px solid #1976d2;
-}
-
-.activity-type-info p {
-  margin: 4px 0;
-  color: #555;
-  font-size: 0.85rem;
+.mat-form-field-appearance-outline.mat-focused {
+  .mat-form-field-outline-thick {
+    color: #6366f1; /* indigo-500 */
+  }
+  .mat-form-field-label {
+    color: #6366f1; /* indigo-500 */
+  }
 }

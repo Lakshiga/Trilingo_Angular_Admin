@@ -1,121 +1,232 @@
-<div class="levels-page-wrapper">
-  <mat-card class="levels-card rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-    <mat-card-header class="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-4 border-b border-gray-200">
-      <div style="width: 48px;"></div>
-      <mat-card-title class="text-2xl font-bold text-gray-800 flex-1 text-center">Levels Management</mat-card-title>
-      <button mat-raised-button 
-              class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
-              (click)="openAddDialog()">
-        <mat-icon>add</mat-icon>
-        Add Levels
-      </button>
-    </mat-card-header>
-    
-    <mat-card-content class="p-0">
-      <div *ngIf="isLoading" class="loading-container flex justify-center items-center p-12">
-        <mat-spinner></mat-spinner>
-      </div>
-
-      <div *ngIf="!isLoading" class="table-container">
-        <table mat-table [dataSource]="levels" class="levels-table">
-        <!-- ID Column -->
-        <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef>ID</th>
-          <td mat-cell *matCellDef="let level">{{ level.id }}</td>
-        </ng-container>
-
-        <!-- English Name Column -->
-        <ng-container matColumnDef="name_en">
-          <th mat-header-cell *matHeaderCellDef>English Name</th>
-          <td mat-cell *matCellDef="let level">{{ level.name_en }}</td>
-        </ng-container>
-
-        <!-- Tamil Name Column -->
-        <ng-container matColumnDef="name_ta">
-          <th mat-header-cell *matHeaderCellDef>தமிழ் Name</th>
-          <td mat-cell *matCellDef="let level">{{ level.name_ta }}</td>
-        </ng-container>
-
-        <!-- Sinhala Name Column -->
-        <ng-container matColumnDef="name_si">
-          <th mat-header-cell *matHeaderCellDef>සිංහල Name</th>
-          <td mat-cell *matCellDef="let level">{{ level.name_si }}</td>
-        </ng-container>
-
-        <!-- Manage Lessons Column -->
-        <ng-container matColumnDef="manageLessons">
-          <th mat-header-cell *matHeaderCellDef>Manage Lessons</th>
-          <td mat-cell *matCellDef="let level">
-            <button mat-button 
-                    color="primary" 
-                    [routerLink]="['/lessons']" 
-                    [queryParams]="{ levelId: level.id }"
-                    class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-medium rounded-full px-4 py-2 transition-colors duration-200">
-              MANAGE LESSONS
-            </button>
-          </td>
-        </ng-container>
-
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let level">
-            <div class="flex space-x-2">
-              <button mat-icon-button 
-                      (click)="openEditDialog(level)" 
-                      color="primary"
-                      class="bg-indigo-100 hover:bg-indigo-200 text-indigo-600 rounded-full p-2 transition-colors duration-200">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button 
-                      (click)="deleteLevel(level)" 
-                      color="warn"
-                      class="bg-red-100 hover:bg-red-200 text-red-600 rounded-full p-2 transition-colors duration-200">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-50"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
-            class="bg-white hover:bg-gray-50 transition-colors duration-150"></tr>
-      </table>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>
-
-<!-- Add/Edit Dialog -->
-<div *ngIf="showDialog" class="dialog-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="closeDialog()">
-  <div class="dialog-content bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
-    <app-multilingual-form
-      [title]="dialogTitle"
-      [fieldLabel]="'Level Name'"
-      [showDescription]="false"
-      [showActions]="false"
-      [initialData]="dialogMode === 'edit' && currentLevel ? {
-        name_en: currentLevel.name_en,
-        name_ta: currentLevel.name_ta,
-        name_si: currentLevel.name_si
-      } : {}"
-      (dataChange)="onFormDataChange($event)">
-    </app-multilingual-form>
-    
-    <div class="dialog-actions p-6 border-t border-gray-200">
-      <div class="action-buttons flex justify-end space-x-3">
-        <button mat-button 
-                class="px-4 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                (click)="closeDialog()">Cancel</button>
-        <button mat-raised-button 
-                color="primary" 
-                class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:shadow-lg transition-all duration-300"
-                (click)="onSave()"
-                [disabled]="!isFormValid()">
-          {{ dialogMode === 'add' ? 'Add Level' : 'Update Level' }}
-        </button>
+<div class="levels-page">
+  
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1 class="page-title">Manage Levels</h1>
+        <p class="page-subtitle">Manage learning levels</p>
       </div>
     </div>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      class="add-button"
+      (click)="startAdding()" 
+      [disabled]="isAdding || editRowId !== null || isLoading">
+      <mat-icon>add</mat-icon>
+      Add Level
+    </button>
   </div>
-</div>
 
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading levels...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="loadData()">Retry</button>
+  </div>
+
+  <!-- Levels Table -->
+  <div *ngIf="!isLoading && !error" class="table-container">
+    <mat-card class="levels-card">
+      <mat-card-content class="card-content">
+        
+        <!-- Add New Level Row -->
+        <div *ngIf="isAdding" class="add-row">
+          <div class="row-content">
+            <div class="cell id-cell">
+              <div class="cell-value">New</div>
+            </div>
+            <div class="cell name-en-cell">
+              <mat-form-field appearance="outline" class="edit-field">
+                <input 
+                  matInput 
+                  [(ngModel)]="newLevel.name_en"
+                  placeholder="English Name"
+                  class="!text-base">
+              </mat-form-field>
+            </div>
+            <div class="cell name-ta-cell">
+              <mat-form-field appearance="outline" class="edit-field">
+                <input 
+                  matInput 
+                  [(ngModel)]="newLevel.name_ta"
+                  placeholder="தமிழ் Name"
+                  class="!text-base">
+              </mat-form-field>
+            </div>
+            <div class="cell name-si-cell">
+              <mat-form-field appearance="outline" class="edit-field">
+                <input 
+                  matInput 
+                  [(ngModel)]="newLevel.name_si"
+                  placeholder="සිංහල Name"
+                  class="!text-base">
+              </mat-form-field>
+            </div>
+            <div class="cell manage-cell">
+              <div class="cell-value">-</div>
+            </div>
+            <div class="cell actions-cell">
+              <div class="action-buttons">
+                <button 
+                  mat-icon-button 
+                  color="primary"
+                  (click)="saveLevel()"
+                  [disabled]="!newLevel.name_en && !newLevel.name_ta && !newLevel.name_si"
+                  matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button 
+                  mat-icon-button 
+                  (click)="cancelEdit()"
+                  matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Levels Table -->
+        <div class="table-wrapper">
+          <table class="levels-table">
+            <thead>
+              <tr>
+                <th class="id-header">ID</th>
+                <th class="name-en-header">English Name</th>
+                <th class="name-ta-header">தமிழ் Name</th>
+                <th class="name-si-header">සිංහල Name</th>
+                <th class="manage-header">Manage Lessons</th>
+                <th class="actions-header">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let level of levels" class="table-row" [class.editing]="editRowId === level.id">
+                
+                <!-- ID -->
+                <td class="cell id-cell">
+                  <div class="cell-value">
+                    {{ level.id }}
+                  </div>
+                </td>
+
+                <!-- English Name -->
+                <td class="cell name-en-cell">
+                  <div *ngIf="editRowId !== level.id" class="cell-value">
+                    {{ level.name_en }}
+                  </div>
+                  <mat-form-field *ngIf="editRowId === level.id" appearance="outline" class="edit-field">
+                    <input 
+                      matInput 
+                      [(ngModel)]="editedLevel!.name_en"
+                      placeholder="English Name"
+                      class="!text-base">
+                  </mat-form-field>
+                </td>
+
+                <!-- Tamil Name -->
+                <td class="cell name-ta-cell">
+                  <div *ngIf="editRowId !== level.id" class="cell-value">
+                    {{ level.name_ta }}
+                  </div>
+                  <mat-form-field *ngIf="editRowId === level.id" appearance="outline" class="edit-field">
+                    <input 
+                      matInput 
+                      [(ngModel)]="editedLevel!.name_ta"
+                      placeholder="தமிழ் Name"
+                      class="!text-base">
+                  </mat-form-field>
+                </td>
+
+                <!-- Sinhala Name -->
+                <td class="cell name-si-cell">
+                  <div *ngIf="editRowId !== level.id" class="cell-value">
+                    {{ level.name_si }}
+                  </div>
+                  <mat-form-field *ngIf="editRowId === level.id" appearance="outline" class="edit-field">
+                    <input 
+                      matInput 
+                      [(ngModel)]="editedLevel!.name_si"
+                      placeholder="සිංහල Name"
+                      class="!text-base">
+                  </mat-form-field>
+                </td>
+
+                <!-- Manage Lessons -->
+                <td class="cell manage-cell">
+                  <a 
+                    mat-raised-button 
+                    color="accent"
+                    [routerLink]="['/lessons']"
+                    [queryParams]="{ levelId: level.id }"
+                    matTooltip="Manage Lessons"
+                    class="manage-button">
+                    <mat-icon>list</mat-icon>
+                    Manage Lessons
+                  </a>
+                </td>
+
+                <!-- Actions -->
+                <td class="cell actions-cell">
+                  <div *ngIf="editRowId !== level.id" class="action-buttons">
+                    <button 
+                      mat-icon-button 
+                      color="primary"
+                      (click)="startEditing(level)"
+                      [disabled]="isAdding || isLoading"
+                      matTooltip="Edit">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button 
+                      mat-icon-button 
+                      color="warn"
+                      (click)="deleteLevel(level)"
+                      [disabled]="isAdding || isLoading"
+                      matTooltip="Delete">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                  <div *ngIf="editRowId === level.id" class="action-buttons">
+                    <button 
+                      mat-icon-button 
+                      color="primary"
+                      (click)="saveLevel(level)"
+                      [disabled]="!editedLevel?.name_en && !editedLevel?.name_ta && !editedLevel?.name_si"
+                      matTooltip="Save">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button 
+                      mat-icon-button 
+                      (click)="cancelEdit()"
+                      matTooltip="Cancel">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Empty State -->
+              <tr *ngIf="levels.length === 0 && !isAdding" class="empty-row">
+                <td colspan="6" class="empty-cell">
+                  <div class="empty-state">
+                    <mat-icon>layers_outline</mat-icon>
+                    <p>No levels found. Click "Add Level" to create one.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+</div>

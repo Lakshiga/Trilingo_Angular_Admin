@@ -1,30 +1,39 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
-import { ExerciseApiService, Exercise } from '../../services/exercise-api.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Subscription, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { ExerciseApiService, Exercise, CreateExerciseDto, UpdateExerciseDto } from '../../services/exercise-api.service';
 import { ActivityApiService } from '../../services/activity-api.service';
 import { Activity } from '../../types/activity.types';
 import { ActivityPlayerModalComponent } from '../../components/activities/activity-player-modal/activity-player-modal.component';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-exercises-list',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
     MatProgressSpinnerModule,
-    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTooltipModule,
+    RouterLink,
     ActivityPlayerModalComponent
   ],
   templateUrl: './exercises-list.component.html',
@@ -32,10 +41,13 @@ import { ActivityPlayerModalComponent } from '../../components/activities/activi
 })
 export class ExercisesListComponent implements OnInit, OnDestroy {
   activityId: string | null = null;
+  numericActivityId: number = 0;
   activity: Partial<Activity> | null = null;
   exercises: Exercise[] = [];
   isLoading = true;
+  error: string | null = null;
   displayedColumns: string[] = ['sequenceOrder', 'preview', 'jsonSnippet', 'createdAt', 'actions'];
+
 
   // Preview modal state
   isPreviewOpen = false;
@@ -43,6 +55,7 @@ export class ExercisesListComponent implements OnInit, OnDestroy {
   previewActivity: Activity | null = null;
 
   private routeSubscription?: Subscription;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -50,17 +63,18 @@ export class ExercisesListComponent implements OnInit, OnDestroy {
     private exerciseApiService: ExerciseApiService,
     private activityApiService: ActivityApiService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    public languageService: LanguageService
   ) {}
 
   ngOnInit(): void {
     this.routeSubscription = this.route.queryParams.subscribe(params => {
       this.activityId = params['activityId'];
-      if (this.activityId) {
+      this.numericActivityId = this.activityId ? parseInt(this.activityId, 10) : 0;
+      if (this.numericActivityId) {
         this.loadData();
       } else {
-        this.snackBar.open('No activity ID provided', 'Close', { duration: 3000 });
-        this.router.navigate(['/activities']);
+        this.error = 'No activity ID provided';
+        this.isLoading = false;
       }
     });
   }
@@ -69,27 +83,33 @@ export class ExercisesListComponent implements OnInit, OnDestroy {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
     }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  private async loadData(): Promise<void> {
+  async loadData(): Promise<void> {
+    if (!this.numericActivityId) {
+      this.error = 'No activity ID provided';
+      this.isLoading = false;
+      return;
+    }
+
     this.isLoading = true;
+    this.error = null;
     try {
       // Load activity details
-      const activityPromise = this.activityApiService.getById(parseInt(this.activityId!, 10)).toPromise();
+      const activityPromise = this.activityApiService.getById(this.numericActivityId).toPromise();
       
       // Load exercises for this activity
-      const exercisesPromise = this.exerciseApiService.getByActivityId(parseInt(this.activityId!, 10)).toPromise();
+      const exercisesPromise = this.exerciseApiService.getByActivityId(this.numericActivityId).toPromise();
 
       const [activity, exercises] = await Promise.all([activityPromise, exercisesPromise]);
 
       this.activity = activity as Partial<Activity>;
-      this.exercises = (exercises || []) as Exercise[];
-      
-      // Sort by sequence order
-      this.exercises.sort((a, b) => a.sequenceOrder - b.sequenceOrder);
+      this.exercises = (exercises || []).sort((a, b) => a.sequenceOrder - b.sequenceOrder);
     } catch (error) {
       console.error('Failed to load exercises:', error);
-      this.snackBar.open('Failed to load exercises', 'Close', { duration: 5000 });
+      this.error = 'Failed to load exercises';
     } finally {
       this.isLoading = false;
     }
@@ -97,8 +117,9 @@ export class ExercisesListComponent implements OnInit, OnDestroy {
 
   getActivityTitle(): string {
     if (!this.activity?.title) return 'Unknown Activity';
-    return this.activity.title.en || this.activity.title.ta || this.activity.title.si || 'Untitled';
+    return this.languageService.getText(this.activity.title) || 'Untitled';
   }
+
 
   getJsonSnippet(exercise: Exercise): string {
     try {
@@ -151,7 +172,7 @@ export class ExercisesListComponent implements OnInit, OnDestroy {
     });
   }
 
-  async handleDelete(exercise: Exercise): Promise<void> {
+  deleteExercise(exercise: Exercise): void {
     if (this.exercises.length <= 1) {
       this.snackBar.open('Cannot delete the last exercise. An activity must have at least one exercise.', 'Close', { duration: 4000 });
       return;
@@ -160,17 +181,18 @@ export class ExercisesListComponent implements OnInit, OnDestroy {
     const confirmed = confirm(`Are you sure you want to delete Exercise #${exercise.sequenceOrder}?`);
     if (!confirmed) return;
 
-    try {
-      await this.exerciseApiService.delete(exercise.id).toPromise();
-      this.exercises = this.exercises.filter(ex => ex.id !== exercise.id);
-      this.snackBar.open('Exercise deleted successfully!', 'Close', { duration: 2000 });
-      
-      // Reload to refresh sequence numbers
-      await this.loadData();
-    } catch (error) {
-      console.error('Failed to delete exercise:', error);
-      this.snackBar.open('Failed to delete exercise.', 'Close', { duration: 5000 });
-    }
+    this.exerciseApiService.delete(exercise.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Exercise deleted successfully!', 'Close', { duration: 2000 });
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Failed to delete exercise:', err);
+          this.snackBar.open('Failed to delete exercise.', 'Close', { duration: 5000 });
+        }
+      });
   }
 
   handleAddExercise(): void {

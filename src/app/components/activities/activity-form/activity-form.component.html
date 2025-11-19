@@ -1,40 +1,54 @@
-<mat-card class="activity-form-card">
-  <mat-card-content>
-    <h2>Activity Details</h2>
-    
-    <!-- Multilingual Activity Title -->
-    <div class="form-section">
-      <app-multilingual-input
-        [value]="getTitleValue()"
-        [label]="'Activity Title'"
-        [placeholder]="getTitlePlaceholder()"
-        [required]="true"
-        (valueChange)="onTitleChange($event)">
-      </app-multilingual-input>
-    </div>
-    
+<div class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
+
+  <!-- Form Header -->
+  <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 pb-4 mb-6 border-b border-slate-200 dark:border-slate-700">
+    Activity Details
+  </h2>
+
+  <!-- Multilingual Activity Title -->
+  <div class="mb-6">
+    <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+      Activity Title
+    </label>
+
+    <app-multilingual-input
+      [value]="getTitleValue()"
+      [placeholder]="getTitlePlaceholder()"
+      [required]="true"
+      (valueChange)="onTitleChange($event)">
+    </app-multilingual-input>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+
     <!-- Sequence Order -->
-    <div class="form-section">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Sequence Order</mat-label>
+    <div class="mb-4">
+      <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+        Sequence Order
+      </label>
+
+      <mat-form-field appearance="outline" class="w-full">
         <input 
-          matInput 
-          type="number" 
-          name="sequenceOrder" 
-          [(ngModel)]="activityData.sequenceOrder" 
-          (ngModelChange)="onDataChange()"
+          matInput
+          type="number"
           placeholder="Enter sequence order"
+          [(ngModel)]="activityData.sequenceOrder"
+          (ngModelChange)="onDataChange()"
+          class="!text-base"
           required>
       </mat-form-field>
     </div>
-    
+
     <!-- Main Activity Category -->
-    <div class="form-section">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Main Activity Category</mat-label>
-        <mat-select 
-          name="mainActivityId" 
-          [(ngModel)]="activityData.mainActivityId" 
+    <div class="mb-4">
+      <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+        Main Activity Category
+      </label>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-select
+          [(ngModel)]="activityData.mainActivityId"
           (selectionChange)="onMainActivityChange($event)"
           required>
           <mat-option *ngFor="let ma of mainActivities" [value]="ma.id">
@@ -43,14 +57,16 @@
         </mat-select>
       </mat-form-field>
     </div>
-    
+
     <!-- Activity Type -->
-    <div class="form-section">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Activity Type</mat-label>
-        <mat-select 
-          name="activityTypeId" 
-          [(ngModel)]="activityData.activityTypeId" 
+    <div class="mb-4 md:col-span-2">
+      <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+        Activity Type
+      </label>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-select
+          [(ngModel)]="activityData.activityTypeId"
           (selectionChange)="onActivityTypeChange($event)"
           required>
           <mat-option *ngFor="let at of activityTypes" [value]="at.activityTypeId">
@@ -59,5 +75,7 @@
         </mat-select>
       </mat-form-field>
     </div>
-  </mat-card-content>
-</mat-card>
+
+  </div>
+
+</div>

@@ -1,21 +1,213 @@
-<div class="lessons-page" *ngIf="levelId && apiService">
-  <app-dependent-inline-crud-table
-    entityName="Lesson"
-    [parentName]="'Level #' + levelId"
-    parentRoute="/levels"
-    [parentId]="levelId"
-    [apiService]="apiService"
-    [columns]="columns"
-    idField="lessonId"
-    [renderCustomActions]="renderCustomLessonActions"
-    pageTitle="Manage Lessons">
-  </app-dependent-inline-crud-table>
+<div class="lessons-page" *ngIf="numericLevelId">
+  
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button mat-icon-button class="back-button" (click)="goBackToLevels()" matTooltip="Back to Levels">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h1 class="page-title">Manage Lessons</h1>
+        <p class="page-subtitle">Level #{{ numericLevelId }}</p>
+      </div>
+    </div>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      class="add-button"
+      (click)="startAdding()" 
+      [disabled]="isAdding || editRowId !== null || isLoading">
+      <mat-icon>add</mat-icon>
+      Add Lesson
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading lessons...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="loadLessons()">Retry</button>
+  </div>
+
+  <!-- Lessons Table -->
+  <div *ngIf="!isLoading && !error" class="table-container">
+    <mat-card class="lessons-card">
+      <mat-card-content class="card-content">
+        
+        <!-- Add New Lesson Row -->
+        <div *ngIf="isAdding" class="add-row">
+          <div class="row-content">
+            <div class="cell sequence-cell">
+              <mat-form-field appearance="outline" class="sequence-field">
+                <input 
+                  matInput 
+                  type="number" 
+                  [(ngModel)]="newLesson.sequenceOrder"
+                  placeholder="Order">
+              </mat-form-field>
+            </div>
+            <div class="cell name-cell">
+              <app-multilingual-input
+                [value]="newLesson.lessonName || { en: '', ta: '', si: '' }"
+                [label]="'Lesson Name'"
+                [placeholder]="{ en: 'Enter lesson name', ta: 'பாடம் பெயரை உள்ளிடவும்', si: 'පාඩමේ නම ඇතුළත් කරන්න' }"
+                [required]="true"
+                (valueChange)="onNewLessonNameChange($event)">
+              </app-multilingual-input>
+            </div>
+            <div class="cell manage-cell">
+              <div class="cell-value">-</div>
+            </div>
+            <div class="cell actions-cell">
+              <div class="action-buttons">
+                <button 
+                  mat-icon-button 
+                  color="primary"
+                  (click)="saveLesson()"
+                  [disabled]="!newLesson.lessonName || !newLesson.sequenceOrder"
+                  matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button 
+                  mat-icon-button 
+                  (click)="cancelEdit()"
+                  matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lessons Table -->
+        <div class="table-wrapper">
+          <table class="lessons-table">
+            <thead>
+              <tr>
+                <th class="sequence-header">Sequence</th>
+                <th class="name-header">Lesson Name</th>
+                <th class="manage-header">Manage Activities</th>
+                <th class="actions-header">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let lesson of lessons" class="table-row" [class.editing]="editRowId === lesson.lessonId">
+                
+                <!-- Sequence Order -->
+                <td class="cell sequence-cell">
+                  <div *ngIf="editRowId !== lesson.lessonId" class="cell-value">
+                    {{ lesson.sequenceOrder }}
+                  </div>
+                  <mat-form-field *ngIf="editRowId === lesson.lessonId" appearance="outline" class="edit-field">
+                    <input 
+                      matInput 
+                      type="number" 
+                      [(ngModel)]="editedLesson!.sequenceOrder"
+                      placeholder="Order">
+                  </mat-form-field>
+                </td>
+
+                <!-- Lesson Name -->
+                <td class="cell name-cell">
+                  <div *ngIf="editRowId !== lesson.lessonId" class="cell-value lesson-name">
+                    {{ getLessonDisplayName(lesson) }}
+                  </div>
+                  <div *ngIf="editRowId === lesson.lessonId" class="edit-name-wrapper">
+                    <app-multilingual-input
+                      [value]="editedLesson!.lessonName || { en: '', ta: '', si: '' }"
+                      [label]="'Lesson Name'"
+                      [placeholder]="{ en: 'Enter lesson name', ta: 'பாடம் பெயரை உள்ளிடவும்', si: 'පාඩමේ නම ඇතුළත් කරන්න' }"
+                      [required]="true"
+                      (valueChange)="onEditedLessonNameChange($event)">
+                    </app-multilingual-input>
+                  </div>
+                </td>
+
+                <!-- Manage Activities -->
+                <td class="cell manage-cell">
+                  <a 
+                    mat-raised-button 
+                    color="accent"
+                    [routerLink]="['/activities']"
+                    [queryParams]="{lessonId: lesson.lessonId}"
+                    matTooltip="Manage Activities"
+                    class="manage-button">
+                    <mat-icon>list</mat-icon>
+                    Manage Activities
+                  </a>
+                </td>
+
+                <!-- Actions -->
+                <td class="cell actions-cell">
+                  <div *ngIf="editRowId !== lesson.lessonId" class="action-buttons">
+                    <button 
+                      mat-icon-button 
+                      color="primary"
+                      (click)="startEditing(lesson)"
+                      [disabled]="isAdding || isLoading"
+                      matTooltip="Edit">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button 
+                      mat-icon-button 
+                      color="warn"
+                      (click)="deleteLesson(lesson)"
+                      [disabled]="isAdding || isLoading"
+                      matTooltip="Delete">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                  <div *ngIf="editRowId === lesson.lessonId" class="action-buttons">
+                    <button 
+                      mat-icon-button 
+                      color="primary"
+                      (click)="saveLesson(lesson)"
+                      [disabled]="!editedLesson?.lessonName || !editedLesson?.sequenceOrder"
+                      matTooltip="Save">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button 
+                      mat-icon-button 
+                      (click)="cancelEdit()"
+                      matTooltip="Cancel">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Empty State -->
+              <tr *ngIf="lessons.length === 0 && !isAdding" class="empty-row">
+                <td colspan="4" class="empty-cell">
+                  <div class="empty-state">
+                    <mat-icon>book_outline</mat-icon>
+                    <p>No lessons found. Click "Add Lesson" to create one.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+  </div>
+
 </div>
 
-<div class="error-page" *ngIf="!levelId || !apiService">
-  <mat-card>
+<!-- Error Page -->
+<div class="error-page" *ngIf="!numericLevelId">
+  <mat-card class="error-card">
     <mat-card-content>
-      <h2>Error: No Level ID provided.</h2>
+      <mat-icon class="error-icon-large">error_outline</mat-icon>
+      <h2>Error: No Level ID provided</h2>
+      <p>Please select a level to manage lessons.</p>
       <button 
         mat-raised-button 
         color="primary" 
