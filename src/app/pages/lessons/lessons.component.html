@@ -52,7 +52,7 @@
                   placeholder="Order">
               </mat-form-field>
             </div>
-            <div class="cell name-cell">
+            <div class="cell name-cell add-name-cell">
               <app-multilingual-input
                 [value]="newLesson.lessonName || { en: '', ta: '', si: '' }"
                 [label]="'Lesson Name'"
@@ -91,7 +91,9 @@
             <thead>
               <tr>
                 <th class="sequence-header">Sequence</th>
-                <th class="name-header">Lesson Name</th>
+                <th class="name-header">English</th>
+                <th class="name-header">Tamil</th>
+                <th class="name-header">Sinhala</th>
                 <th class="manage-header">Manage Activities</th>
                 <th class="actions-header">Actions</th>
               </tr>
@@ -113,10 +115,10 @@
                   </mat-form-field>
                 </td>
 
-                <!-- Lesson Name -->
-                <td class="cell name-cell">
+                <!-- English Name -->
+                <td class="cell name-cell" [attr.colspan]="editRowId === lesson.lessonId ? 3 : 1">
                   <div *ngIf="editRowId !== lesson.lessonId" class="cell-value lesson-name">
-                    {{ getLessonDisplayName(lesson) }}
+                    {{ (lesson.lessonName && lesson.lessonName.en) || '-' }}
                   </div>
                   <div *ngIf="editRowId === lesson.lessonId" class="edit-name-wrapper">
                     <app-multilingual-input
@@ -126,6 +128,18 @@
                       [required]="true"
                       (valueChange)="onEditedLessonNameChange($event)">
                     </app-multilingual-input>
+                  </div>
+                </td>
+                <!-- Tamil Name -->
+                <td *ngIf="editRowId !== lesson.lessonId" class="cell name-cell">
+                  <div class="cell-value lesson-name">
+                    {{ (lesson.lessonName && lesson.lessonName.ta) || '-' }}
+                  </div>
+                </td>
+                <!-- Sinhala Name -->
+                <td *ngIf="editRowId !== lesson.lessonId" class="cell name-cell">
+                  <div class="cell-value lesson-name">
+                    {{ (lesson.lessonName && lesson.lessonName.si) || '-' }}
                   </div>
                 </td>
 
@@ -184,7 +198,7 @@
 
               <!-- Empty State -->
               <tr *ngIf="lessons.length === 0 && !isAdding" class="empty-row">
-                <td colspan="4" class="empty-cell">
+                <td colspan="6" class="empty-cell">
                   <div class="empty-state">
                     <mat-icon>book_outline</mat-icon>
                     <p>No lessons found. Click "Add Lesson" to create one.</p>
