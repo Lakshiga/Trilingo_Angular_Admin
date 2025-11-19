@@ -25,6 +25,8 @@
 
 .content {
   padding: 0 20px 20px 20px;
+  overflow: hidden;
+  height: calc(100vh - 100px);
 }
 
 /* Inline language manager above grid */
@@ -49,19 +51,44 @@ app-sidebar-language-manager {
 .grid-container {
   display: grid;
   grid-template-columns: 1fr 1.5fr 1fr;
-  gap: 24px;
-  align-items: start;
+  gap: 16px;
+  align-items: stretch;
 }
 
 .form-column {
   position: sticky;
   top: 24px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.form-column mat-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  overflow: visible;
+  min-height: fit-content;
+}
+
+.form-column mat-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: visible;
 }
 
 .editor-column {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .preview-column {
@@ -69,21 +96,25 @@ app-sidebar-language-manager {
   top: 24px;
   height: calc(100vh - 120px);
   overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .template-section {
   background: #e3f2fd;
-  padding: 20px;
+  padding: 12px;
   border-radius: 8px;
   border: 2px solid #1976d2;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  flex-shrink: 0;
 }
 
 .template-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .template-header h3 {
@@ -94,21 +125,21 @@ app-sidebar-language-manager {
 }
 
 .template-description {
-  margin: 0 0 20px 0;
+  margin: 0 0 12px 0;
   color: #555;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .template-content {
-  max-height: 350px;
+  max-height: 200px;
   overflow-y: auto;
   background: white;
-  padding: 16px;
+  padding: 12px;
   border-radius: 4px;
   border: 1px solid #ddd;
   font-family: 'Courier New', monospace;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .template-content pre {
@@ -127,11 +158,26 @@ app-sidebar-language-manager {
   color: #777;
 }
 
+.exercises-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .exercises-section h3 {
-  margin: 0 0 16px 0;
+  margin: 0 0 8px 0;
   color: #333;
   font-size: 18px;
   font-weight: 600;
+  flex-shrink: 0;
+}
+
+.exercise-editor-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .device-selectors {

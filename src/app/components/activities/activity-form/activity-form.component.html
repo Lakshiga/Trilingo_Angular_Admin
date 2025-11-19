@@ -1,16 +1,9 @@
-<div class="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
-
-  <!-- Form Header -->
-  <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 pb-4 mb-6 border-b border-slate-200 dark:border-slate-700">
-    Activity Details
-  </h2>
-
+<div class="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 h-full flex flex-col">
   <!-- Multilingual Activity Title -->
-  <div class="mb-6">
+  <div class="mb-4">
     <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
       Activity Title
     </label>
-
     <app-multilingual-input
       [value]="getTitleValue()"
       [placeholder]="getTitlePlaceholder()"
@@ -18,16 +11,13 @@
       (valueChange)="onTitleChange($event)">
     </app-multilingual-input>
   </div>
-
   <!-- Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
     <!-- Sequence Order -->
-    <div class="mb-4">
+    <div class="mb-3">
       <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
         Sequence Order
       </label>
-
       <mat-form-field appearance="outline" class="w-full">
         <input 
           matInput
@@ -39,13 +29,11 @@
           required>
       </mat-form-field>
     </div>
-
     <!-- Main Activity Category -->
-    <div class="mb-4">
+    <div class="mb-3">
       <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
         Main Activity Category
       </label>
-
       <mat-form-field appearance="outline" class="w-full">
         <mat-select
           [(ngModel)]="activityData.mainActivityId"
@@ -57,13 +45,11 @@
         </mat-select>
       </mat-form-field>
     </div>
-
     <!-- Activity Type -->
-    <div class="mb-4 md:col-span-2">
+    <div class="mb-3 md:col-span-2">
       <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
         Activity Type
       </label>
-
       <mat-form-field appearance="outline" class="w-full">
         <mat-select
           [(ngModel)]="activityData.activityTypeId"
@@ -75,7 +61,5 @@
         </mat-select>
       </mat-form-field>
     </div>
-
   </div>
-
 </div>

@@ -1,7 +1,5 @@
 <div class="activity-editor-page">
   <div class="header">
-    <h1>{{ isEditMode ? 'Edit Activity #' + activityId : 'Add New Activity' }}</h1>
-    
     <div class="actions">
       <button 
         mat-button 
@@ -23,9 +21,6 @@
       <!-- Column 1: Activity Details Form -->
       <div class="form-column">
         <mat-card>
-          <mat-card-header>
-            <mat-card-title>Activity Details</mat-card-title>
-          </mat-card-header>
           <mat-card-content>
             <app-activity-form
               [activityData]="activity"
@@ -67,7 +62,8 @@
         
         <div class="exercises-section">
           <h3>Exercises</h3>
-          <app-exercise-editor
+          <div class="exercise-editor-wrapper">
+            <app-exercise-editor
             [exercises]="exercises"
             [activityId]="activityId"
             [activityTypeId]="activity?.activityTypeId || 0"
@@ -77,7 +73,8 @@
             (deleteExercise)="handleDeleteExercise($event)"
             (previewExercise)="handlePreviewExercise($event)"
             (expansionChange)="expandedExercise = $event.isExpanded ? $event.index : false">
-          </app-exercise-editor>
+            </app-exercise-editor>
+          </div>
         </div>
       </div>
       
