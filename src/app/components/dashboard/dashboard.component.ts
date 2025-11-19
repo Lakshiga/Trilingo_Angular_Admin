@@ -23,6 +23,13 @@ interface DashboardStats {
   totalActivityTypes: number;
 }
 
+interface RecentActivity {
+  name: string;
+  type: string;
+  status: string;
+  updated: Date;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -46,6 +53,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     totalActivityTypes: 0
   };
   
+  recentActivities: RecentActivity[] = [];
   isLoading = true;
   error: string | null = null;
   private destroy$ = new Subject<void>();
@@ -144,7 +152,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
               next: (activitiesArrays) => {
-                this.stats.totalActivities = activitiesArrays.flat().length;
+                const allActivities = activitiesArrays.flat();
+                this.stats.totalActivities = allActivities.length;
+                
+                // Populate recent activities (last 10)
+                this.recentActivities = allActivities
+                  .slice(-10)
+                  .reverse()
+                  .map(activity => ({
+                    name: activity.title?.en || activity.title?.ta || activity.title?.si || 'Untitled Activity',
+                    type: activity.activityType?.activityName || 'Unknown',
+                    status: 'Active',
+                    updated: new Date() // You may want to add an updatedAt field to Activity type
+                  }));
+                
                 this.isLoading = false;
               },
               error: (err) => {

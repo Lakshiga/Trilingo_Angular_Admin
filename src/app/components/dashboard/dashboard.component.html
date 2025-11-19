@@ -1,5 +1,6 @@
 <div class="dashboard-container">
-  <!-- Header Section -->
+
+  <!-- Header -->
   <div class="dashboard-header">
     <div class="header-content">
       <div>
@@ -10,139 +11,124 @@
         <mat-icon>refresh</mat-icon>
       </button>
     </div>
+    <button mat-icon-button class="refresh-btn" (click)="refresh()" [disabled]="isLoading">
+      <mat-icon>refresh</mat-icon>
+    </button>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
+  <!-- Loading/Error -->
+  <div *ngIf="isLoading" class="status-container">
     <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading dashboard data...</p>
+    <p>Loading dashboard...</p>
   </div>
-
-  <!-- Error State -->
-  <div *ngIf="error && !isLoading" class="error-container">
-    <mat-icon class="error-icon">error_outline</mat-icon>
+  <div *ngIf="error && !isLoading" class="status-container error">
+    <mat-icon>error_outline</mat-icon>
     <p>{{ error }}</p>
     <button mat-raised-button color="primary" (click)="refresh()">Retry</button>
   </div>
 
-  <!-- Dashboard Content -->
-  <div *ngIf="!isLoading && !error" class="dashboard-content">
-    <!-- Statistics Cards -->
-    <div class="stats-grid">
-      <mat-card class="stat-card stat-card-primary">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-wrapper icon-primary">
-              <mat-icon>school</mat-icon>
-            </div>
-            <div class="stat-info">
-              <p class="stat-label">Total Levels</p>
-              <h2 class="stat-value">{{ stats.totalLevels }}</h2>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+  <!-- Stats Cards -->
+  <div class="stats-grid" *ngIf="!isLoading && !error">
+    <mat-card class="stat-card">
+      <div class="stat-icon blue">
+        <mat-icon>layers</mat-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Total Levels</p>
+        <h2 class="stat-value">{{ stats.totalLevels }}</h2>
+      </div>
+    </mat-card>
 
-      <mat-card class="stat-card stat-card-success">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-wrapper icon-success">
-              <mat-icon>menu_book</mat-icon>
-            </div>
-            <div class="stat-info">
-              <p class="stat-label">Total Lessons</p>
-              <h2 class="stat-value">{{ stats.totalLessons }}</h2>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+    <mat-card class="stat-card">
+      <div class="stat-icon green">
+        <mat-icon>menu_book</mat-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Total Lessons</p>
+        <h2 class="stat-value">{{ stats.totalLessons }}</h2>
+      </div>
+    </mat-card>
 
-      <mat-card class="stat-card stat-card-info">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-wrapper icon-info">
-              <mat-icon>extension</mat-icon>
-            </div>
-            <div class="stat-info">
-              <p class="stat-label">Total Activities</p>
-              <h2 class="stat-value">{{ stats.totalActivities }}</h2>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+    <mat-card class="stat-card">
+      <div class="stat-icon purple">
+        <mat-icon>assignment</mat-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Total Activities</p>
+        <h2 class="stat-value">{{ stats.totalActivities }}</h2>
+      </div>
+    </mat-card>
 
-      <mat-card class="stat-card stat-card-warning">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-wrapper icon-warning">
-              <mat-icon>fitness_center</mat-icon>
-            </div>
-            <div class="stat-info">
-              <p class="stat-label">Total Exercises</p>
-              <h2 class="stat-value">{{ stats.totalExercises }}</h2>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+    <mat-card class="stat-card">
+      <div class="stat-icon pink">
+        <mat-icon>task</mat-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Total Exercises</p>
+        <h2 class="stat-value">{{ stats.totalExercises }}</h2>
+      </div>
+    </mat-card>
+  </div>
 
-      <mat-card class="stat-card stat-card-purple">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-wrapper icon-purple">
-              <mat-icon>category</mat-icon>
-            </div>
-            <div class="stat-info">
-              <p class="stat-label">Main Activities</p>
-              <h2 class="stat-value">{{ stats.totalMainActivities }}</h2>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="stat-card stat-card-teal">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon-wrapper icon-teal">
-              <mat-icon>label</mat-icon>
-            </div>
-            <div class="stat-info">
-              <p class="stat-label">Activity Types</p>
-              <h2 class="stat-value">{{ stats.totalActivityTypes }}</h2>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <!-- Quick Actions Section -->
-    <mat-card class="quick-actions-card">
+  <!-- Charts Section -->
+  <div class="charts-grid">
+    <mat-card class="chart-card">
       <mat-card-header>
-        <mat-card-title>
-          <mat-icon>flash_on</mat-icon>
-          Quick Actions
-        </mat-card-title>
+        <mat-card-title>Lesson Completion</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="action-buttons">
-          <button mat-raised-button class="action-btn btn-levels" (click)="navigateTo('/levels')">
-            <mat-icon>school</mat-icon>
-            <span>Manage Levels</span>
-          </button>
-          <button mat-raised-button class="action-btn btn-lessons" (click)="navigateTo('/lessons')">
-            <mat-icon>menu_book</mat-icon>
-            <span>Manage Lessons</span>
-          </button>
-          <button mat-raised-button class="action-btn btn-main-activities" (click)="navigateTo('/main-activities')">
-            <mat-icon>category</mat-icon>
-            <span>Main Activities</span>
-          </button>
-          <button mat-raised-button class="action-btn btn-activity-types" (click)="navigateTo('/activity-types')">
-            <mat-icon>label</mat-icon>
-            <span>Activity Types</span>
-          </button>
-        </div>
+        <div class="chart-placeholder">Chart Placeholder</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Activity Progress</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chart-placeholder">Chart Placeholder</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Exercises Overview</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chart-placeholder">Chart Placeholder</div>
       </mat-card-content>
     </mat-card>
   </div>
+
+  <!-- Details Table / List -->
+  <mat-card class="details-card">
+    <mat-card-header>
+      <mat-card-title>Recent Activities</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="details-table">
+        <thead>
+          <tr>
+            <th>Activity Name</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let activity of recentActivities">
+            <td>{{ activity.name }}</td>
+            <td>{{ activity.type }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="activity.status.toLowerCase()">
+                {{ activity.status }}
+              </span>
+            </td>
+            <td>{{ activity.updated | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
 </div>
-  

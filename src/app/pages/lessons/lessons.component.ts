@@ -1,45 +1,55 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-// MatTypographyModule is not available in Angular Material v19
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { DependentInlineCrudTableComponent } from '../../components/common/dependent-inline-crud-table/dependent-inline-crud-table.component';
-import { LessonApiService } from '../../services/lesson-api.service';
-import { Lesson } from '../../types/lesson.types';
+import { MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { LessonApiService, MultilingualLesson, LessonCreateDto } from '../../services/lesson-api.service';
 import { MultilingualText } from '../../types/multilingual.types';
-import { Subscription } from 'rxjs';
-
-interface LessonCreateDto {
-  lessonName: MultilingualText;
-  sequenceOrder: number;
-  levelId: number;
-}
+import { MultilingualInputComponent } from '../../components/common/multilingual-input/multilingual-input.component';
+import { Subscription, takeUntil, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-lessons',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
     RouterLink,
-    DependentInlineCrudTableComponent
+    MultilingualInputComponent
   ],
   templateUrl: './lessons.component.html',
   styleUrls: ['./lessons.component.css']
 })
 export class LessonsPageComponent implements OnInit, OnDestroy {
   levelId: string | null = null;
-  apiService: any = null;
+  numericLevelId: number = 0;
+  lessons: MultilingualLesson[] = [];
+  isLoading = false;
+  error: string | null = null;
+  
+  editRowId: number | null = null;
+  editedLesson: Partial<LessonCreateDto> | null = null;
+  isAdding = false;
+  newLesson: Partial<LessonCreateDto> = {};
+  
+  displayedColumns: string[] = ['sequenceOrder', 'lessonName', 'manageActivities', 'actions'];
   private routeSubscription?: Subscription;
-
-  columns = [
-    { field: 'lessonName' as keyof Lesson, headerName: 'Lesson Name', type: 'string' as const },
-    { field: 'sequenceOrder' as keyof Lesson, headerName: 'Sequence Order', type: 'number' as const }
-  ];
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -50,7 +60,10 @@ export class LessonsPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.routeSubscription = this.route.queryParams.subscribe(params => {
       this.levelId = params['levelId'];
-      this.setupApiService();
+      this.numericLevelId = this.levelId ? parseInt(this.levelId, 10) : 0;
+      if (this.numericLevelId) {
+        this.loadLessons();
+      }
     });
   }
 
@@ -58,31 +71,141 @@ export class LessonsPageComponent implements OnInit, OnDestroy {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
     }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  private setupApiService(): void {
-    if (!this.levelId) {
-      this.apiService = null;
-      return;
-    }
+  loadLessons(): void {
+    if (!this.numericLevelId) return;
+    
+    this.isLoading = true;
+    this.error = null;
+    
+    this.lessonApiService.getLessonsByLevelId(this.numericLevelId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (lessons) => {
+          this.lessons = lessons.sort((a, b) => a.sequenceOrder - b.sequenceOrder);
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Error loading lessons:', err);
+          this.error = 'Failed to load lessons';
+          this.isLoading = false;
+        }
+      });
+  }
 
-    const numericLevelId = parseInt(this.levelId, 10);
-    this.apiService = {
-      getAllByParentId: () => this.lessonApiService.getLessonsByLevelId(numericLevelId),
-      create: (newItem: LessonCreateDto) => this.lessonApiService.create({ 
-        ...newItem, 
-        levelId: numericLevelId
-      }),
-      update: (id: number, item: Partial<LessonCreateDto>) => this.lessonApiService.update(id, item),
-      deleteItem: (id: number) => this.lessonApiService.deleteItem(id)
+  startAdding(): void {
+    this.isAdding = true;
+    this.newLesson = {
+      lessonName: { en: '', ta: '', si: '' },
+      sequenceOrder: this.lessons.length > 0 ? Math.max(...this.lessons.map(l => l.sequenceOrder)) + 1 : 1
     };
   }
 
-  renderCustomLessonActions = (lesson: Lesson) => {
-    return `<a mat-button routerLink="/activities" [queryParams]="{lessonId: ${lesson.lessonId}}" class="manage-activities-btn">
-      Manage Activities
-    </a>`;
-  };
+  startEditing(lesson: MultilingualLesson): void {
+    this.editRowId = lesson.lessonId;
+    this.editedLesson = {
+      lessonName: { ...lesson.lessonName },
+      sequenceOrder: lesson.sequenceOrder
+    };
+  }
+
+  cancelEdit(): void {
+    this.editRowId = null;
+    this.editedLesson = null;
+    this.isAdding = false;
+    this.newLesson = {};
+  }
+
+  saveLesson(lesson?: MultilingualLesson): void {
+    if (this.isAdding) {
+      this.createLesson();
+    } else if (lesson && this.editedLesson) {
+      this.updateLesson(lesson);
+    }
+  }
+
+  createLesson(): void {
+    if (!this.newLesson.lessonName || !this.newLesson.sequenceOrder) {
+      return;
+    }
+
+    const createDto: LessonCreateDto = {
+      levelId: this.numericLevelId,
+      lessonName: this.newLesson.lessonName,
+      sequenceOrder: this.newLesson.sequenceOrder
+    };
+
+    this.isLoading = true;
+    this.lessonApiService.create(createDto)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.cancelEdit();
+          this.loadLessons();
+        },
+        error: (err) => {
+          console.error('Error creating lesson:', err);
+          this.error = 'Failed to create lesson';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  updateLesson(lesson: MultilingualLesson): void {
+    if (!this.editedLesson) return;
+
+    this.isLoading = true;
+    this.lessonApiService.update(lesson.lessonId, this.editedLesson)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.cancelEdit();
+          this.loadLessons();
+        },
+        error: (err) => {
+          console.error('Error updating lesson:', err);
+          this.error = 'Failed to update lesson';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  deleteLesson(lesson: MultilingualLesson): void {
+    if (!confirm(`Are you sure you want to delete this lesson?`)) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.lessonApiService.deleteItem(lesson.lessonId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadLessons();
+        },
+        error: (err) => {
+          console.error('Error deleting lesson:', err);
+          this.error = 'Failed to delete lesson';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  onNewLessonNameChange(value: MultilingualText): void {
+    this.newLesson.lessonName = value;
+  }
+
+  onEditedLessonNameChange(value: MultilingualText): void {
+    if (this.editedLesson) {
+      this.editedLesson.lessonName = value;
+    }
+  }
+
+  getLessonDisplayName(lesson: MultilingualLesson): string {
+    return lesson.lessonName?.en || lesson.lessonName?.ta || lesson.lessonName?.si || 'Untitled Lesson';
+  }
 
   goBackToLevels(): void {
     this.router.navigate(['levels']);

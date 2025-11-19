@@ -4,8 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatCardModule } from '@angular/material/card';
 import { Activity } from '../../../types/activity.types';
 import { MainActivity } from '../../../types/main-activity.types';
 import { ActivityType } from '../../../types/activity-type.types';
@@ -21,8 +19,6 @@ import { MultilingualInputComponent } from '../../common/multilingual-input/mult
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatGridListModule,
-    MatCardModule,
     MultilingualInputComponent
   ],
   templateUrl: './activity-form.component.html',
@@ -84,24 +80,5 @@ export class ActivityFormComponent {
     const updatedTitle = { ...newTitle };
     this.activityData = { ...this.activityData, title: updatedTitle };
     this.onDataChange();
-  }
-  
-  // Validation methods
-  isMainActivityValid(): boolean {
-    return !!(this.activityData.mainActivityId && Number(this.activityData.mainActivityId) > 0);
-  }
-  
-  isActivityTypeValid(): boolean {
-    return !!(this.activityData.activityTypeId && Number(this.activityData.activityTypeId) > 0);
-  }
-  
-  isTitleValid(): boolean {
-    const title = this.activityData.title;
-    if (!title) return false;
-    return !!(title.ta || title.en || title.si);
-  }
-  
-  isSequenceOrderValid(): boolean {
-    return !!(this.activityData.sequenceOrder && Number(this.activityData.sequenceOrder) > 0);
   }
 }
