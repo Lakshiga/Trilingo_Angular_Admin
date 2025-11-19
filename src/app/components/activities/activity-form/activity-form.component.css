@@ -1,29 +1,26 @@
 .mat-form-field-appearance-outline {
-
   .mat-form-field-outline-thick, .mat-form-field-outline {
-    color: #cbd5e1; /* slate-300 */
+    color: #cbd5e1;
   }
   .mat-form-field-flex {
     border-radius: 0.5rem;
   }
-  
   .mat-form-field-label {
-    color: #64748b; /* slate-500 */
+    color: #64748b;
   }
-
   .mat-input-element, .mat-select-value-text {
-    color: #1e293b; /* slate-800 */
+    color: #1e293b;
   }
   .mat-select-arrow {
-    color: #64748b; /* slate-500 */
+    color: #64748b;
   }
 }
 
 .mat-form-field-appearance-outline.mat-focused {
   .mat-form-field-outline-thick {
-    color: #6366f1; /* indigo-500 */
+    color: #6366f1;
   }
   .mat-form-field-label {
-    color: #6366f1; /* indigo-500 */
+    color: #6366f1;
   }
 }

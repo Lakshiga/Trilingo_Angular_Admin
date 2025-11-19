@@ -122,8 +122,8 @@
 
 .add-row .row-content {
   display: grid;
-  grid-template-columns: 120px 250px 200px 150px;
-  gap: 24px;
+  grid-template-columns: 120px 1fr 1fr 1fr 200px 150px;
+  gap: 16px;
   align-items: start;
 }
 
@@ -136,6 +136,7 @@
   width: 100%;
   border-collapse: collapse;
   background: #ffffff;
+  table-layout: fixed;
 }
 
 .lessons-table thead {
@@ -144,7 +145,7 @@
 }
 
 .lessons-table th {
-  padding: 16px 24px;
+  padding: 16px 12px;
   text-align: left;
   font-size: 13px;
   font-weight: 600;
@@ -158,7 +159,8 @@
 }
 
 .name-header {
-  width: 250px;
+  width: auto;
+  min-width: 150px;
 }
 
 .manage-header {
@@ -191,8 +193,10 @@
 
 /* Table Cells */
 .cell {
-  padding: 20px 24px;
+  padding: 20px 12px;
   vertical-align: middle;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .sequence-cell {
@@ -200,7 +204,12 @@
 }
 
 .name-cell {
-  width: 250px;
+  width: auto;
+  min-width: 150px;
+}
+
+.add-name-cell {
+  grid-column: span 3;
 }
 
 .manage-cell {
@@ -229,7 +238,8 @@
 }
 
 .edit-name-wrapper {
-  min-width: 400px;
+  min-width: 100%;
+  width: 100%;
 }
 
 .sequence-field {
@@ -376,6 +386,10 @@
   .add-row .row-content {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+  
+  .add-name-cell {
+    grid-column: span 1;
   }
 
   .lessons-table {
