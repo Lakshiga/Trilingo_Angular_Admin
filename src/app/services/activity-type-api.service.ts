@@ -31,6 +31,12 @@ export class ActivityTypeApiService {
     return this.httpClient.get<ActivityTypeResponse[]>(this.endpoint);
   }
 
+  getByMainActivity(mainActivityId: number): Observable<ActivityTypeResponse[]> {
+    return this.httpClient.get<ActivityTypeResponse[]>(
+      `${this.endpoint}/by-main-activity/${mainActivityId}`
+    );
+  }
+
   create(newItem: ActivityTypeCreateDto): Observable<ActivityTypeResponse> {
     // Step 1: Create the record normally
     return this.httpClient
