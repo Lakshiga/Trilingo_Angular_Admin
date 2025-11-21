@@ -25,7 +25,8 @@
             <app-activity-form
               [activityData]="activity"
               [mainActivities]="mainActivities"
-              [activityTypes]="activityTypes"
+              [activityTypes]="filteredActivityTypes"
+              [isMainActivityNotAvailable]="isMainActivityNotAvailable"
               (dataChange)="handleFormChangeWrapper($event)">
             </app-activity-form>
           </mat-card-content>

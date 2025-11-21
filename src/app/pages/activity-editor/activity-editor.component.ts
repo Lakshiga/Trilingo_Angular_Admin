@@ -26,6 +26,28 @@ import { ActivityType } from '../../types/activity-type.types';
 import { MultilingualText } from '../../types/multilingual.types';
 import { Subscription } from 'rxjs';
 
+const MAIN_ACTIVITY_ALLOWED_TYPES: Record<string, string[]> = {
+  learning: ['Flash Card'],
+  practice: [
+    'Matching',
+    'Fill in the blanks',
+    'MCQ Activity',
+    'True / False',
+    'Scrumble Activity',
+    'Memory Pair Activity'
+  ],
+  listening: ['Song Player', 'Story Player', 'Pronunciation Activity'],
+  games: ['Triple Blast Activity', 'Bubble Blast Activity', 'Group Sorter Activity'],
+  videos: [],
+  conversations: []
+};
+
+const normalizeString = (value?: string | null): string => {
+  if (!value) return '';
+  // Trim, convert to lowercase, and remove extra spaces
+  return value.trim().toLowerCase().replace(/\s+/g, ' ');
+};
+
 interface ActivityCreateDto {
   title: MultilingualText;
   sequenceOrder: number;
@@ -70,9 +92,13 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
   
   mainActivities: MainActivity[] = [];
   activityTypes: ActivityType[] = [];
+  filteredActivityTypes: ActivityType[] = [];
+  selectedMainActivityName: string | null = null;
+  isMainActivityNotAvailable = false;
   
   private routeSubscription?: Subscription;
   private lastActivityTypeId: number | null = null;
+  private readonly activityTypeCache = new Map<number, ActivityType[]>();
   private tempExerciseIdCounter = -1;
 
   constructor(
@@ -158,6 +184,8 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
         title: { ta: at.name_ta, en: at.name_en, si: at.name_si },
         description: undefined
       }));
+      // Don't set filteredActivityTypes here - it will be set after filtering based on main activity
+      this.filteredActivityTypes = [];
 
       // Load exercises from Exercise API if editing an existing activity
       if (this.isEditMode && this.activityId) {
@@ -201,20 +229,100 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
 
         // Apply sensible defaults when creating new activity
         if (!this.isEditMode) {
-          if (!this.activity.activityTypeId || this.activity.activityTypeId <= 0) {
-            const firstTypeId = this.activityTypes[0]?.activityTypeId;
-            if (firstTypeId) {
-              this.activity.activityTypeId = firstTypeId;
-              this.autoPopulateTemplate(firstTypeId);
-            }
-          }
-
           if (!this.activity.mainActivityId || this.activity.mainActivityId <= 0) {
             const firstMainId = this.mainActivities[0]?.id;
             if (firstMainId) {
               this.activity.mainActivityId = firstMainId;
             }
           }
+        }
+
+        if (this.activity) {
+          const mainActivityId = this.activity.mainActivityId || 0;
+          console.log('Initial load - applying filter for main activity:', mainActivityId);
+          const allowedNames = this.evaluateMainActivityAvailability(mainActivityId);
+          if (this.isMainActivityNotAvailable) {
+            console.log('Main activity is not available, clearing filtered types');
+            this.filteredActivityTypes = [];
+            this.activity.activityTypeId = 0;
+          } else {
+            await this.applyActivityTypeFilter(mainActivityId, allowedNames);
+            console.log('After initial filter, filtered types count:', this.filteredActivityTypes.length);
+            console.log('Filtered types:', this.filteredActivityTypes.map(t => t.activityName));
+            
+            // Check if current activity type is valid for the main activity
+            const currentTypeId = this.activity.activityTypeId || 0;
+            const isValid = currentTypeId > 0 && this.filteredActivityTypes.some(at => at.activityTypeId === currentTypeId);
+            
+            if (!isValid) {
+              // Current activity type is not valid, set default from filtered list
+              console.log('Current activity type is not valid for main activity, setting default');
+              const firstFilteredType = this.filteredActivityTypes[0];
+              if (firstFilteredType) {
+                console.log(`Setting default activity type to: ${firstFilteredType.activityName} (ID: ${firstFilteredType.activityTypeId})`);
+                this.activity.activityTypeId = firstFilteredType.activityTypeId;
+                if (!this.isEditMode) {
+                  this.autoPopulateTemplate(firstFilteredType.activityTypeId);
+                }
+              } else {
+                this.activity.activityTypeId = 0;
+              }
+            } else if (!this.isEditMode && (!this.activity.activityTypeId || this.activity.activityTypeId <= 0)) {
+              // New activity, set default if none selected
+              const firstFilteredType = this.filteredActivityTypes[0];
+              if (firstFilteredType) {
+                console.log(`Setting default activity type for new activity: ${firstFilteredType.activityName} (ID: ${firstFilteredType.activityTypeId})`);
+                this.activity.activityTypeId = firstFilteredType.activityTypeId;
+                this.autoPopulateTemplate(firstFilteredType.activityTypeId);
+              }
+            }
+          }
+        }
+      } else {
+        // For new activities, set default main activity if none is selected
+        if (!this.activity) {
+          this.activity = {
+            title: { ta: '', en: '', si: '' },
+            sequenceOrder: 1,
+            mainActivityId: 0,
+            activityTypeId: 0,
+            contentJson: '[]',
+            lessonId: parseInt(this.lessonId || '0', 10)
+          };
+        }
+        
+        if (!this.activity.mainActivityId || this.activity.mainActivityId <= 0) {
+          const firstMainId = this.mainActivities[0]?.id || 0;
+          if (firstMainId > 0) {
+            this.activity.mainActivityId = firstMainId;
+          }
+        }
+        
+        // Check if default main activity is Videos or Conversations
+        const defaultMainActivityId = this.activity.mainActivityId || 0;
+        console.log('New activity - applying filter for default main activity:', defaultMainActivityId);
+        const allowedNames = this.evaluateMainActivityAvailability(defaultMainActivityId);
+        
+        if (this.isMainActivityNotAvailable) {
+          console.log('Default main activity is not available, clearing filtered types');
+          this.filteredActivityTypes = [];
+          this.activity.activityTypeId = 0;
+        } else if (defaultMainActivityId > 0) {
+          await this.applyActivityTypeFilter(defaultMainActivityId, allowedNames);
+          console.log('After default filter, filtered types count:', this.filteredActivityTypes.length);
+          // Set default activity type for new activity
+          if (this.filteredActivityTypes.length > 0 && (!this.activity.activityTypeId || this.activity.activityTypeId === 0)) {
+            const firstFilteredType = this.filteredActivityTypes[0];
+            if (firstFilteredType) {
+              console.log(`Setting default activity type for new activity: ${firstFilteredType.activityName} (ID: ${firstFilteredType.activityTypeId})`);
+              this.activity.activityTypeId = firstFilteredType.activityTypeId;
+              this.autoPopulateTemplate(firstFilteredType.activityTypeId);
+            }
+          }
+        } else {
+          // No main activity selected yet, show empty list
+          console.log('No main activity selected yet, showing empty list');
+          this.filteredActivityTypes = [];
         }
       }
       
@@ -227,9 +335,10 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleFormChange(updatedActivityData: Partial<MultilingualActivity>): void {
-    // console.log('Activity form changed:', updatedActivityData);
+  async handleFormChange(updatedActivityData: Partial<MultilingualActivity>): Promise<void> {
+    console.log('Activity form changed:', updatedActivityData);
     const previousTypeId = this.lastActivityTypeId;
+    const previousMainActivityId = this.activity?.mainActivityId || 0;
     const nextTypeId = Number(updatedActivityData.activityTypeId || (this.activity?.activityTypeId || 0));
 
     // Merge instead of replace to avoid losing required IDs
@@ -256,6 +365,23 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     if (mergedData.sequenceOrder !== undefined && mergedData.sequenceOrder !== null) {
       mergedData.sequenceOrder = Number(mergedData.sequenceOrder);
     }
+    const hasMainActivityChange = (mergedData.mainActivityId || 0) !== previousMainActivityId;
+    
+    console.log('Main activity change detected:', {
+      previous: previousMainActivityId,
+      current: mergedData.mainActivityId,
+      hasChange: hasMainActivityChange
+    });
+    
+    let allowedNames: string[] | null = null;
+    if (hasMainActivityChange) {
+      allowedNames = this.evaluateMainActivityAvailability(mergedData.mainActivityId || 0);
+      console.log('Evaluated main activity availability:', {
+        mainActivityId: mergedData.mainActivityId,
+        isNotAvailable: this.isMainActivityNotAvailable,
+        allowedNames
+      });
+    }
     
     // Ensure title is properly handled
     if (updatedActivityData.title) {
@@ -264,9 +390,58 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     
     this.activity = mergedData;
 
+    if (hasMainActivityChange && mergedData.mainActivityId) {
+      console.log('Applying activity type filter for main activity:', mergedData.mainActivityId);
+      
+      // First, evaluate if this main activity is available
+      const currentAllowedNames = this.evaluateMainActivityAvailability(mergedData.mainActivityId);
+      
+      if (this.isMainActivityNotAvailable) {
+        console.log('Main activity is not available (Videos/Conversations), clearing filtered types');
+        this.filteredActivityTypes = [];
+        this.activity.activityTypeId = 0;
+        // Clear the preview as well
+        if (this.previewContent) {
+          this.previewContent.contentJson = '{}';
+        }
+      } else {
+        // Immediately apply filter when main activity changes
+        await this.applyActivityTypeFilter(mergedData.mainActivityId, currentAllowedNames);
+        console.log('Filter applied, filtered types count:', this.filteredActivityTypes.length);
+        console.log('Filtered types:', this.filteredActivityTypes.map(t => t.activityName));
+        
+        // ALWAYS reset activity type when main activity changes
+        // Check if current activity type is valid for the new main activity
+        const currentTypeId = this.activity.activityTypeId || 0;
+        const isValid = currentTypeId > 0 && this.filteredActivityTypes.some(at => at.activityTypeId === currentTypeId);
+        
+        if (!isValid) {
+          // Current activity type is not valid for new main activity
+          console.log('Current activity type is not valid for new main activity, setting default');
+          // Set the first filtered activity type as default
+          const firstFilteredType = this.filteredActivityTypes[0];
+          if (firstFilteredType) {
+            console.log(`Setting default activity type to: ${firstFilteredType.activityName} (ID: ${firstFilteredType.activityTypeId})`);
+            this.activity.activityTypeId = firstFilteredType.activityTypeId;
+            this.autoPopulateTemplate(firstFilteredType.activityTypeId);
+          } else {
+            // No filtered types available
+            console.log('No filtered activity types available, clearing activity type');
+            this.activity.activityTypeId = 0;
+            if (this.previewContent) {
+              this.previewContent.contentJson = '{}';
+            }
+          }
+        } else {
+          // Current activity type is valid, keep it but refresh template if needed
+          console.log(`Current activity type ${currentTypeId} is valid for new main activity, keeping it`);
+        }
+      }
+    }
+
     // Auto-generate template when activity type changes
     // Only auto-populate if we have a valid activity type ID
-    if (nextTypeId && nextTypeId > 0 && previousTypeId !== nextTypeId) {
+    if (nextTypeId && nextTypeId > 0 && previousTypeId !== nextTypeId && !this.isMainActivityNotAvailable) {
       // console.log('Activity type changed, auto-populating template:', nextTypeId);
       this.autoPopulateTemplate(nextTypeId);
     }
@@ -299,6 +474,323 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
       console.error('Failed to auto-populate template:', error);
       this.snackBar.open('Failed to load template.', 'Close', { duration: 3000 });
     }
+  }
+
+  private async applyActivityTypeFilter(mainActivityId: number, allowedNames?: string[] | null): Promise<void> {
+    console.log('applyActivityTypeFilter called:', {
+      mainActivityId,
+      allowedNames,
+      activityTypesCount: this.activityTypes.length,
+      activityTypes: this.activityTypes.map(t => t.activityName)
+    });
+    
+    if (!this.activityTypes.length) {
+      console.warn('No activity types loaded yet, cannot filter');
+      this.filteredActivityTypes = [];
+      return;
+    }
+
+    if (!mainActivityId || mainActivityId <= 0) {
+      console.log('No main activity ID provided, using fallback');
+      this.filteredActivityTypes = this.filterTypesByAllowedNames(allowedNames ?? null);
+      return;
+    }
+
+    let usedCache = false;
+    if (this.activityTypeCache.has(mainActivityId)) {
+      usedCache = true;
+      this.filteredActivityTypes = this.activityTypeCache.get(mainActivityId)!;
+    } else {
+      try {
+        console.log(`Fetching activity types for main activity ${mainActivityId}...`);
+        const filteredDtos = await this.activityTypeApiService.getByMainActivity(mainActivityId).toPromise();
+        console.log(`Backend returned ${filteredDtos?.length || 0} activity types for main activity ${mainActivityId}`);
+        
+        const mappedTypes = (filteredDtos || []).map(at => ({
+          activityTypeId: at.id,
+          activityName: at.name_en || at.name_ta || at.name_si || '',
+          title: { ta: at.name_ta, en: at.name_en, si: at.name_si },
+          description: undefined
+        }));
+
+        // Always use backend results if available, otherwise use fallback
+        if (mappedTypes.length > 0) {
+          console.log(`Using ${mappedTypes.length} activity types from backend:`, mappedTypes.map(t => t.activityName));
+          this.activityTypeCache.set(mainActivityId, mappedTypes);
+          this.filteredActivityTypes = mappedTypes;
+        } else {
+          // Backend returned empty, ALWAYS use fallback mapping
+          console.log(`Backend returned empty, using fallback mapping for main activity ${mainActivityId}`);
+          const fallbackAllowedNames = allowedNames ?? this.getAllowedNamesSnapshot(mainActivityId);
+          console.log(`Fallback allowed names:`, fallbackAllowedNames);
+          console.log(`Available activity types (${this.activityTypes.length}):`, this.activityTypes.map(t => t.activityName));
+          
+          // Always try fallback, even if allowedNames is null
+          const fallback = this.filterTypesByAllowedNames(fallbackAllowedNames);
+          if (fallback.length > 0) {
+            this.filteredActivityTypes = fallback;
+            this.activityTypeCache.set(mainActivityId, fallback);
+            console.log(`✓ Using fallback mapping for main activity ${mainActivityId}, found ${fallback.length} activity types:`, fallback.map(t => t.activityName));
+          } else {
+            // If fallback returned empty, check if it's because of name mismatch
+            console.warn(`✗ Fallback returned empty for main activity ${mainActivityId}`);
+            console.warn(`  Allowed names:`, fallbackAllowedNames);
+            console.warn(`  Available types:`, this.activityTypes.map(t => ({ name: t.activityName, normalized: normalizeString(t.activityName) })));
+            
+            // Try a more flexible matching approach
+            if (fallbackAllowedNames && fallbackAllowedNames.length > 0) {
+              const flexibleMatch = this.filterTypesByFlexibleMatching(fallbackAllowedNames);
+              if (flexibleMatch.length > 0) {
+                console.log(`✓ Using flexible matching, found ${flexibleMatch.length} activity types:`, flexibleMatch.map(t => t.activityName));
+                this.filteredActivityTypes = flexibleMatch;
+                this.activityTypeCache.set(mainActivityId, flexibleMatch);
+              } else {
+                this.filteredActivityTypes = [];
+                this.activityTypeCache.set(mainActivityId, []);
+              }
+            } else {
+              this.filteredActivityTypes = [];
+              this.activityTypeCache.set(mainActivityId, []);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load filtered activity types from backend, using fallback:', error);
+        const fallbackAllowedNames = allowedNames ?? this.getAllowedNamesSnapshot(mainActivityId);
+        const fallback = this.filterTypesByAllowedNames(fallbackAllowedNames);
+        this.filteredActivityTypes = fallback;
+        if (fallback.length > 0) {
+          this.activityTypeCache.set(mainActivityId, fallback);
+          console.log(`Using fallback mapping after error, found ${fallback.length} activity types`);
+        } else {
+          this.activityTypeCache.set(mainActivityId, []);
+        }
+      }
+    }
+
+    if (!this.filteredActivityTypes.length) {
+      if (this.activity) {
+        this.activity.activityTypeId = 0;
+      }
+      // Only show error if it's not Videos/Conversations and we actually tried to filter
+      if (!usedCache && !this.isMainActivityNotAvailable && mainActivityId > 0) {
+        console.warn(`No activity types found for main activity ${mainActivityId}. Allowed names:`, allowedNames);
+        // Don't show error message - the UI will show the "No activity types available" message
+      }
+      return;
+    }
+
+    // Set default activity type if current one is invalid or not set
+    // But only if we're not in the middle of a main activity change (to avoid conflicts)
+    const currentTypeId = this.activity?.activityTypeId || 0;
+    const typeStillValid = currentTypeId > 0 && this.filteredActivityTypes.some(at => at.activityTypeId === currentTypeId);
+
+    if (!typeStillValid && this.filteredActivityTypes.length > 0) {
+      // Set the first filtered activity type as default
+      const firstFilteredType = this.filteredActivityTypes[0];
+      if (this.activity && firstFilteredType) {
+        console.log(`Setting default activity type to: ${firstFilteredType.activityName} (ID: ${firstFilteredType.activityTypeId})`);
+        this.activity.activityTypeId = firstFilteredType.activityTypeId;
+        // Only auto-populate template if the type actually changed
+        if (currentTypeId !== firstFilteredType.activityTypeId) {
+          this.autoPopulateTemplate(firstFilteredType.activityTypeId);
+        }
+      }
+    } else if (!typeStillValid && this.filteredActivityTypes.length === 0) {
+      // No filtered types available, clear activity type
+      if (this.activity) {
+        this.activity.activityTypeId = 0;
+      }
+    }
+  }
+
+  private getMainActivityKey(mainActivityId: number): string | null {
+    const mainActivity = this.mainActivities.find(ma => ma.id === mainActivityId);
+    if (!mainActivity) {
+      console.warn(`Main activity with ID ${mainActivityId} not found`);
+      return null;
+    }
+    // Try multiple ways to get the name
+    const raw =
+      (mainActivity as any).name ||
+      (mainActivity as any).name_en ||
+      mainActivity.title?.en ||
+      mainActivity.title?.ta ||
+      mainActivity.title?.si ||
+      '';
+    const normalized = normalizeString(raw);
+    
+    // Check if normalized key exists in mapping
+    if (normalized && MAIN_ACTIVITY_ALLOWED_TYPES[normalized]) {
+      console.log(`Main activity key for ID ${mainActivityId}:`, { 
+        raw, 
+        normalized, 
+        found: true
+      });
+      return normalized;
+    }
+    
+    // Try to find a matching key by checking all available keys
+    const availableKeys = Object.keys(MAIN_ACTIVITY_ALLOWED_TYPES);
+    for (const key of availableKeys) {
+      const normalizedKey = normalizeString(key);
+      if (normalized === normalizedKey) {
+        console.log(`Main activity key for ID ${mainActivityId} (matched):`, { 
+          raw, 
+          normalized, 
+          matchedKey: key
+        });
+        return normalizedKey;
+      }
+    }
+    
+    console.warn(`Main activity key for ID ${mainActivityId} not found in mapping:`, { 
+      raw, 
+      normalized, 
+      mainActivityName: (mainActivity as any).name,
+      titleEn: mainActivity.title?.en,
+      availableKeys: availableKeys
+    });
+    return normalized || null;
+  }
+
+  private getAllowedNamesSnapshot(mainActivityId: number): string[] | null {
+    const key = this.getMainActivityKey(mainActivityId);
+    if (!key) {
+      console.warn(`Could not get key for main activity ${mainActivityId}`);
+      return null;
+    }
+    const allowedNames = MAIN_ACTIVITY_ALLOWED_TYPES[key] ?? null;
+    console.log(`Allowed names for main activity ${mainActivityId} (key: ${key}):`, allowedNames);
+    return allowedNames;
+  }
+
+  private evaluateMainActivityAvailability(mainActivityId: number): string[] | null {
+    const allowedNames = this.getAllowedNamesSnapshot(mainActivityId);
+    this.selectedMainActivityName = this.getMainActivityKey(mainActivityId);
+    
+    // Check if this is Videos or Conversations (empty array means not available)
+    if (allowedNames !== null && allowedNames.length === 0) {
+      console.log(`Main activity ${mainActivityId} is not available (Videos/Conversations)`);
+      this.isMainActivityNotAvailable = true;
+    } else if (allowedNames === null) {
+      // No mapping found, treat as not available
+      console.log(`No mapping found for main activity ${mainActivityId}`);
+      this.isMainActivityNotAvailable = true;
+    } else {
+      this.isMainActivityNotAvailable = false;
+    }
+    
+    console.log(`Main activity availability:`, {
+      mainActivityId,
+      allowedNames,
+      isNotAvailable: this.isMainActivityNotAvailable
+    });
+    
+    return allowedNames;
+  }
+
+  private filterTypesByAllowedNames(allowedNames: string[] | null): ActivityType[] {
+    if (!allowedNames) {
+      return [...this.activityTypes];
+    }
+    if (!allowedNames.length) {
+      return [];
+    }
+    const allowedSet = new Set(allowedNames.map(name => normalizeString(name)));
+    
+    // Filter activity types by exact name match (case-insensitive)
+    // Maintain the order from allowedNames array
+    const filtered: ActivityType[] = [];
+    const matchedIds = new Set<number>();
+    
+    // First, add types in the order specified in allowedNames
+    for (const allowedName of allowedNames) {
+      const normalizedAllowed = normalizeString(allowedName);
+      const matchedType = this.activityTypes.find(type => {
+        const typeName = normalizeString(type.activityName);
+        return typeName === normalizedAllowed && !matchedIds.has(type.activityTypeId);
+      });
+      if (matchedType) {
+        filtered.push(matchedType);
+        matchedIds.add(matchedType.activityTypeId);
+      }
+    }
+    
+    // Then add any remaining types that match but weren't in the ordered list
+    for (const type of this.activityTypes) {
+      if (!matchedIds.has(type.activityTypeId)) {
+        const typeName = normalizeString(type.activityName);
+        if (allowedSet.has(typeName)) {
+          filtered.push(type);
+          matchedIds.add(type.activityTypeId);
+        }
+      }
+    }
+    
+    console.log(`Filtering activity types:`, {
+      allowedNames,
+      totalTypes: this.activityTypes.length,
+      filteredCount: filtered.length,
+      filteredNames: filtered.map(t => t.activityName),
+      allTypeNames: this.activityTypes.map(t => normalizeString(t.activityName))
+    });
+    
+    return filtered;
+  }
+
+  private filterTypesByFlexibleMatching(allowedNames: string[]): ActivityType[] {
+    if (!allowedNames || !allowedNames.length) {
+      return [];
+    }
+    
+    // Create normalized sets for flexible matching
+    const allowedNormalized = allowedNames.map(name => normalizeString(name));
+    
+    const filtered = this.activityTypes.filter(type => {
+      const typeName = normalizeString(type.activityName);
+      
+      // Try exact match first
+      if (allowedNormalized.includes(typeName)) {
+        return true;
+      }
+      
+      // Try partial matching - check if any allowed name is contained in type name or vice versa
+      for (const allowedName of allowedNormalized) {
+        // Remove common words for better matching
+        const cleanAllowed = allowedName.replace(/\b(activity|player)\b/gi, '').trim();
+        const cleanType = typeName.replace(/\b(activity|player)\b/gi, '').trim();
+        
+        if (cleanAllowed && cleanType) {
+          if (cleanType.includes(cleanAllowed) || cleanAllowed.includes(cleanType)) {
+            return true;
+          }
+        }
+        
+        // Also try word-by-word matching
+        const allowedWords = cleanAllowed.split(/\s+/).filter(w => w.length > 2);
+        const typeWords = cleanType.split(/\s+/).filter(w => w.length > 2);
+        
+        if (allowedWords.length > 0 && typeWords.length > 0) {
+          const matchingWords = allowedWords.filter(aw => 
+            typeWords.some(tw => tw.includes(aw) || aw.includes(tw))
+          );
+          if (matchingWords.length >= Math.min(2, allowedWords.length)) {
+            return true;
+          }
+        }
+      }
+      
+      return false;
+    });
+    
+    console.log(`Flexible matching results:`, {
+      allowedNames,
+      filteredCount: filtered.length,
+      filteredNames: filtered.map(t => t.activityName)
+    });
+    
+    return filtered;
   }
 
   handlePreviewExercise(exerciseJsonString: string): void {
@@ -646,7 +1138,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
   // Wrapper methods to handle type conversion
   handleFormChangeWrapper(event: any): void {
     // console.log('Form change wrapper called:', event);
-    this.handleFormChange(event as Partial<MultilingualActivity>);
+    void this.handleFormChange(event as Partial<MultilingualActivity>);
   }
 
   handlePreviewExerciseWrapper(event: any): void {

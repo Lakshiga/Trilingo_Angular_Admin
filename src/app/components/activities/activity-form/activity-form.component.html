@@ -50,16 +50,29 @@
       <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
         Activity Type
       </label>
-      <mat-form-field appearance="outline" class="w-full">
+      <mat-form-field appearance="outline" class="w-full" *ngIf="!isMainActivityNotAvailable">
         <mat-select
           [(ngModel)]="activityData.activityTypeId"
           (selectionChange)="onActivityTypeChange($event)"
+          [disabled]="isMainActivityNotAvailable || !activityTypes || activityTypes.length === 0"
           required>
           <mat-option *ngFor="let at of activityTypes" [value]="at.activityTypeId">
             {{ at.activityName }}
           </mat-option>
         </mat-select>
+        <mat-hint *ngIf="!activityTypes || activityTypes.length === 0">
+          {{ isMainActivityNotAvailable ? 'Not available' : 'Loading activity types...' }}
+        </mat-hint>
       </mat-form-field>
+      <div *ngIf="isMainActivityNotAvailable" class="not-available-message">
+        <mat-icon class="warning-icon">info</mat-icon>
+        <span>Not yet available</span>
+      </div>
+      <p
+        *ngIf="!isMainActivityNotAvailable && (activityTypes?.length || 0) === 0"
+        class="text-sm text-rose-500 mt-1">
+        No activity types are available for the selected main activity yet.
+      </p>
     </div>
   </div>
 </div>

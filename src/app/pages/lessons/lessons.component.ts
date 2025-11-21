@@ -99,7 +99,7 @@ export class LessonsPageComponent implements OnInit, OnDestroy {
   startAdding(): void {
     this.isAdding = true;
     this.newLesson = {
-      lessonName: { en: '', ta: '', si: '' },
+      lessonName: { en: '', ta: '', si: '' } as MultilingualText,
       sequenceOrder: this.lessons.length > 0 ? Math.max(...this.lessons.map(l => l.sequenceOrder)) + 1 : 1
     };
   }
@@ -195,6 +195,13 @@ export class LessonsPageComponent implements OnInit, OnDestroy {
 
   onNewLessonNameChange(value: MultilingualText): void {
     this.newLesson.lessonName = value;
+  }
+
+  onNewLessonNameFieldChange(field: 'en' | 'ta' | 'si', value: string): void {
+    if (!this.newLesson.lessonName) {
+      this.newLesson.lessonName = { en: '', ta: '', si: '' };
+    }
+    this.newLesson.lessonName[field] = value;
   }
 
   onEditedLessonNameChange(value: MultilingualText): void {

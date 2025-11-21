@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { Activity } from '../../../types/activity.types';
 import { MainActivity } from '../../../types/main-activity.types';
 import { ActivityType } from '../../../types/activity-type.types';
@@ -19,6 +20,7 @@ import { MultilingualInputComponent } from '../../common/multilingual-input/mult
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatIconModule,
     MultilingualInputComponent
   ],
   templateUrl: './activity-form.component.html',
@@ -28,6 +30,7 @@ export class ActivityFormComponent {
   @Input() activityData: Partial<Activity> = {};
   @Input() mainActivities: MainActivity[] = [];
   @Input() activityTypes: ActivityType[] = [];
+  @Input() isMainActivityNotAvailable = false;
   @Output() dataChange = new EventEmitter<Partial<Activity>>();
 
   onDataChange(): void {

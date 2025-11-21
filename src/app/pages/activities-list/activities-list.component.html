@@ -15,8 +15,8 @@
       mat-raised-button 
       color="primary" 
       class="add-button"
-      (click)="startAdding()" 
-      [disabled]="isAdding || isLoading">
+      (click)="navigateToAddActivity()" 
+      [disabled]="isLoading">
       <mat-icon>add</mat-icon>
       Add Activity
     </button>
@@ -42,66 +42,6 @@
         
         <app-sidebar-language-manager></app-sidebar-language-manager>
         
-        <!-- Add New Activity Row -->
-        <div *ngIf="isAdding" class="add-row">
-          <div class="row-content">
-            <div class="cell id-cell">
-              <div class="cell-value">-</div>
-            </div>
-            <div class="cell title-cell">
-              <app-multilingual-input
-                [value]="newActivity.title || { en: '', ta: '', si: '' }"
-                [label]="'Activity Title'"
-                [placeholder]="{ en: 'Enter activity title', ta: 'செயல்பாட்டு தலைப்பை உள்ளிடவும்', si: 'ක්‍රියාකාරකමේ මාතෘකාව ඇතුළත් කරන්න' }"
-                [required]="true"
-                (valueChange)="onNewActivityTitleChange($event)">
-              </app-multilingual-input>
-            </div>
-            <div class="cell sequence-cell">
-              <mat-form-field appearance="outline" class="sequence-field">
-                <input 
-                  matInput 
-                  type="number" 
-                  [(ngModel)]="newActivity.sequenceOrder"
-                  placeholder="Order">
-              </mat-form-field>
-            </div>
-            <div class="cell type-cell">
-              <mat-form-field appearance="outline" class="type-field">
-                <mat-select [(ngModel)]="newActivity.activityTypeId" required>
-                  <mat-option *ngFor="let at of activityTypes" [value]="at.id">
-                    {{ at.name_en || at.name_ta || at.name_si }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
-            <div class="cell preview-cell">
-              <div class="cell-value">-</div>
-            </div>
-            <div class="cell manage-cell">
-              <div class="cell-value">-</div>
-            </div>
-            <div class="cell actions-cell">
-              <div class="action-buttons">
-                <button 
-                  mat-icon-button 
-                  color="primary"
-                  (click)="saveActivity()"
-                  [disabled]="!newActivity.title || !newActivity.sequenceOrder || !newActivity.activityTypeId"
-                  matTooltip="Save">
-                  <mat-icon>check</mat-icon>
-                </button>
-                <button 
-                  mat-icon-button 
-                  (click)="cancelEdit()"
-                  matTooltip="Cancel">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Activities Table -->
         <div class="table-wrapper">
           <table class="activities-table">
@@ -110,6 +50,7 @@
                 <th class="id-header">ID</th>
                 <th class="title-header">Activity Title</th>
                 <th class="sequence-header">Sequence</th>
+                <th class="type-header">Main Activity</th>
                 <th class="type-header">Activity Type</th>
                 <th class="preview-header">Preview</th>
                 <th class="manage-header">Manage Exercises</th>
@@ -135,6 +76,13 @@
                 <td class="cell sequence-cell">
                   <div class="cell-value">
                     {{ activity.sequenceOrder }}
+                  </div>
+                </td>
+
+                <!-- Main Activity -->
+                <td class="cell type-cell">
+                  <div class="cell-value">
+                    {{ mainActivityMap[activity.mainActivityId] || activity.mainActivityId }}
                   </div>
                 </td>
 
@@ -198,7 +146,7 @@
 
               <!-- Empty State -->
               <tr *ngIf="activities.length === 0 && !isAdding" class="empty-row">
-                <td colspan="7" class="empty-cell">
+                <td colspan="8" class="empty-cell">
                   <div class="empty-state">
                     <mat-icon>assignment_outline</mat-icon>
                     <p>No activities found. Click "Add Activity" to create one.</p>

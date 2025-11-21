@@ -129,9 +129,35 @@ app-sidebar-language-manager {
 
 .add-row .row-content {
   display: grid;
-  grid-template-columns: 100px 250px 120px 200px 150px 200px 150px;
+  grid-template-columns: 90px minmax(220px, 2fr) minmax(110px, 1fr) minmax(180px, 1.3fr) minmax(180px, 1.3fr) minmax(120px, 0.8fr) minmax(150px, 0.9fr) minmax(120px, 0.8fr);
   gap: 24px;
   align-items: start;
+}
+
+.add-row .cell-value.placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.not-available-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  color: #92400e;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.not-available-message .warning-icon {
+  color: #f59e0b;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 /* Table Wrapper */

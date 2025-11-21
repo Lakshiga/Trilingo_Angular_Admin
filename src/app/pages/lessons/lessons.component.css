@@ -116,15 +116,21 @@
 /* Add Row */
 .add-row {
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-bottom: 2px solid #0ea5e9;
-  padding: 20px 24px;
+  border-left: 4px solid #0ea5e9;
 }
 
-.add-row .row-content {
-  display: grid;
-  grid-template-columns: 120px 1fr 1fr 1fr 200px 150px;
-  gap: 16px;
-  align-items: start;
+.add-row .cell {
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.add-row .mat-mdc-form-field {
+  width: 100%;
+}
+
+.placeholder {
+  color: #9ca3af;
+  font-style: italic;
 }
 
 /* Table Wrapper */

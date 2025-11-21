@@ -40,51 +40,6 @@
     <mat-card class="lessons-card">
       <mat-card-content class="card-content">
         
-        <!-- Add New Lesson Row -->
-        <div *ngIf="isAdding" class="add-row">
-          <div class="row-content">
-            <div class="cell sequence-cell">
-              <mat-form-field appearance="outline" class="sequence-field">
-                <input 
-                  matInput 
-                  type="number" 
-                  [(ngModel)]="newLesson.sequenceOrder"
-                  placeholder="Order">
-              </mat-form-field>
-            </div>
-            <div class="cell name-cell add-name-cell">
-              <app-multilingual-input
-                [value]="newLesson.lessonName || { en: '', ta: '', si: '' }"
-                [label]="'Lesson Name'"
-                [placeholder]="{ en: 'Enter lesson name', ta: 'பாடம் பெயரை உள்ளிடவும்', si: 'පාඩමේ නම ඇතුළත් කරන්න' }"
-                [required]="true"
-                (valueChange)="onNewLessonNameChange($event)">
-              </app-multilingual-input>
-            </div>
-            <div class="cell manage-cell">
-              <div class="cell-value">-</div>
-            </div>
-            <div class="cell actions-cell">
-              <div class="action-buttons">
-                <button 
-                  mat-icon-button 
-                  color="primary"
-                  (click)="saveLesson()"
-                  [disabled]="!newLesson.lessonName || !newLesson.sequenceOrder"
-                  matTooltip="Save">
-                  <mat-icon>check</mat-icon>
-                </button>
-                <button 
-                  mat-icon-button 
-                  (click)="cancelEdit()"
-                  matTooltip="Cancel">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Lessons Table -->
         <div class="table-wrapper">
           <table class="lessons-table">
@@ -99,6 +54,70 @@
               </tr>
             </thead>
             <tbody>
+              <!-- Add New Lesson Row -->
+              <tr *ngIf="isAdding" class="table-row add-row">
+                <td class="cell sequence-cell">
+                  <mat-form-field appearance="outline" class="sequence-field">
+                    <input 
+                      matInput 
+                      type="number" 
+                      [(ngModel)]="newLesson.sequenceOrder"
+                      placeholder="Order">
+                  </mat-form-field>
+                </td>
+                <td class="cell name-cell">
+                  <mat-form-field appearance="outline" class="edit-field">
+                    <input 
+                      matInput 
+                      [ngModel]="newLesson.lessonName?.en || ''"
+                      (ngModelChange)="onNewLessonNameFieldChange('en', $event)"
+                      placeholder="English Name"
+                      class="!text-base">
+                  </mat-form-field>
+                </td>
+                <td class="cell name-cell">
+                  <mat-form-field appearance="outline" class="edit-field">
+                    <input 
+                      matInput 
+                      [ngModel]="newLesson.lessonName?.ta || ''"
+                      (ngModelChange)="onNewLessonNameFieldChange('ta', $event)"
+                      placeholder="தமிழ் Name"
+                      class="!text-base">
+                  </mat-form-field>
+                </td>
+                <td class="cell name-cell">
+                  <mat-form-field appearance="outline" class="edit-field">
+                    <input 
+                      matInput 
+                      [ngModel]="newLesson.lessonName?.si || ''"
+                      (ngModelChange)="onNewLessonNameFieldChange('si', $event)"
+                      placeholder="සිංහල Name"
+                      class="!text-base">
+                  </mat-form-field>
+                </td>
+                <td class="cell manage-cell">
+                  <div class="cell-value placeholder">—</div>
+                </td>
+                <td class="cell actions-cell">
+                  <div class="action-buttons">
+                    <button 
+                      mat-icon-button 
+                      color="primary"
+                      (click)="saveLesson()"
+                      [disabled]="!newLesson.lessonName || !newLesson.sequenceOrder"
+                      matTooltip="Save">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                    <button 
+                      mat-icon-button 
+                      (click)="cancelEdit()"
+                      matTooltip="Cancel">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
               <tr *ngFor="let lesson of lessons" class="table-row" [class.editing]="editRowId === lesson.lessonId">
                 
                 <!-- Sequence Order -->
