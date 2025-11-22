@@ -29,12 +29,6 @@
   height: calc(100vh - 100px);
 }
 
-/* Inline language manager above grid */
-app-sidebar-language-manager {
-  display: block;
-  margin-bottom: 12px;
-}
-
 .json-editor-toolbar {
   display: flex;
   gap: 8px;

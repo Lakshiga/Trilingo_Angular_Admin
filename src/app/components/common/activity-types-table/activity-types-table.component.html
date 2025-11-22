@@ -32,16 +32,29 @@
     <button mat-raised-button color="primary" (click)="loadActivityTypes()">Retry</button>
   </div>
 
-  <!-- Activity Types Table -->
-  <div *ngIf="!isLoading && !error" class="table-container">
+  <!-- Add New Activity Type Row (Outside table for better visibility) -->
+  <div *ngIf="isAdding" class="add-row-container">
     <mat-card class="activity-types-card">
       <mat-card-content class="card-content">
-        
-        <!-- Add New Activity Type Row -->
-        <div *ngIf="isAdding" class="add-row">
+        <div class="add-row">
           <div class="row-content">
             <div class="cell id-cell">
               <div class="cell-value">New</div>
+            </div>
+            <div class="cell main-activity-cell">
+              <mat-form-field appearance="outline" class="edit-field">
+                <mat-label>Main Activity</mat-label>
+                <mat-select 
+                  [(ngModel)]="selectedMainActivityId"
+                  required>
+                  <mat-option [value]="null">Select Main Activity</mat-option>
+                  <mat-option 
+                    *ngFor="let mainActivity of mainActivities" 
+                    [value]="mainActivity.id">
+                    {{ mainActivity.name_en || mainActivity.name_ta || mainActivity.name_si }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
             <div class="cell name-en-cell">
               <mat-form-field appearance="outline" class="edit-field">
@@ -76,7 +89,7 @@
                   mat-icon-button 
                   color="primary"
                   (click)="saveActivityType()"
-                  [disabled]="!newActivityType.name_en && !newActivityType.name_ta && !newActivityType.name_si"
+                  [disabled]="(!newActivityType.name_en && !newActivityType.name_ta && !newActivityType.name_si) || !selectedMainActivityId"
                   matTooltip="Save">
                   <mat-icon>check</mat-icon>
                 </button>
@@ -90,13 +103,20 @@
             </div>
           </div>
         </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-        <!-- Activity Types Table -->
+  <!-- Activity Types Table -->
+  <div *ngIf="!isLoading && !error" class="table-container">
+    <mat-card class="activity-types-card">
+      <mat-card-content class="card-content">
         <div class="table-wrapper">
           <table class="activity-types-table">
             <thead>
               <tr>
                 <th class="id-header">ID</th>
+                <th class="main-activity-header">Main Activity</th>
                 <th class="name-en-header">English Name</th>
                 <th class="name-ta-header">தமிழ் Name</th>
                 <th class="name-si-header">සිංහල Name</th>
@@ -111,6 +131,24 @@
                   <div class="cell-value">
                     {{ type.id }}
                   </div>
+                </td>
+
+                <!-- Main Activity -->
+                <td class="cell main-activity-cell">
+                  <div *ngIf="editRowId !== type.id" class="cell-value">
+                    {{ getMainActivityName(type.mainActivityId) }}
+                  </div>
+                  <mat-form-field *ngIf="editRowId === type.id" appearance="outline" class="edit-field">
+                    <mat-label>Main Activity</mat-label>
+                    <mat-select 
+                      [(ngModel)]="editedMainActivityId">
+                      <mat-option 
+                        *ngFor="let mainActivity of mainActivities" 
+                        [value]="mainActivity.id">
+                        {{ mainActivity.name_en || mainActivity.name_ta || mainActivity.name_si }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
                 </td>
 
                 <!-- English Name -->
@@ -196,7 +234,7 @@
 
               <!-- Empty State -->
               <tr *ngIf="activityTypes.length === 0 && !isAdding" class="empty-row">
-                <td colspan="5" class="empty-cell">
+                <td colspan="6" class="empty-cell">
                   <div class="empty-state">
                     <mat-icon>extension_outline</mat-icon>
                     <p>No activity types found. Click "Add Activity Type" to create one.</p>
