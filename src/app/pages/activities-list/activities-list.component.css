@@ -113,13 +113,6 @@
   padding: 0;
 }
 
-/* Sidebar Language Manager */
-app-sidebar-language-manager {
-  display: block;
-  padding: 16px 24px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
 /* Add Row */
 .add-row {
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);

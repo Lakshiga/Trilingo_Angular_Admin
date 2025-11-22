@@ -16,7 +16,6 @@
   </div>
   
   <div class="content" *ngIf="!isLoading && activity">
-    <app-sidebar-language-manager></app-sidebar-language-manager>
     <div class="grid-container">
       <!-- Column 1: Activity Details Form -->
       <div class="form-column">
@@ -25,8 +24,8 @@
             <app-activity-form
               [activityData]="activity"
               [mainActivities]="mainActivities"
-              [activityTypes]="filteredActivityTypes"
-              [isMainActivityNotAvailable]="isMainActivityNotAvailable"
+              [activityTypes]="getDisplayActivityTypes()"
+              [hasExercises]="exercises && exercises.length > 0"
               (dataChange)="handleFormChangeWrapper($event)">
             </app-activity-form>
           </mat-card-content>
@@ -42,7 +41,7 @@
               mat-raised-button 
               color="accent"
               (click)="handleCopyTemplate()"
-              [disabled]="!(activity?.activityTypeId || 0) || (activity?.activityTypeId || 0) <= 0">
+              [disabled]="!(activity.activityTypeId || 0) || (activity.activityTypeId || 0) <= 0">
               <mat-icon>content_copy</mat-icon>
               COPY TEMPLATE
             </button>
@@ -51,8 +50,8 @@
             Select an Activity Type from the form to see its required JSON structure.
             Click "COPY TEMPLATE" to copy this structure to your clipboard.
           </p>
-          <div class="template-content" *ngIf="(activity?.activityTypeId || 0) > 0; else noTemplate">
-            <pre><code>{{ getActivityTemplate(activity?.activityTypeId || 0) }}</code></pre>
+          <div class="template-content" *ngIf="(activity.activityTypeId || 0) > 0; else noTemplate">
+            <pre><code>{{ getActivityTemplate(activity.activityTypeId || 0) }}</code></pre>
           </div>
           <ng-template #noTemplate>
             <div class="no-template">
@@ -67,7 +66,7 @@
             <app-exercise-editor
             [exercises]="exercises"
             [activityId]="activityId"
-            [activityTypeId]="activity?.activityTypeId || 0"
+            [activityTypeId]="activity.activityTypeId || 0"
             [expandedExercise]="expandedExercise"
             (addExercise)="handleAddExercise()"
             (updateExercise)="handleUpdateExercise($event.exerciseId, $event.jsonData)"

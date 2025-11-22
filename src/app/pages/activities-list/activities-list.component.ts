@@ -13,7 +13,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivityPlayerModalComponent } from '../../components/activities/activity-player-modal/activity-player-modal.component';
-import { SidebarLanguageManagerComponent } from '../../components/common/sidebar-language-manager/sidebar-language-manager.component';
 import { MultilingualInputComponent } from '../../components/common/multilingual-input/multilingual-input.component';
 import { ActivityApiService, MultilingualActivity, ActivityCreateDto, ActivityUpdateDto } from '../../services/activity-api.service';
 import { LessonApiService, MultilingualLesson } from '../../services/lesson-api.service';
@@ -61,9 +60,7 @@ const normalizeString = (value?: string | null): string => (value || '').trim().
     MatSelectModule,
     MatTooltipModule,
     RouterLink,
-    ActivityPlayerModalComponent,
-    SidebarLanguageManagerComponent,
-    MultilingualInputComponent
+    ActivityPlayerModalComponent
   ],
   templateUrl: './activities-list.component.html',
   styleUrls: ['./activities-list.component.css']
