@@ -11,6 +11,27 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body class="mat-typography">
-  <app-root></app-root>
+  <app-root>
+    <style>
+    .app-loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      background: #ffffff;
+    }
+
+    .loader-gif {
+      width: 120px;  /* tweak as needed */
+      height: auto;
+    }
+  </style>
+
+  <div class="app-loader">
+    <img src="assets/loader/loader.gif" class="loader-gif" alt="Loading...">
+  </div>
+
+  </app-root>
 </body>
 </html>
