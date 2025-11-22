@@ -102,19 +102,6 @@
   padding: 0;
 }
 
-/* Add Row */
-.add-row {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-bottom: 2px solid #0ea5e9;
-  padding: 20px 24px;
-}
-
-.add-row .row-content {
-  display: grid;
-  grid-template-columns: 100px 200px 200px 200px 150px;
-  gap: 24px;
-  align-items: start;
-}
 
 /* Table Wrapper */
 .table-wrapper {
@@ -203,11 +190,6 @@
   font-weight: 500;
 }
 
-.activity-name {
-  font-weight: 600;
-  color: #111827;
-}
-
 /* Edit Fields */
 .edit-field {
   width: 100%;
@@ -287,14 +269,6 @@
   border-width: 2px;
 }
 
-/* Multilingual Input in Table */
-::ng-deep .edit-name-wrapper app-multilingual-input {
-  display: block;
-}
-
-::ng-deep .edit-name-wrapper app-multilingual-input .mat-mdc-tab-group {
-  margin-bottom: 0;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -309,10 +283,6 @@
     padding: 20px;
   }
 
-  .add-row .row-content {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
 
   .activities-table {
     font-size: 13px;
@@ -325,5 +295,77 @@
   .action-buttons {
     flex-direction: column;
     gap: 4px;
+  }
+}
+/* Simple fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+/* Modern Table Input Design */
+::ng-deep .modern-table-input {
+  
+  /* 1. உயரத்தை குறைத்தல் (Remove padding & space) */
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none; /* Error message இடத்தை மறைக்கிறது */
+  }
+
+  .mat-mdc-text-field-wrapper {
+    height: 40px; /* பாக்ஸ் உயரம் */
+    background-color: white !important;
+    border-radius: 8px; /* வளைவான முனைகள் */
+    padding: 0 12px !important;
+    
+    /* லேசான நிழல் (Shadow) */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+
+  /* 2. Input Text Alignment */
+  .mat-mdc-form-field-infix {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: 40px !important;
+    display: flex;
+    align-items: center;
+  }
+
+  /* 3. Border Colors */
+  /* Default Border (லேசான Gray) */
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #e5e7eb !important; /* Tailwind gray-200 */
+    border-width: 1px !important;
+  }
+
+  /* Hover செய்யும்போது */
+  &:hover .mdc-notched-outline__leading,
+  &:hover .mdc-notched-outline__notch,
+  &:hover .mdc-notched-outline__trailing {
+    border-color: #a5b4fc !important; /* Tailwind indigo-300 */
+    background-color: #fafafa;
+  }
+
+  /* 4. Focus (Click) செய்யும்போது - உங்கள் Theme Color */
+  &.mat-focused {
+    .mat-mdc-text-field-wrapper {
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); /* Indigo Glow effect */
+    }
+    
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: #6366f1 !important; /* Indigo-500 */
+      border-width: 1.5px !important;
+    }
+    
+    /* Icon color change on focus */
+    .mat-icon {
+      color: #6366f1 !important;
+    }
   }
 }

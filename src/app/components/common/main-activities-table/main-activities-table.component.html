@@ -38,59 +38,62 @@
       <mat-card-content class="card-content">
         
         <!-- Add New Activity Row -->
-        <div *ngIf="isAdding" class="add-row">
-          <div class="row-content">
-            <div class="cell id-cell">
-              <div class="cell-value">New</div>
-            </div>
-            <div class="cell name-en-cell">
-              <mat-form-field appearance="outline" class="edit-field">
+        <div *ngIf="isAdding" class="w-full bg-indigo-50/60 border-b border-gray-200 animate-fade-in">
+          <div class="flex items-center px-6 py-3 gap-4">
+        
+            <div class="flex-1 min-w-[200px]">
+              <mat-form-field appearance="outline" class="w-full modern-table-input">
+                
                 <input 
                   matInput 
-                  [(ngModel)]="newActivity.name_en"
+                  [(ngModel)]="newActivity.name_en" 
                   placeholder="English Name"
-                  class="!text-base">
+                  class="!text-sm font-medium text-gray-700"
+                >  
               </mat-form-field>
             </div>
-            <div class="cell name-ta-cell">
-              <mat-form-field appearance="outline" class="edit-field">
+            <div class="flex-1 min-w-[200px]">
+              <mat-form-field appearance="outline" class="w-full modern-table-input">
                 <input 
                   matInput 
-                  [(ngModel)]="newActivity.name_ta"
-                  placeholder="தமிழ் Name"
-                  class="!text-base">
+                  [(ngModel)]="newActivity.name_ta" 
+                  placeholder="Tamil Name"
+                  class="!text-sm font-medium text-gray-700"
+                >
               </mat-form-field>
             </div>
-            <div class="cell name-si-cell">
-              <mat-form-field appearance="outline" class="edit-field">
-                <input 
+        
+            <div class="flex-1 min-w-[200px]">
+              <mat-form-field appearance="outline" class="w-full modern-table-input">
+                <input
                   matInput 
-                  [(ngModel)]="newActivity.name_si"
-                  placeholder="සිංහල Name"
-                  class="!text-base">
+                  [(ngModel)]="newActivity.name_si" 
+                  placeholder="Sinhala Name" 
+                  class="!text-sm font-medium text-gray-700"
+                >
               </mat-form-field>
             </div>
-            <div class="cell actions-cell">
-              <div class="action-buttons">
-                <button 
-                  mat-icon-button 
-                  color="primary"
-                  (click)="saveActivity()"
-                  [disabled]="!newActivity.name_en && !newActivity.name_ta && !newActivity.name_si"
-                  matTooltip="Save">
-                  <mat-icon>check</mat-icon>
-                </button>
-                <button 
-                  mat-icon-button 
-                  (click)="cancelEdit()"
-                  matTooltip="Cancel">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
+
+        
+              <button 
+                mat-mini-fab 
+                color="warn" 
+                class="!bg-red-50 !text-red-500 !w-8 !h-8 shadow-none border border-red-100"
+                (click)="cancelEdit()"
+                matTooltip="Cancel">
+                <mat-icon class="!text-lg">close</mat-icon>
+              </button>
+              <button 
+                mat-mini-fab 
+                color="primary" 
+                class="!bg-indigo-50 !text-indigo-500 !w-8 !h-8 shadow-none border border-indigo-100"
+                (click)="saveActivity()"
+                [disabled]="!newActivity.name_en && !newActivity.name_ta && !newActivity.name_si"
+                matTooltip="Save">
+                <mat-icon class="!text-lg">check</mat-icon>
+              </button>
             </div>
           </div>
-        </div>
-
         <!-- Activities Table -->
         <div class="table-wrapper">
           <table class="activities-table">
