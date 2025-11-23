@@ -30,6 +30,23 @@ interface RecentActivity {
   updated: Date;
 }
 
+interface HierarchyLevel {
+  name: string;
+  lessons: any[];
+}
+
+interface HierarchyActivity {
+  name: string;
+  expanded: boolean;
+  levels: HierarchyLevel[];
+}
+
+interface HierarchyMainActivity {
+  name: string;
+  expanded: boolean;
+  activities: HierarchyActivity[];
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -54,6 +71,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   };
   
   recentActivities: RecentActivity[] = [];
+  mainActivities: HierarchyMainActivity[] = [];
   isLoading = true;
   error: string | null = null;
   private destroy$ = new Subject<void>();
@@ -105,8 +123,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.stats.totalMainActivities = data.mainActivities?.length || 0;
         this.stats.totalActivityTypes = data.activityTypes?.length || 0;
 
+        // Store main activities for hierarchy
+        this.mainActivities = (data.mainActivities || []).map((ma: any) => ({
+          name: ma.name || ma.name_en || 'Unnamed Main Activity',
+          expanded: false,
+          activities: []
+        }));
+
         // For lessons and activities, we need to fetch all levels first and then get lessons/activities
-        this.loadLessonsAndActivities(data.levels || []);
+        this.loadLessonsAndActivities(data.levels || [], data.mainActivities || []);
       },
       error: (err) => {
         console.error('Error loading dashboard data:', err);
@@ -116,7 +141,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadLessonsAndActivities(levels: any[]) {
+  private loadLessonsAndActivities(levels: any[], mainActivitiesData: any[]) {
     if (levels.length === 0) {
       this.isLoading = false;
       return;
@@ -166,6 +191,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     updated: new Date() // You may want to add an updatedAt field to Activity type
                   }));
                 
+                // Build hierarchy structure
+                this.buildHierarchy(allActivities, allLessons, levels, mainActivitiesData);
+                
                 this.isLoading = false;
               },
               error: (err) => {
@@ -187,5 +215,92 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   refresh() {
     this.loadDashboardData();
+  }
+
+  private buildHierarchy(activities: any[], lessons: any[], levels: any[], mainActivitiesData: any[]) {
+    // Create a map of main activity ID to main activity
+    const mainActivityMap = new Map<number, HierarchyMainActivity>();
+    mainActivitiesData.forEach((ma: any) => {
+      const mainActivity: HierarchyMainActivity = {
+        name: ma.name || ma.name_en || 'Unnamed Main Activity',
+        expanded: false,
+        activities: []
+      };
+      mainActivityMap.set(ma.id, mainActivity);
+    });
+
+    // Group activities by activity type (which represents the "activity" in the hierarchy)
+    const activityTypeMap = new Map<number, HierarchyActivity>();
+    
+    activities.forEach((activity: any) => {
+      const activityTypeId = activity.activityTypeId;
+      const mainActivityId = activity.mainActivityId;
+      
+      if (!activityTypeMap.has(activityTypeId)) {
+        const activityTypeName = activity.activityType?.activityName || `Activity Type ${activityTypeId}`;
+        activityTypeMap.set(activityTypeId, {
+          name: activityTypeName,
+          expanded: false,
+          levels: []
+        });
+      }
+    });
+
+    // Group activities by lesson, then by level
+    const levelMap = new Map<number, HierarchyLevel>();
+    levels.forEach((level: any) => {
+      levelMap.set(level.id, {
+        name: level.name || level.name_en || `Level ${level.id}`,
+        lessons: []
+      });
+    });
+
+    // Populate lessons in levels
+    lessons.forEach((lesson: any) => {
+      const level = levelMap.get(lesson.levelId);
+      if (level) {
+        level.lessons.push(lesson);
+      }
+    });
+
+    // Group activities by activity type and main activity
+    activities.forEach((activity: any) => {
+      const mainActivityId = activity.mainActivityId;
+      const activityTypeId = activity.activityTypeId;
+      const lessonId = activity.lessonId;
+      
+      // Find the lesson to get its level
+      const lesson = lessons.find((l: any) => l.lessonId === lessonId);
+      if (!lesson) return;
+      
+      const levelId = lesson.levelId;
+      const level = levelMap.get(levelId);
+      if (!level) return;
+
+      const mainActivity = mainActivityMap.get(mainActivityId);
+      if (!mainActivity) return;
+
+      // Find or create the activity type entry
+      let hierarchyActivity = mainActivity.activities.find(a => 
+        a.name === (activity.activityType?.activityName || `Activity Type ${activityTypeId}`)
+      );
+
+      if (!hierarchyActivity) {
+        hierarchyActivity = {
+          name: activity.activityType?.activityName || `Activity Type ${activityTypeId}`,
+          expanded: false,
+          levels: []
+        };
+        mainActivity.activities.push(hierarchyActivity);
+      }
+
+      // Add level if not already present
+      if (!hierarchyActivity.levels.find(l => l.name === level.name)) {
+        hierarchyActivity.levels.push({ ...level });
+      }
+    });
+
+    // Update mainActivities array
+    this.mainActivities = Array.from(mainActivityMap.values());
   }
 }

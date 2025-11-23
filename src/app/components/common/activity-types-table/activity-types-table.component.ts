@@ -225,6 +225,14 @@ export class ActivityTypesTableComponent implements OnInit, OnDestroy {
     return mainActivity ? (mainActivity.name_en || mainActivity.name_ta || mainActivity.name_si) : 'N/A';
   }
 
+  getNextId(): number {
+    if (this.activityTypes.length === 0) {
+      return 1;
+    }
+    const maxId = Math.max(...this.activityTypes.map(type => type.id));
+    return maxId + 1;
+  }
+
   deleteActivityType(type: ActivityTypeResponse): void {
     if (!confirm(`Are you sure you want to delete this activity type?`)) {
       return;

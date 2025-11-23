@@ -100,6 +100,14 @@ export class MainActivitiesTableComponent implements OnInit, OnDestroy {
     this.newActivity = {};
   }
 
+  getNextId(): number {
+    if (this.activities.length === 0) {
+      return 1;
+    }
+    const maxId = Math.max(...this.activities.map(a => a.id));
+    return maxId + 1;
+  }
+
   saveActivity(activity?: MainActivityResponse): void {
     if (this.isAdding) {
       this.createActivity();

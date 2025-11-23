@@ -1,152 +1,162 @@
-<div class="exercises-page" *ngIf="numericActivityId">
-  
+<div class="w-full max-w-[1600px] mx-auto p-4 space-y-4" *ngIf="numericActivityId">
+
   <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <button mat-icon-button class="back-button" (click)="goBack()" matTooltip="Back to Activities">
-        <mat-icon>arrow_back</mat-icon>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="flex items-center gap-4">
+      <button mat-icon-button 
+              class="!bg-gray-900/20 hover:!bg-gray-900/30 !text-gray-900 !rounded-lg backdrop-blur-sm border border-gray-900/30"
+              (click)="goBack()" 
+              matTooltip="Back to Activities">
+        <mat-icon class="!w-5 !h-5">arrow_back</mat-icon>
       </button>
-      <div class="header-text">
-        <h1 class="page-title">Manage Exercises</h1>
-        <p class="page-subtitle" *ngIf="activity">Activity: {{ getActivityTitle() }}</p>
+      <div class="space-y-2">
+        <h1 style="font-weight: 900;" class="text-4xl font-bold text-gray-900 tracking-tight">Manage Exercises</h1>
+        <p class="text-sm text-gray-900" *ngIf="activity">Activity: {{ getActivityTitle() }}</p>
       </div>
     </div>
-    <button 
-      mat-raised-button 
-      color="primary" 
-      class="add-button"
-      (click)="handleAddExercise()" 
-      [disabled]="isLoading">
-      <mat-icon>add</mat-icon>
-      Add Exercise
+    
+    <button mat-flat-button
+            class="!bg-[#346E8C] hover:!bg-[#2a5a73] !text-white !rounded-xl !px-8 !py-3 !shadow-lg !shadow-[#346E8C]/25 disabled:opacity-50 transition-all duration-200 hover:scale-105 hover:shadow-xl"
+            (click)="handleAddExercise()" 
+            [disabled]="isLoading">
+      <div class="flex items-center gap-2.5">
+        <mat-icon class="!w-5 !h-5">add_circle</mat-icon>
+        <span class="font-semibold text-base">Add Exercise</span>
+      </div>
     </button>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading exercises...</p>
-  </div>
+  <!-- Main Content Card -->
+  <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden relative">
+    
+    <!-- Loading Overlay -->
+    <div *ngIf="isLoading" class="absolute inset-0 bg-white/95 z-50 flex flex-col items-center justify-center backdrop-blur-md">
+      <div class="flex flex-col items-center gap-5">
+        <mat-spinner diameter="60" class="!text-[#346E8C]"></mat-spinner>
+        <p class="text-gray-700 font-semibold text-lg">Loading exercises...</p>
+      </div>
+    </div>
 
-  <!-- Error State -->
-  <div *ngIf="error && !isLoading" class="error-container">
-    <mat-icon class="error-icon">error_outline</mat-icon>
-    <p>{{ error }}</p>
-    <button mat-raised-button color="primary" (click)="loadData()">Retry</button>
-  </div>
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="flex flex-col items-center justify-center py-32 text-center px-6">
+      <div class="bg-red-50 p-6 rounded-2xl mb-6 shadow-lg">
+        <mat-icon class="text-red-500 !w-12 !h-12 !text-[48px]">error_outline</mat-icon>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 mb-3">Failed to load data</h3>
+      <p class="text-gray-600 mb-8 max-w-md text-lg">{{ error }}</p>
+      <button mat-stroked-button 
+              class="!border-[#346E8C] !text-[#346E8C] hover:!bg-[#346E8C] hover:!text-white !rounded-xl !px-8 !py-3 !font-semibold transition-all"
+              (click)="loadData()">
+        Try Again
+      </button>
+    </div>
 
-  <!-- Exercises Table -->
-  <div *ngIf="!isLoading && !error" class="table-container">
-    <mat-card class="exercises-card">
-      <mat-card-content class="card-content">
+    <!-- Table Container -->
+    <div *ngIf="!error" class="overflow-x-auto">
+      <table class="w-full">
         
+        <!-- Table Head -->
+        <thead class="bg-gradient-to-r from-[#346E8C] via-[#3d7ba0] to-[#346E8C] text-white shadow-lg">
+          <tr>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Sequence</th>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Preview</th>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">JSON Content</th>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Created</th>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-right">Actions</th>
+          </tr>
+        </thead>
 
-        <!-- Exercises Table -->
-        <div class="table-wrapper">
-          <table class="exercises-table">
-            <thead>
-              <tr>
-                <th class="sequence-header">Sequence</th>
-                <th class="preview-header">Preview</th>
-                <th class="json-header">JSON Content</th>
-                <th class="date-header">Created</th>
-                <th class="actions-header">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let exercise of exercises" class="table-row">
-                
-                <!-- Sequence Order -->
-                <td class="cell sequence-cell">
-                  <div class="cell-value">
-                    <span class="exercise-number">{{ exercise.sequenceOrder }}</span>
-                  </div>
-                </td>
+        <tbody class="bg-white divide-y divide-gray-100">
+          
+          <!-- Data Rows -->
+          <tr *ngFor="let exercise of exercises" class="group bg-white hover:bg-[#c5d8e2] transition-all duration-200">
+            
+            <!-- Sequence Order -->
+            <td class="px-6 py-3">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#346E8C] to-[#4a8fb8] text-white font-bold text-xs shadow-md">
+                {{ exercise.sequenceOrder }}
+              </span>
+            </td>
 
-                <!-- Preview -->
-                <td class="cell preview-cell">
-                  <button 
-                    mat-raised-button 
-                    color="primary"
-                    (click)="handlePreview(exercise)"
-                    matTooltip="Preview Exercise"
-                    class="preview-button">
-                    <mat-icon>visibility</mat-icon>
-                    Preview
-                  </button>
-                </td>
+            <!-- Preview -->
+            <td class="px-6 py-3">
+              <button (click)="handlePreview(exercise)"
+                      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#346E8C] text-white text-sm font-semibold hover:bg-[#2a5a73] transition-all shadow-md hover:shadow-lg"
+                      matTooltip="Preview Exercise">
+                <mat-icon class="!w-4 !h-4">visibility</mat-icon>
+                Preview
+              </button>
+            </td>
 
-                <!-- JSON Content -->
-                <td class="cell json-cell">
-                  <div class="json-snippet">
-                    <code>{{ getJsonSnippet(exercise) }}</code>
-                  </div>
-                </td>
+            <!-- JSON Content -->
+            <td class="px-6 py-3">
+              <div class="json-snippet">
+                <code>{{ getJsonSnippet(exercise) }}</code>
+              </div>
+            </td>
 
-                <!-- Created At -->
-                <td class="cell date-cell">
-                  <div class="cell-value">{{ formatDate(exercise.createdAt) }}</div>
-                </td>
+            <!-- Created At -->
+            <td class="px-6 py-3">
+              <span class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">{{ formatDate(exercise.createdAt) }}</span>
+            </td>
 
-                <!-- Actions -->
-                <td class="cell actions-cell">
-                  <div class="action-buttons">
-                    <a 
-                      mat-icon-button 
-                      color="primary"
-                      [routerLink]="['/activity-edit']"
-                      [queryParams]="{activityId: activityId, editExerciseId: exercise.id}"
-                      [disabled]="isLoading"
-                      matTooltip="Edit Exercise">
-                      <mat-icon>edit</mat-icon>
-                    </a>
-                    <button 
-                      mat-icon-button 
-                      color="warn"
-                      (click)="deleteExercise(exercise)"
-                      [disabled]="isLoading || exercises.length <= 1"
-                      matTooltip="Delete">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </div>
-                </td>
-              </tr>
+            <!-- Actions -->
+            <td class="px-6 py-3 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <a [routerLink]="['/activity-edit']"
+                   [queryParams]="{activityId: activityId, editExerciseId: exercise.id}"
+                   class="action-btn-edit"
+                   matTooltip="Edit Exercise"
+                   [attr.aria-disabled]="isLoading">
+                  <mat-icon class="!w-5 !h-5">edit</mat-icon>
+                </a>
+                <button (click)="deleteExercise(exercise)" 
+                        class="action-btn-delete"
+                        matTooltip="Delete"
+                        [disabled]="isLoading || exercises.length <= 1">
+                  <mat-icon class="!w-5 !h-5">delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
 
-              <!-- Empty State -->
-              <tr *ngIf="exercises.length === 0" class="empty-row">
-                <td colspan="5" class="empty-cell">
-                  <div class="empty-state">
-                    <mat-icon>assignment_outline</mat-icon>
-                    <p>No exercises found. Click "Add Exercise" to create one.</p>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          <!-- Empty State -->
+          <tr *ngIf="exercises.length === 0 && !isLoading">
+            <td colspan="5" class="py-32 text-center">
+              <div class="flex flex-col items-center justify-center">
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50 p-8 rounded-3xl mb-8 shadow-lg">
+                  <mat-icon class="text-gray-400 !w-16 !h-16 !text-[64px]">assignment</mat-icon>
+                </div>
+                <p class="text-gray-900 font-bold text-2xl mb-3">No exercises found</p>
+                <p class="text-gray-600 text-lg mb-8 max-w-md">Get started by creating your first exercise.</p>
+                <button class="text-[#346E8C] hover:text-[#2a5a73] hover:underline text-lg font-bold transition-colors flex items-center gap-2" 
+                        (click)="handleAddExercise()">
+                  <mat-icon class="!w-5 !h-5">add_circle</mat-icon>
+                  Create New Exercise
+                </button>
+              </div>
+            </td>
+          </tr>
 
-      </mat-card-content>
-    </mat-card>
+        </tbody>
+      </table>
+    </div>
   </div>
-
 </div>
 
 <!-- Error Page -->
-<div class="error-page" *ngIf="!numericActivityId">
-  <mat-card class="error-card">
-    <mat-card-content>
-      <mat-icon class="error-icon-large">error_outline</mat-icon>
-      <h2>Error: No Activity ID provided</h2>
-      <p>Please select an activity to manage exercises.</p>
-      <button 
-        mat-raised-button 
-        color="primary" 
-        (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
-        Back to Activities
-      </button>
-    </mat-card-content>
-  </mat-card>
+<div class="w-full max-w-[1600px] mx-auto p-4 flex justify-center items-center min-h-[400px]" *ngIf="!numericActivityId">
+  <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-10 text-center max-w-md">
+    <mat-icon class="text-red-500 !w-20 !h-20 !text-[80px] mb-6">error_outline</mat-icon>
+    <h2 class="text-2xl font-bold text-gray-900 mb-3">Error: No Activity ID provided</h2>
+    <p class="text-gray-600 mb-8">Please select an activity to manage exercises.</p>
+    <button mat-flat-button 
+            class="!bg-[#346E8C] hover:!bg-[#2a5a73] !text-white !rounded-xl !px-8 !py-3"
+            (click)="goBack()">
+      <mat-icon class="!w-5 !h-5">arrow_back</mat-icon>
+      Back to Activities
+    </button>
+  </div>
 </div>
 
 <!-- Exercise Preview Modal -->
