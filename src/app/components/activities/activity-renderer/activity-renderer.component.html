@@ -89,6 +89,9 @@
   <!-- Group Sorter Activity -->
   <app-group-sorter *ngIf="activityTypeId === 13" [content]="content"></app-group-sorter>
 
+  <!-- Conversation Player Activity -->
+  <app-conversation-player *ngIf="activityTypeId === 14" [content]="content"></app-conversation-player>
+
 
   <!-- All other activity types use generic template -->
   <ng-container *ngIf="
@@ -104,7 +107,8 @@
     activityTypeId !== 10 &&
     activityTypeId !== 11 && 
     activityTypeId !== 12 && 
-    activityTypeId !== 13" 
+    activityTypeId !== 13 &&
+    activityTypeId !== 14" 
     [ngTemplateOutlet]="generic">
   </ng-container>
   

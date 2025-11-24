@@ -17,7 +17,8 @@ export class MultilingualActivityTemplates {
       10:() => this.getTripleblastActivityTemplate(),
       11:() => this.getBubbleblastActivityTemplate(),
       12:() => this.getmemorypairActivityTemplate(),
-      13:() => this.getgroupsorterActivityTemplate()     
+      13:() => this.getgroupsorterActivityTemplate(),
+      14:() => this.getConversationPlayerTemplate()     
     };
 
     const templateFunction = templates[activityTypeId];
@@ -316,7 +317,7 @@ export class MultilingualActivityTemplates {
                 "en": "Bring jasmine flowers and come",
                 "si": "මල්ලිගා මල් ගෙන එන්න"
               }, 
-              "timestamp": 10.5 
+              "timestamp": 10.5
             }
           ]
         }
@@ -592,4 +593,78 @@ export class MultilingualActivityTemplates {
         ]
       }, null, 2);
     }
+    private static getConversationPlayerTemplate(): string {
+      return JSON.stringify({
+        "title": { "ta": "மருத்துவமனையில்", "en": "At the Hospital", "si": "රෝහලේදී" },
+        "instruction": { 
+          "ta": "நோயாளிக்கும் மருத்துவருக்கும் இடையிலான உரையாடலைக் கவனியுங்கள்.", 
+          "en": "Listen to the conversation between the patient and the doctor.", 
+          "si": "රෝගියා සහ වෛද්‍යවරයා අතර සංවාදයට සවන් දෙන්න." 
+        },
+        "conversationData": {
+          "title": { "ta": "காய்ச்சல் பரிசோதனை", "en": "Fever Checkup", "si": "උණ පරීක්ෂාව" },
+          "audioUrl": { 
+            "ta": "/assets/audio/hospital_ta.mp3",
+            "en": "/assets/audio/hospital_en.mp3", 
+            "si": "/assets/audio/hospital_si.mp3"
+          },
+          "speakers": [
+            {
+              "id": "doc",
+              "name": { "ta": "மருத்துவர்", "en": "Doctor", "si": "වෛද්‍යවරයා" },
+              "avatarUrl": "https://i.pravatar.cc/150?img=11",
+              "position": "right"
+            },
+            {
+              "id": "pat",
+              "name": { "ta": "ரவி", "en": "Ravi", "si": "රවී" },
+              "avatarUrl": "https://i.pravatar.cc/150?img=59",
+              "position": "left"
+            }
+          ],
+          "dialogues": [
+            {
+              "speakerId": "doc",
+              "content": {
+                "ta": "வாங்க ரவி, உடம்பு என்ன பண்ணுது?",
+                "en": "Come in Ravi, what seems to be the problem?",
+                "si": "එන්න රවී, මොකක්ද ප්‍රශ්නය?"
+              },
+              "timestamp": {
+                "ta": 0.5,
+                "en": 0.2, 
+                "si": 0.4
+              }
+            },
+            {
+              "speakerId": "pat",
+              "content": {
+                "ta": "டாக்டர், எனக்கு நேற்று முதல் கடுமையான காய்ச்சல்.",
+                "en": "Doctor, I have had a high fever since yesterday.",
+                "si": "වෛද්‍යතුමනි, ඊයේ සිට මට දැඩි උණ."
+              },
+              "timestamp": {
+                "ta": 4.5,
+                "en": 3.2, 
+                "si": 4.0
+              }
+            },
+            {
+              "speakerId": "doc",
+              "content": {
+                "ta": "சரி, வாயைத் திறங்கள். நான் சோதிக்கிறேன்.",
+                "en": "Okay, open your mouth. Let me check.",
+                "si": "හරි, කට අරින්න. මම පරීක්ෂා කරන්නම්."
+              },
+              "timestamp": {
+                "ta": 8.5,
+                "en": 6.8, 
+                "si": 7.5
+              }
+            }
+          ]
+        }
+      }, null, 2);
+    }
+  
 }

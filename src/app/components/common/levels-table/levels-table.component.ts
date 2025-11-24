@@ -191,4 +191,12 @@ export class LevelsTableComponent implements OnInit, OnDestroy {
       });
   }
 
+  getNextId(): number {
+    if (this.levels.length === 0) {
+      return 1;
+    }
+    const maxId = Math.max(...this.levels.map(level => level.id));
+    return maxId + 1;
+  }
+
 }

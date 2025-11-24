@@ -19,6 +19,7 @@ import { TripleBlastComponent } from '../activity-types/triple-blast/triple-blas
 import { BubbleBlastComponent } from '../activity-types/bubble-blast/bubble-blast.component';
 import { MemoryPairComponent } from '../activity-types/memory-pair/memory-pair.component';
 import { GroupSorterComponent } from '../activity-types/group-sorter/group-sorter.component';
+import { ConversationPlayerComponent } from '../activity-types/conversation-player/conversation-player.component';
 
 @Component({
   selector: 'app-activity-renderer',
@@ -41,6 +42,7 @@ import { GroupSorterComponent } from '../activity-types/group-sorter/group-sorte
     BubbleBlastComponent,
     MemoryPairComponent,
     GroupSorterComponent,
+    ConversationPlayerComponent,
 ],
   templateUrl: './activity-renderer.component.html',
   styleUrls: ['./activity-renderer.component.css']

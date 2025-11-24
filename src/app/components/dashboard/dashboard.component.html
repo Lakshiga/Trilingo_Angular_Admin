@@ -1,128 +1,104 @@
-<div class="dashboard-container">
+<div class="dashboard-container p-6 bg-gray-50 min-h-screen">
 
   <!-- Header -->
-  <div class="dashboard-header">
-    <div class="header-content">
-      <div>
-        <h1 class="dashboard-title"> Admin Dashboard </h1>
-        <p class="welcome-message">Welcome back! Here's a real-time overview of your Trilingo learning platform.</p>
+  <div class="dashboard-header rounded-xl p-6 bg-gradient-to-r from-[#346E8C]/90 to-[#4FA3F7]/70 text-white flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+      <p class="mt-1 text-white/80 text-sm">Welcome back! Here's an overview of your learning platform.</p>
+    </div>
+    
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+    <div class="stat-card flex flex-col items-center gap-3 p-5 rounded-2xl shadow-lg hover:shadow-2xl transition cursor-pointer bg-gradient-to-br from-[#346E8C]/20 to-[#346E8C]/10">
+      <div class="stat-icon bg-[#346E8C] text-white p-3 rounded-xl">
+        <mat-icon>layers</mat-icon>
+      </div>
+      <div class="text-center">
+        <p class="text-sm font-medium text-gray-700">Main Activity Types</p>
+        <h2 class="text-xl font-bold text-gray-900">{{ stats.totalMainActivities }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card flex flex-col items-center gap-3 p-5 rounded-2xl shadow-lg hover:shadow-2xl transition cursor-pointer bg-gradient-to-br from-[#4FA3F7]/20 to-[#4FA3F7]/10">
+      <div class="stat-icon bg-[#4FA3F7] text-white p-3 rounded-xl">
+        <mat-icon>category</mat-icon>
+      </div>
+      <div class="text-center">
+        <p class="text-sm font-medium text-gray-700">Activity Types</p>
+        <h2 class="text-xl font-bold text-gray-900">{{ stats.totalActivityTypes }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card flex flex-col items-center gap-3 p-5 rounded-2xl shadow-lg hover:shadow-2xl transition cursor-pointer bg-gradient-to-br from-[#6C63FF]/20 to-[#6C63FF]/10">
+      <div class="stat-icon bg-[#6C63FF] text-white p-3 rounded-xl">
+        <mat-icon>menu_book</mat-icon>
+      </div>
+      <div class="text-center">
+        <p class="text-sm font-medium text-gray-700">Levels</p>
+        <h2 class="text-xl font-bold text-gray-900">{{ stats.totalLevels }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card flex flex-col items-center gap-3 p-5 rounded-2xl shadow-lg hover:shadow-2xl transition cursor-pointer bg-gradient-to-br from-[#F97316]/20 to-[#F97316]/10">
+      <div class="stat-icon bg-[#F97316] text-white p-3 rounded-xl">
+        <mat-icon>book</mat-icon>
+      </div>
+      <div class="text-center">
+        <p class="text-sm font-medium text-gray-700">Lessons</p>
+        <h2 class="text-xl font-bold text-gray-900">{{ stats.totalLessons }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card flex flex-col items-center gap-3 p-5 rounded-2xl shadow-lg hover:shadow-2xl transition cursor-pointer bg-gradient-to-br from-[#10B981]/20 to-[#10B981]/10">
+      <div class="stat-icon bg-[#10B981] text-white p-3 rounded-xl">
+        <mat-icon>assignment</mat-icon>
+      </div>
+      <div class="text-center">
+        <p class="text-sm font-medium text-gray-700">Activities</p>
+        <h2 class="text-xl font-bold text-gray-900">{{ stats.totalActivities }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card flex flex-col items-center gap-3 p-5 rounded-2xl shadow-lg hover:shadow-2xl transition cursor-pointer bg-gradient-to-br from-[#F43F5E]/20 to-[#F43F5E]/10">
+      <div class="stat-icon bg-[#F43F5E] text-white p-3 rounded-xl">
+        <mat-icon>task</mat-icon>
+      </div>
+      <div class="text-center">
+        <p class="text-sm font-medium text-gray-700">Exercises</p>
+        <h2 class="text-xl font-bold text-gray-900">{{ stats.totalExercises }}</h2>
       </div>
     </div>
   </div>
 
-  <!-- Loading/Error -->
-  <div *ngIf="isLoading" class="status-container">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading dashboard...</p>
-  </div>
-  <div *ngIf="error && !isLoading" class="status-container error">
-    <mat-icon>error_outline</mat-icon>
-    <p>{{ error }}</p>
-    <button mat-raised-button color="primary" (click)="refresh()">Retry</button>
-  </div>
-
-  <!-- Stats Cards -->
-  <div class="stats-grid" *ngIf="!isLoading && !error">
-    <mat-card class="stat-card">
-      <div class="stat-icon blue">
-        <mat-icon>layers</mat-icon>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Total Levels</p>
-        <h2 class="stat-value">{{ stats.totalLevels }}</h2>
-      </div>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <div class="stat-icon green">
-        <mat-icon>menu_book</mat-icon>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Total Lessons</p>
-        <h2 class="stat-value">{{ stats.totalLessons }}</h2>
-      </div>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <div class="stat-icon purple">
-        <mat-icon>assignment</mat-icon>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Total Activities</p>
-        <h2 class="stat-value">{{ stats.totalActivities }}</h2>
-      </div>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <div class="stat-icon pink">
-        <mat-icon>task</mat-icon>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Total Exercises</p>
-        <h2 class="stat-value">{{ stats.totalExercises }}</h2>
-      </div>
-    </mat-card>
-  </div>
-
   <!-- Charts Section -->
-  <div class="charts-grid">
-    <mat-card class="chart-card">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <mat-card class="chart-card rounded-2xl shadow-lg p-4 bg-white">
       <mat-card-header>
-        <mat-card-title>Lesson Completion</mat-card-title>
+        <mat-card-title class="text-gray-800 font-semibold">Lesson Completion</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="chart-placeholder">Chart Placeholder</div>
+        <div class="chart-placeholder h-56 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">Chart Placeholder</div>
       </mat-card-content>
     </mat-card>
 
-    <mat-card class="chart-card">
+    <mat-card class="chart-card rounded-2xl shadow-lg p-4 bg-white">
       <mat-card-header>
-        <mat-card-title>Activity Progress</mat-card-title>
+        <mat-card-title class="text-gray-800 font-semibold">Activity Progress</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="chart-placeholder">Chart Placeholder</div>
+        <div class="chart-placeholder h-56 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">Chart Placeholder</div>
       </mat-card-content>
     </mat-card>
 
-    <mat-card class="chart-card">
+    <mat-card class="chart-card rounded-2xl shadow-lg p-4 bg-white">
       <mat-card-header>
-        <mat-card-title>Exercises Overview</mat-card-title>
+        <mat-card-title class="text-gray-800 font-semibold">Exercises Overview</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="chart-placeholder">Chart Placeholder</div>
+        <div class="chart-placeholder h-56 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">Chart Placeholder</div>
       </mat-card-content>
     </mat-card>
   </div>
-
-  <!-- Details Table / List -->
-  <mat-card class="details-card">
-    <mat-card-header>
-      <mat-card-title>Recent Activities</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <table class="details-table">
-        <thead>
-          <tr>
-            <th>Activity Name</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Updated</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let activity of recentActivities">
-            <td>{{ activity.name }}</td>
-            <td>{{ activity.type }}</td>
-            <td>
-              <span class="status-badge" [ngClass]="activity.status.toLowerCase()">
-                {{ activity.status }}
-              </span>
-            </td>
-            <td>{{ activity.updated | date:'short' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </mat-card-content>
-  </mat-card>
-
 </div>
