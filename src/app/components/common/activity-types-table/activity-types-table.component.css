@@ -102,6 +102,16 @@
   padding: 0;
 }
 
+/* Add Row Container */
+.add-row-container {
+  margin-bottom: 24px;
+}
+
+.add-row-container .activity-types-card {
+  border: 2px solid #0ea5e9;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+}
+
 /* Add Row */
 .add-row {
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
@@ -111,7 +121,7 @@
 
 .add-row .row-content {
   display: grid;
-  grid-template-columns: 100px 200px 200px 200px 150px;
+  grid-template-columns: 100px 200px 200px 200px 200px 150px;
   gap: 24px;
   align-items: start;
 }
@@ -144,6 +154,10 @@
 
 .id-header {
   width: 100px;
+}
+
+.main-activity-header {
+  width: 200px;
 }
 
 .name-en-header,
@@ -184,6 +198,10 @@
 
 .id-cell {
   width: 100px;
+}
+
+.main-activity-cell {
+  width: 200px;
 }
 
 .name-en-cell,

@@ -27,8 +27,7 @@ import { MultilingualInputComponent } from '../multilingual-input/multilingual-i
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTooltipModule,
-    MultilingualInputComponent
+    MatTooltipModule
   ],
   templateUrl: './main-activities-table.component.html',
   styleUrls: ['./main-activities-table.component.css']

@@ -19,10 +19,6 @@ export class AuthApiService {
     return this.httpClient.post<AuthResponse, LoginRequest>(`${this.endpoint}/login`, credentials);
   }
 
-  register(userData: any): Observable<AuthResponse> {
-    return this.httpClient.post<AuthResponse, any>(`${this.endpoint}/register`, userData);
-  }
-
   checkAuthStatus(): void {
     const token = localStorage.getItem('authToken');
     this.isAuthenticatedSubject.next(!!token);

@@ -50,29 +50,27 @@
       <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
         Activity Type
       </label>
-      <mat-form-field appearance="outline" class="w-full" *ngIf="!isMainActivityNotAvailable">
+      <mat-form-field appearance="outline" class="w-full">
         <mat-select
           [(ngModel)]="activityData.activityTypeId"
           (selectionChange)="onActivityTypeChange($event)"
-          [disabled]="isMainActivityNotAvailable || !activityTypes || activityTypes.length === 0"
+          [disabled]="hasExercises || !activityData.mainActivityId || !activityTypes || activityTypes.length === 0"
           required>
+          <mat-option [value]="null">Select Activity Type</mat-option>
           <mat-option *ngFor="let at of activityTypes" [value]="at.activityTypeId">
             {{ at.activityName }}
           </mat-option>
         </mat-select>
-        <mat-hint *ngIf="!activityTypes || activityTypes.length === 0">
-          {{ isMainActivityNotAvailable ? 'Not available' : 'Loading activity types...' }}
+        <mat-hint *ngIf="hasExercises">
+          Activity type cannot be changed when exercises exist. Delete all exercises to change activity type.
+        </mat-hint>
+        <mat-hint *ngIf="!hasExercises && !activityData.mainActivityId">
+          Please select a Main Activity first
+        </mat-hint>
+        <mat-hint *ngIf="!hasExercises && activityData.mainActivityId && (!activityTypes || activityTypes.length === 0)">
+          No activity types available for this main activity
         </mat-hint>
       </mat-form-field>
-      <div *ngIf="isMainActivityNotAvailable" class="not-available-message">
-        <mat-icon class="warning-icon">info</mat-icon>
-        <span>Not yet available</span>
-      </div>
-      <p
-        *ngIf="!isMainActivityNotAvailable && (activityTypes?.length || 0) === 0"
-        class="text-sm text-rose-500 mt-1">
-        No activity types are available for the selected main activity yet.
-      </p>
     </div>
   </div>
 </div>
