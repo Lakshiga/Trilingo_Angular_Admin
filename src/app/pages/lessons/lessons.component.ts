@@ -217,4 +217,12 @@ export class LessonsPageComponent implements OnInit, OnDestroy {
   goBackToLevels(): void {
     this.router.navigate(['levels']);
   }
+
+  getNextId(): number {
+    if (this.lessons.length === 0) {
+      return 1;
+    }
+    const maxId = Math.max(...this.lessons.map(lesson => lesson.lessonId));
+    return maxId + 1;
+  }
 }

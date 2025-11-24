@@ -38,35 +38,7 @@
           </mat-icon>
 
         </mat-form-field>
-
       </div>
     </mat-tab>
-
   </mat-tab-group>
-
-  <!-- Completion Indicator -->
-  <div 
-    class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/40 rounded-xl border border-slate-200 dark:border-slate-600"
-    *ngIf="showCompletionIndicator">
-
-    <div class="flex items-center gap-2">
-
-      <span 
-        *ngFor="let language of languages"
-        class="w-3 h-3 rounded-full transition-all"
-        [class.bg-green-500]="hasContent(language.code)"
-        [class.bg-slate-300]="!hasContent(language.code)"
-        [class.ring]="currentLanguage === language.code"
-        [class.ring-blue-500]="currentLanguage === language.code"
-        [matTooltip]="getLanguageLabel(language.code)">
-      </span>
-
-    </div>
-
-    <span class="text-sm text-slate-600 dark:text-slate-300">
-      {{ getCompletionText() }}
-    </span>
-
-  </div>
-
 </div>

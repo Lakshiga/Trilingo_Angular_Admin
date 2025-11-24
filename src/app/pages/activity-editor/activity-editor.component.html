@@ -1,89 +1,117 @@
-<div class="activity-editor-page">
-  <div class="header">
-    <div class="actions">
-      <button 
-        mat-button 
-        (click)="goBack()">
-        ← BACK TO LIST
-      </button>
-      <button 
-        mat-raised-button 
-        color="primary"
-        (click)="handleSave()">
-        💾 SAVE ENTIRE ACTIVITY
-      </button>
-    </div>
-  </div>
+<div class="activity-editor-container">
+    <button mat-flat-button
+            class="save-button"
+            (click)="handleSave()"
+            [disabled]="isLoading">
+      <mat-icon>save</mat-icon>
+      <span>Save Activity</span>
+    </button>
   
-  <div class="content" *ngIf="!isLoading && activity">
-    <div class="grid-container">
-      <!-- Column 1: Activity Details Form -->
-      <div class="form-column">
-        <mat-card>
-          <mat-card-content>
-            <app-activity-form
-              [activityData]="activity"
-              [mainActivities]="mainActivities"
-              [activityTypes]="getDisplayActivityTypes()"
-              [hasExercises]="exercises && exercises.length > 0"
-              (dataChange)="handleFormChangeWrapper($event)">
-            </app-activity-form>
-          </mat-card-content>
-        </mat-card>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="60" class="spinner"></mat-spinner>
+    <p class="loading-text">Loading activity editor...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && activity" class="main-content">
+    
+    <!-- Left Column: Activity Form -->
+    <div class="left-panel">
+      <div class="panel-card">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <mat-icon>edit</mat-icon>
+            Activity Details
+          </h2>
+        </div>
+        <div class="panel-body">
+          <app-activity-form
+            [activityData]="activity"
+            [mainActivities]="mainActivities"
+            [activityTypes]="getDisplayActivityTypes()"
+            [hasExercises]="exercises && exercises.length > 0"
+            (dataChange)="handleFormChangeWrapper($event)">
+          </app-activity-form>
+        </div>
       </div>
-      
-      <!-- Column 2: JSON Template & Exercises -->
-      <div class="editor-column">
-        <div class="template-section">
-          <div class="template-header">
-            <h3>JSON Template</h3>
+    </div>
+    
+    <!-- Middle Column: JSON Template & Exercises -->
+    <div class="middle-panel">
+      <div class="panels-container">
+        
+        <!-- JSON Template Section -->
+        <div class="panel-card template-card" 
+             [class.template-expanded]="(activity.activityTypeId || 0) > 0">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <mat-icon>code</mat-icon>
+              JSON Template
+            </h2>
             <button 
-              mat-raised-button 
-              color="accent"
+              mat-icon-button
+              class="icon-button"
               (click)="handleCopyTemplate()"
-              [disabled]="!(activity.activityTypeId || 0) || (activity.activityTypeId || 0) <= 0">
+              [disabled]="!(activity.activityTypeId || 0) || (activity.activityTypeId || 0) <= 0"
+              matTooltip="Copy Template">
               <mat-icon>content_copy</mat-icon>
-              COPY TEMPLATE
             </button>
           </div>
-          <p class="template-description">
-            Select an Activity Type from the form to see its required JSON structure.
-            Click "COPY TEMPLATE" to copy this structure to your clipboard.
-          </p>
-          <div class="template-content" *ngIf="(activity.activityTypeId || 0) > 0; else noTemplate">
-            <pre><code>{{ getActivityTemplate(activity.activityTypeId || 0) }}</code></pre>
-          </div>
-          <ng-template #noTemplate>
-            <div class="no-template">
-              <p>Please select an Activity Type to view its template.</p>
+          <div class="panel-body template-body">
+            <div *ngIf="(activity.activityTypeId || 0) > 0; else noTemplate" class="template-content">
+              <pre class="code-block"><code>{{ getActivityTemplate(activity.activityTypeId || 0) }}</code></pre>
             </div>
-          </ng-template>
+            <ng-template #noTemplate>
+              <div class="empty-state">
+                <mat-icon class="empty-icon">info</mat-icon>
+                <p class="empty-text">Select an Activity Type to view its JSON template</p>
+              </div>
+            </ng-template>
+          </div>
         </div>
         
-        <div class="exercises-section">
-          <h3>Exercises</h3>
-          <div class="exercise-editor-wrapper">
+        <!-- Exercises Section -->
+        <div class="panel-card exercises-card">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <mat-icon>fitness_center</mat-icon>
+              Exercises
+            </h2>
+          </div>
+          <div class="panel-body exercises-body">
             <app-exercise-editor
-            [exercises]="exercises"
-            [activityId]="activityId"
-            [activityTypeId]="activity.activityTypeId || 0"
-            [expandedExercise]="expandedExercise"
-            (addExercise)="handleAddExercise()"
-            (updateExercise)="handleUpdateExercise($event.exerciseId, $event.jsonData)"
-            (deleteExercise)="handleDeleteExercise($event)"
-            (previewExercise)="handlePreviewExercise($event)"
-            (expansionChange)="expandedExercise = $event.isExpanded ? $event.index : false">
+              [exercises]="exercises"
+              [activityId]="activityId"
+              [activityTypeId]="activity.activityTypeId || 0"
+              [expandedExercise]="expandedExercise"
+              (addExercise)="handleAddExercise()"
+              (updateExercise)="handleUpdateExercise($event.exerciseId, $event.jsonData)"
+              (deleteExercise)="handleDeleteExercise($event)"
+              (previewExercise)="handlePreviewExercise($event)"
+              (expansionChange)="expandedExercise = $event.isExpanded ? $event.index : false">
             </app-exercise-editor>
           </div>
         </div>
-      </div>
-      
-      <!-- Column 3: Device Preview -->
-      <div class="preview-column">
-        <app-device-preview [activityData]="previewContent || activity"></app-device-preview>
+        
       </div>
     </div>
+    
+    <!-- Right Column: Device Preview -->
+    <div class="right-panel">
+      <div class="panel-card">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <mat-icon>preview</mat-icon>
+            Device Preview
+          </h2>
+        </div>
+        <div class="panel-body preview-body">
+          <app-device-preview [activityData]="previewContent || activity"></app-device-preview>
+        </div>
+      </div>
+    </div>
+    
   </div>
-  
-  <mat-spinner *ngIf="isLoading" class="loading-spinner"></mat-spinner>
 </div>

@@ -1,25 +1,12 @@
 .exercise-editor {
   margin: 0;
-  height: auto;
-  min-height: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.exercise-editor mat-card {
-  height: auto;
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-}
-
-.exercise-editor mat-card-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: visible;
+  gap: 16px;
   min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .exercises-info {
@@ -128,4 +115,28 @@ mat-expansion-panel {
   font-weight: 600;
   margin-left: 12px;
   text-transform: uppercase;
+}
+
+/* Scrollbar styling for exercise editor */
+.exercise-editor {
+  scrollbar-width: thin;
+  scrollbar-color: #c7c7c7 #f5f5f5;
+}
+
+.exercise-editor::-webkit-scrollbar {
+  width: 6px;
+}
+
+.exercise-editor::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.exercise-editor::-webkit-scrollbar-thumb {
+  background: #c7c7c7;
+  border-radius: 4px;
+}
+
+.exercise-editor::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
 }

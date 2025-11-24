@@ -1,0 +1,41 @@
+/* Smooth Scrollbar */
+main::-webkit-scrollbar {
+    width: 6px;
+  }
+  main::-webkit-scrollbar-track {
+    background: #f8fafc;
+  }
+  main::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+  main::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  
+  /* Range Slider Styling */
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%; 
+    background: #4f46e5; /* Indigo-600 */
+    cursor: pointer;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    transition: transform 0.1s ease;
+  }
+  
+  input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    background: #4338ca;
+  }
+  
+  input[type=range]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%; 
+    background: #4f46e5;
+    cursor: pointer;
+    border: none;
+  }

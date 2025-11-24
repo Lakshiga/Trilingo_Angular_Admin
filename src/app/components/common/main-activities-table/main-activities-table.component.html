@@ -1,217 +1,193 @@
-<div class="main-activities-page">
-  
+<div class="w-full max-w-[1600px] mx-auto p-4 space-y-4">
+
   <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-text">
-        <h1 class="page-title">Manage Main Activities</h1>
-        <p class="page-subtitle">Manage main activity categories</p>
-      </div>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="space-y-2">
+      <h1 style="font-weight: 900;" class="text-4xl font-bold text-gray-900 tracking-tight">Main Activities</h1>
     </div>
-    <button 
-      mat-raised-button 
-      color="primary" 
-      class="add-button"
-      (click)="startAdding()" 
-      [disabled]="isAdding || editRowId !== null || isLoading">
-      <mat-icon>add</mat-icon>
-      Add Main Activity
+    
+    <button mat-flat-button
+            class="!bg-[#346E8C] hover:!bg-[#2a5a73] !text-white !rounded-xl !px-8 !py-3 !shadow-lg !shadow-[#346E8C]/25 disabled:opacity-50 transition-all duration-200 hover:scale-105 hover:shadow-xl"
+            (click)="startAdding()" 
+            [disabled]="isAdding || editRowId !== null || isLoading">
+      <div class="flex items-center gap-2.5">
+        <mat-icon class="!w-5 !h-5">add_circle</mat-icon>
+        <span class="font-semibold text-base">Add New Activity</span>
+      </div>
     </button>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading main activities...</p>
+  <!-- Main Content Card -->
+  <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden relative">
+    
+    <!-- Loading Overlay -->
+    <div *ngIf="isLoading" class="absolute inset-0 bg-white/95 z-50 flex flex-col items-center justify-center backdrop-blur-md">
+      <div class="flex flex-col items-center gap-5">
+        <mat-spinner diameter="60" class="!text-[#346E8C]"></mat-spinner>
+        <p class="text-gray-700 font-semibold text-lg">Loading activities...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="flex flex-col items-center justify-center py-32 text-center px-6">
+      <div class="bg-red-50 p-6 rounded-2xl mb-6 shadow-lg">
+        <mat-icon class="text-red-500 !w-12 !h-12 !text-[48px]">error_outline</mat-icon>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 mb-3">Failed to load data</h3>
+      <p class="text-gray-600 mb-8 max-w-md text-lg">{{ error }}</p>
+      <button mat-stroked-button 
+              class="!border-[#346E8C] !text-[#346E8C] hover:!bg-[#346E8C] hover:!text-white !rounded-xl !px-8 !py-3 !font-semibold transition-all"
+              (click)="loadActivities()">
+        Try Again
+      </button>
+    </div>
+
+    <!-- Table Container -->
+    <div *ngIf="!error" class="overflow-x-auto">
+      <table class="w-full">
+        
+        <!-- Table Head -->
+        <thead class="bg-gradient-to-r from-[#346e8c] via-[#3d7ba0] to-[#346E8C] text-white shadow-lg">
+          <tr>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">ID</th>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">English</th>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Tamil</th>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Sinhala</th>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="bg-gray-800 divide-y divide-gray-100">
+          
+          <!-- Add New Row Form -->
+          <tr *ngIf="isAdding" class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-[#346E8C] animate-slideDown shadow-sm">
+            <td class="px-6 py-3">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#346E8C] to-[#4a8fb8] text-white font-bold text-xs shadow-md">
+                {{ getNextId() }}
+              </span>
+            </td>
+            
+            <td class="px-6 py-3">
+              <input type="text" [(ngModel)]="newActivity.name_en" 
+                     class="modern-input" placeholder="Enter English Name" autofocus>
+            </td>
+            <td class="px-6 py-3">
+              <input type="text" [(ngModel)]="newActivity.name_ta" 
+                     class="modern-input" placeholder="Enter Tamil Name">
+            </td>
+            <td class="px-6 py-3">
+              <input type="text" [(ngModel)]="newActivity.name_si" 
+                     class="modern-input" placeholder="Enter Sinhala Name">
+            </td>
+            
+            <td class="px-6 py-3 text-right">
+              <div class="flex items-center justify-end gap-3">
+                <button (click)="cancelEdit()" 
+                        class="action-btn-cancel" 
+                        title="Cancel">
+                  <mat-icon class="!w-5 !h-5">close</mat-icon>
+                </button>
+                <button (click)="saveActivity()" 
+                        class="action-btn-save" 
+                        title="Save">
+                  <mat-icon class="!w-5 !h-5">check</mat-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Data Rows -->
+          <tr *ngFor="let activity of activities" class="group bg-white hover:bg-[#c5d8e2] transition-all duration-200" [class.bg-blue-50]="editRowId === activity.id" [class.border-l-4]="editRowId === activity.id" [style.border-left-color]="editRowId === activity.id ? '#346E8C' : 'transparent'">
+            
+            <!-- ID -->
+            <td class="px-6 py-3">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#346E8C] to-[#4a8fb8] text-white font-bold text-xs shadow-md">
+                {{ activity.id }}
+              </span>
+            </td>
+
+            <!-- English -->
+            <td class="px-6 py-3">
+              <span *ngIf="editRowId !== activity.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+                {{ activity.name_en || '-' }}
+              </span>
+              <input *ngIf="editRowId === activity.id" 
+                     [(ngModel)]="editedActivity!.name_en" 
+                     class="modern-input">
+            </td>
+
+            <!-- Tamil -->
+            <td class="px-6 py-3 font-noto-sans-tamil">
+              <span *ngIf="editRowId !== activity.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+                {{ activity.name_ta || '-' }}
+              </span>
+              <input *ngIf="editRowId === activity.id" 
+                     [(ngModel)]="editedActivity!.name_ta" 
+                     class="modern-input">
+            </td>
+
+            <!-- Sinhala -->
+            <td class="px-6 py-3 font-noto-sans-sinhala">
+              <span *ngIf="editRowId !== activity.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+                {{ activity.name_si || '-' }}
+              </span>
+              <input *ngIf="editRowId === activity.id" 
+                     [(ngModel)]="editedActivity!.name_si"  
+                     class="modern-input">
+            </td>
+
+            <!-- Actions -->
+            <td class="px-6 py-3 text-right">
+              <!-- View Mode Actions -->
+              <div *ngIf="editRowId !== activity.id" 
+                   class="flex items-center justify-end gap-2">
+                <button (click)="startEditing(activity)" 
+                        class="action-btn-edit"
+                        matTooltip="Edit">
+                  <mat-icon class="!w-5 !h-5">edit</mat-icon>
+                </button>
+                <button (click)="deleteActivity(activity)" 
+                        class="action-btn-delete"
+                        matTooltip="Delete">
+                  <mat-icon class="!w-5 !h-5">delete</mat-icon>
+                </button>
+              </div>
+
+              <!-- Edit Mode Actions -->
+              <div *ngIf="editRowId === activity.id" 
+                   class="flex items-center justify-end gap-3">
+                <button (click)="cancelEdit()" 
+                        class="action-btn-cancel">
+                  <mat-icon class="!w-5 !h-5">close</mat-icon>
+                </button>
+                <button (click)="saveActivity(activity)" 
+                        class="action-btn-save">
+                  <mat-icon class="!w-5 !h-5">check</mat-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="activities.length === 0 && !isAdding && !isLoading">
+            <td colspan="5" class="py-32 text-center">
+              <div class="flex flex-col items-center justify-center">
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50 p-8 rounded-3xl mb-8 shadow-lg">
+                  <mat-icon class="text-gray-400 !w-16 !h-16 !text-[64px]">inventory_2</mat-icon>
+                </div>
+                <p class="text-gray-900 font-bold text-2xl mb-3">No activities found</p>
+                <p class="text-gray-600 text-lg mb-8 max-w-md">Get started by creating your first main activity.</p>
+                <button class="text-[#346E8C] hover:text-[#2a5a73] hover:underline text-lg font-bold transition-colors flex items-center gap-2" 
+                        (click)="startAdding()">
+                  <mat-icon class="!w-5 !h-5">add_circle</mat-icon>
+                  Create New Activity
+                </button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
   </div>
-
-  <!-- Error State -->
-  <div *ngIf="error && !isLoading" class="error-container">
-    <mat-icon class="error-icon">error_outline</mat-icon>
-    <p>{{ error }}</p>
-    <button mat-raised-button color="primary" (click)="loadActivities()">Retry</button>
-  </div>
-
-  <!-- Main Activities Table -->
-  <div *ngIf="!isLoading && !error" class="table-container">
-    <mat-card class="activities-card">
-      <mat-card-content class="card-content">
-        
-        <!-- Add New Activity Row -->
-        <div *ngIf="isAdding" class="w-full bg-indigo-50/60 border-b border-gray-200 animate-fade-in">
-          <div class="flex items-center px-6 py-3 gap-4">
-        
-            <div class="flex-1 min-w-[200px]">
-              <mat-form-field appearance="outline" class="w-full modern-table-input">
-                
-                <input 
-                  matInput 
-                  [(ngModel)]="newActivity.name_en" 
-                  placeholder="English Name"
-                  class="!text-sm font-medium text-gray-700"
-                >  
-              </mat-form-field>
-            </div>
-            <div class="flex-1 min-w-[200px]">
-              <mat-form-field appearance="outline" class="w-full modern-table-input">
-                <input 
-                  matInput 
-                  [(ngModel)]="newActivity.name_ta" 
-                  placeholder="Tamil Name"
-                  class="!text-sm font-medium text-gray-700"
-                >
-              </mat-form-field>
-            </div>
-        
-            <div class="flex-1 min-w-[200px]">
-              <mat-form-field appearance="outline" class="w-full modern-table-input">
-                <input
-                  matInput 
-                  [(ngModel)]="newActivity.name_si" 
-                  placeholder="Sinhala Name" 
-                  class="!text-sm font-medium text-gray-700"
-                >
-              </mat-form-field>
-            </div>
-
-        
-              <button 
-                mat-mini-fab 
-                color="warn" 
-                class="!bg-red-50 !text-red-500 !w-8 !h-8 shadow-none border border-red-100"
-                (click)="cancelEdit()"
-                matTooltip="Cancel">
-                <mat-icon class="!text-lg">close</mat-icon>
-              </button>
-              <button 
-                mat-mini-fab 
-                color="primary" 
-                class="!bg-indigo-50 !text-indigo-500 !w-8 !h-8 shadow-none border border-indigo-100"
-                (click)="saveActivity()"
-                [disabled]="!newActivity.name_en && !newActivity.name_ta && !newActivity.name_si"
-                matTooltip="Save">
-                <mat-icon class="!text-lg">check</mat-icon>
-              </button>
-            </div>
-          </div>
-        <!-- Activities Table -->
-        <div class="table-wrapper">
-          <table class="activities-table">
-            <thead>
-              <tr>
-                <th class="id-header">ID</th>
-                <th class="name-en-header">English Name</th>
-                <th class="name-ta-header">தமிழ் Name</th>
-                <th class="name-si-header">සිංහල Name</th>
-                <th class="actions-header">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let activity of activities" class="table-row" [class.editing]="editRowId === activity.id">
-                
-                <!-- ID -->
-                <td class="cell id-cell">
-                  <div class="cell-value">
-                    {{ activity.id }}
-                  </div>
-                </td>
-
-                <!-- English Name -->
-                <td class="cell name-en-cell">
-                  <div *ngIf="editRowId !== activity.id" class="cell-value">
-                    {{ activity.name_en }}
-                  </div>
-                  <mat-form-field *ngIf="editRowId === activity.id" appearance="outline" class="edit-field">
-                    <input 
-                      matInput 
-                      [(ngModel)]="editedActivity!.name_en"
-                      placeholder="English Name"
-                      class="!text-base">
-                  </mat-form-field>
-                </td>
-
-                <!-- Tamil Name -->
-                <td class="cell name-ta-cell">
-                  <div *ngIf="editRowId !== activity.id" class="cell-value">
-                    {{ activity.name_ta }}
-                  </div>
-                  <mat-form-field *ngIf="editRowId === activity.id" appearance="outline" class="edit-field">
-                    <input 
-                      matInput 
-                      [(ngModel)]="editedActivity!.name_ta"
-                      placeholder="தமிழ் Name"
-                      class="!text-base">
-                  </mat-form-field>
-                </td>
-
-                <!-- Sinhala Name -->
-                <td class="cell name-si-cell">
-                  <div *ngIf="editRowId !== activity.id" class="cell-value">
-                    {{ activity.name_si }}
-                  </div>
-                  <mat-form-field *ngIf="editRowId === activity.id" appearance="outline" class="edit-field">
-                    <input 
-                      matInput 
-                      [(ngModel)]="editedActivity!.name_si"
-                      placeholder="සිංහල Name"
-                      class="!text-base">
-                  </mat-form-field>
-                </td>
-
-                <!-- Actions -->
-                <td class="cell actions-cell">
-                  <div *ngIf="editRowId !== activity.id" class="action-buttons">
-                    <button 
-                      mat-icon-button 
-                      color="primary"
-                      (click)="startEditing(activity)"
-                      [disabled]="isAdding || isLoading"
-                      matTooltip="Edit">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                    <button 
-                      mat-icon-button 
-                      color="warn"
-                      (click)="deleteActivity(activity)"
-                      [disabled]="isAdding || isLoading"
-                      matTooltip="Delete">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </div>
-                  <div *ngIf="editRowId === activity.id" class="action-buttons">
-                    <button 
-                      mat-icon-button 
-                      color="primary"
-                      (click)="saveActivity(activity)"
-                      [disabled]="!editedActivity?.name_en && !editedActivity?.name_ta && !editedActivity?.name_si"
-                      matTooltip="Save">
-                      <mat-icon>check</mat-icon>
-                    </button>
-                    <button 
-                      mat-icon-button 
-                      (click)="cancelEdit()"
-                      matTooltip="Cancel">
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-
-              <!-- Empty State -->
-              <tr *ngIf="activities.length === 0 && !isAdding" class="empty-row">
-                <td colspan="5" class="empty-cell">
-                  <div class="empty-state">
-                    <mat-icon>category_outline</mat-icon>
-                    <p>No main activities found. Click "Add Main Activity" to create one.</p>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-      </mat-card-content>
-    </mat-card>
-  </div>
-
 </div>

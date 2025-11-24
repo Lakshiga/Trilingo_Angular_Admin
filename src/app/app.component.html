@@ -3,73 +3,61 @@
 </ng-container>
 
 <ng-template #adminLayout>
-  <div class="admin-layout flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+  <div class="admin-layout flex flex-col h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors duration-300 overflow-hidden">
     
     <!-- Top Navigation Bar -->
-    <header class="top-navbar">
-      <div class="navbar-content">
+    <header class="sticky top-0 w-full bg-[#346e8c] border-b border-white/10 shadow-sm z-[1000]">
+      <div class="flex justify-between items-center h-[72px] px-8 max-w-full relative lg:px-5">
         
-        <!-- Left: Logo and Brand -->
-        <div class="navbar-left">
-          <div class="brand-container">
-            <div class="brand-logo-wrapper">
-              <img src="/assets/images/logo.png" alt="Trilingo Admin Logo" class="brand-logo">
-            </div>
-            <h1 class="brand-name">Trilingo</h1>
+        <div class="flex items-center h-full">
+          <div class="w-14 h-14 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5">
+            <img src="/assets/images/logo.png" alt="Q-bit Logo" class="w-full h-full object-cover rounded-full">
           </div>
         </div>
+    
+
+
+        
         
         <!-- Center: Desktop Navigation -->
-        <nav class="navbar-center">
-          <a routerLink="/dashboard" routerLinkActive="active" #dashboardLink="routerLinkActive" [ngClass]="{'active': dashboardLink.isActive}" class="nav-link">
-            <span class="nav-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" /><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
-              </svg>
-            </span>
-            <span class="nav-text">Dashboard</span>
+        <nav class="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-5 h-full z-[5]">
+
+          <a routerLink="/dashboard" routerLinkActive="active" #dashboardLink="routerLinkActive"
+             [ngClass]="{'active': dashboardLink.isActive}"
+             class="nav-link flex items-center gap-2 px-4.5 py-2.5 text-white font-medium text-sm whitespace-nowrap">
+            <span>Dashboard</span>
           </a>
-          <a routerLink="/main-activities" routerLinkActive="active" #mainActivitiesLink="routerLinkActive" [ngClass]="{'active': mainActivitiesLink.isActive}" class="nav-link">
-            <span class="nav-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-            </span>
-            <span class="nav-text">Main Activities</span>
+        
+          <a routerLink="/main-activities" routerLinkActive="active" #mainActivitiesLink="routerLinkActive"
+             [ngClass]="{'active': mainActivitiesLink.isActive}"
+             class="nav-link flex items-center gap-2 px-4.5 py-2.5 text-white font-medium text-sm whitespace-nowrap">
+            <span>Main Activities</span>
           </a>
-          <a routerLink="/activity-types" routerLinkActive="active" #activityTypesLink="routerLinkActive" [ngClass]="{'active': activityTypesLink.isActive}" class="nav-link">
-            <span class="nav-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-              </svg>
-            </span>
-            <span class="nav-text">Activity Types</span>
+        
+          <a routerLink="/activity-types" routerLinkActive="active" #activityTypesLink="routerLinkActive"
+             [ngClass]="{'active': activityTypesLink.isActive}"
+             class="nav-link flex items-center gap-2 px-4.5 py-2.5 text-white font-medium text-sm whitespace-nowrap">
+            <span>Activity Types</span>
           </a>
-          <a routerLink="/levels" routerLinkActive="active" #levelsLink="routerLinkActive" [ngClass]="{'active': levelsLink.isActive}" class="nav-link">
-            <span class="nav-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3.5a1 1 0 000 1.74l7 3.5c.267.133.585.133.852 0l7-3.5a1 1 0 000-1.74l-7-3.5zM10 9.42L3.05 6 10 2.58 16.95 6 10 9.42z" />
-                <path d="M10 11.42l-7-3.5a1 1 0 00-.788 1.74l7 3.5c.267.133.585.133.852 0l7-3.5a1 1 0 00-.788-1.74l-7 3.5z" />
-                <path d="M10 13.42l-7-3.5a1 1 0 00-.788 1.74l7 3.5c.267.133.585.133.852 0l7-3.5a1 1 0 00-.788-1.74l-7 3.5z" />
-              </svg>
-            </span>
-            <span class="nav-text">Levels</span>
+        
+          <a routerLink="/levels" routerLinkActive="active" #levelsLink="routerLinkActive"
+             [ngClass]="{'active': levelsLink.isActive}"
+             class="nav-link flex items-center gap-2 px-4.5 py-2.5 text-white font-medium text-sm whitespace-nowrap">
+            <span>Levels</span>
           </a>
+        
         </nav>
         
+        
         <!-- Right: Profile Dropdown -->
-        <div class="navbar-right">
-          <div class="profile-dropdown">
-            <div class="profile-trigger" (click)="toggleProfileDropdown()">
-              <div class="profile-avatar-wrapper">
-                <img src="https://i.pravatar.cc/40?u=sarah" alt="User Avatar" class="profile-avatar">
-                <span class="profile-status"></span>
+        <div class="flex items-center justify-end flex-shrink-0 z-10">
+          <div class="relative">
+            <div class="flex items-center gap-3 px-3 py-1.5 rounded-xl cursor-pointer transition-all bg-white/10 hover:bg-white/20" (click)="toggleProfileDropdown()">
+              <div class="relative flex items-center justify-center">
+                <img src="https://i.pravatar.cc/40?u=sarah" alt="User Avatar" class="w-9 h-9 rounded-lg object-cover border-2 border-white shadow-sm">
+                <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>
               </div>
-              <div class="profile-info">
-                <span class="profile-name">Admin</span>
-                <span class="profile-role">Administrator</span>
-              </div>
-              <svg xmlns="http://www.w3.org/2000/svg" class="profile-chevron" [class.rotated]="showProfileDropdown" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white transition-transform flex-shrink-0" [class.rotate-180]="showProfileDropdown" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -80,9 +68,6 @@
               <div class="dropdown-header">
                 <div class="dropdown-avatar-large">
                   <img src="https://i.pravatar.cc/40?u=sarah" alt="User Avatar" class="profile-avatar-large">
-                </div>
-                <div class="dropdown-user-info">
-                  <p class="dropdown-name">Administrator/p>
                 </div>
               </div>
 
@@ -123,25 +108,25 @@
       </div>
 
       <!-- Mobile Navigation -->
-      <nav class="navbar-center-mobile">
-        <a routerLink="/dashboard" routerLinkActive="active" #dashboardLinkMobile="routerLinkActive" [ngClass]="{'active': dashboardLinkMobile.isActive}" class="nav-link-mobile">
+      <nav class="flex items-center gap-1.5 px-4 py-3 overflow-x-auto scrollbar-hide border-t border-white/10 bg-[#346E8C] lg:hidden">
+        <a routerLink="/dashboard" routerLinkActive="active" #dashboardLinkMobile="routerLinkActive" [ngClass]="{'active': dashboardLinkMobile.isActive}" class="flex-shrink-0 px-4 py-2 text-white no-underline text-xs font-medium rounded-lg transition-all whitespace-nowrap relative hover:bg-white/20">
           <span>Dashboard</span>
         </a>
-        <a routerLink="/main-activities" routerLinkActive="active" #mainActivitiesLinkMobile="routerLinkActive" [ngClass]="{'active': mainActivitiesLinkMobile.isActive}" class="nav-link-mobile">
+        <a routerLink="/main-activities" routerLinkActive="active" #mainActivitiesLinkMobile="routerLinkActive" [ngClass]="{'active': mainActivitiesLinkMobile.isActive}" class="flex-shrink-0 px-4 py-2 text-white no-underline text-xs font-medium rounded-lg transition-all whitespace-nowrap relative hover:bg-white/20">
           <span>Main Activities</span>
         </a>
-        <a routerLink="/activity-types" routerLinkActive="active" #activityTypesLinkMobile="routerLinkActive" [ngClass]="{'active': activityTypesLinkMobile.isActive}" class="nav-link-mobile">
+        <a routerLink="/activity-types" routerLinkActive="active" #activityTypesLinkMobile="routerLinkActive" [ngClass]="{'active': activityTypesLinkMobile.isActive}" class="flex-shrink-0 px-4 py-2 text-white no-underline text-xs font-medium rounded-lg transition-all whitespace-nowrap relative hover:bg-white/20">
           <span>Activity Types</span>
         </a>
-        <a routerLink="/levels" routerLinkActive="active" #levelsLinkMobile="routerLinkActive" [ngClass]="{'active': levelsLinkMobile.isActive}" class="nav-link-mobile">
+        <a routerLink="/levels" routerLinkActive="active" #levelsLinkMobile="routerLinkActive" [ngClass]="{'active': levelsLinkMobile.isActive}" class="flex-shrink-0 px-4 py-2 text-white no-underline text-xs font-medium rounded-lg transition-all whitespace-nowrap relative hover:bg-white/20">
           <span>Levels</span>
         </a>
       </nav>
     </header>
 
     <!-- Main Content -->
-    <div class="content-wrapper flex flex-1 w-full">
-      <main class="main-content flex-1 p-4 sm:p-6">
+    <div class="content-wrapper flex flex-1 w-full overflow-hidden">
+      <main class="main-content flex-1 w-full p-4 sm:p-6 overflow-y-auto scrollbar-hide bg-white">
           <router-outlet />
       </main>
     </div>
