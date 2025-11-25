@@ -1,64 +1,59 @@
-<div class="relative flex items-center justify-center min-h-screen bg-[#346E8C] px-6 overflow-hidden">
-
-  <!-- Background logo -->
-  <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-    <img src="/assets/images/logo.png" alt="Logo" class="object-contain">
-  </div>
-
-  <!-- Glass login box -->
-  <div class="relative w-full max-w-md p-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-lg flex flex-col gap-6">
-
-    <!-- Header -->
-    <div class="text-center">
-      <h1 class="text-3xl font-extrabold text-white mb-2 select-none">Q-bit</h1>
-      <p class="text-sm text-white/80">Sign in to your admin dashboard</p>
+<div class="login-container">
+  <div class="login-box">
+    <div class="login-header">
+      <h1 class="login-title">Q-bit Admin Panel</h1>
+      <p class="login-subtitle">Sign in to your admin dashboard</p>
     </div>
-
-    <!-- Form -->
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-
-      <!-- Username -->
-      <div class="relative">
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Username or Email</mat-label>
         <input 
-          type="text" 
+          matInput 
           formControlName="identifier"
-          placeholder="Username or Email" 
-          required
-          class="w-full py-3 pl-10 pr-4 rounded-lg bg-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
-        >
-        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-white/70">👤</span>
-      </div>
-
-      <!-- Password -->
-      <div class="relative">
+          type="text"
+          autocomplete="username"
+          required>
+        <mat-icon matPrefix>person</mat-icon>
+      </mat-form-field>
+      
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Password</mat-label>
         <input 
-          [type]="hidePassword ? 'password' : 'text'" 
+          matInput 
           formControlName="password"
-          placeholder="Password" 
-          required
-          class="w-full py-3 pl-10 pr-10 rounded-lg bg-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
-        >
-        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-white/70">🔒</span>
-        <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-white/70" (click)="togglePasswordVisibility()">
-          {{ hidePassword ? '👁️' : '🙈' }}
+          [type]="hidePassword ? 'password' : 'text'"
+          autocomplete="current-password"
+          required>
+        <mat-icon matPrefix>lock</mat-icon>
+        <button 
+          mat-icon-button 
+          matSuffix 
+          type="button"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-pressed]="hidePassword">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
         </button>
+      </mat-form-field>
+      
+      <div class="error-message" *ngIf="error">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error }}</span>
       </div>
-
-      <!-- Error -->
-      <div *ngIf="error" class="flex items-center gap-2 text-red-500 text-sm bg-red-100/50 px-3 py-2 rounded-md border border-red-300">
-        ⚠️ {{ error }}
-      </div>
-
-      <!-- Submit -->
-      <button type="submit" [disabled]="isLoading || loginForm.invalid"
-        class="w-full py-3 rounded-lg bg-white/30 text-white font-semibold hover:bg-white/40 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
-        <span *ngIf="isLoading" class="flex items-center gap-2">
-          <span class="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5"></span>
-          Signing in...
+      
+      <button 
+        mat-raised-button 
+        color="primary" 
+        type="submit"
+        class="full-width login-button"
+        [disabled]="isLoading || loginForm.invalid">
+        <span *ngIf="isLoading" class="button-content">
+          <mat-spinner diameter="20" class="spinner"></mat-spinner>
+          <span>Signing in...</span>
         </span>
         <span *ngIf="!isLoading">Sign In</span>
       </button>
-
     </form>
   </div>
 </div>
