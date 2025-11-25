@@ -1,77 +1,97 @@
 .multilingual-input {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.language-tabs {
-  margin-bottom: 16px;
+.multilingual-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
-.tab-content {
-  padding: 16px 0;
+.label {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #0f172a;
 }
 
-.full-width {
+.completion {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.language-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.language-card {
+  padding: 0.9rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.language-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flag {
+  font-size: 1.25rem;
+}
+
+.language-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.native-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.locale {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.status-icon {
+  margin-left: auto;
+  font-size: 1.1rem;
+  color: #10b981;
+}
+
+.language-field {
   width: 100%;
 }
 
-.content-indicator {
-  color: #4caf50;
-  font-size: 20px;
+.language-field .mat-mdc-form-field-flex {
+  padding: 0 0.5rem;
 }
 
-.completion-indicator {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  font-size: 0.875rem;
+.language-field .mat-input-element {
+  font-size: 0.95rem;
 }
 
-.language-status {
-  display: flex;
-  gap: 4px;
-}
-
-.language-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #ccc;
-  transition: all 0.2s ease;
-}
-
-.language-dot.completed {
-  background-color: #4caf50;
-}
-
-.language-dot.current {
-  border: 2px solid #1976d2;
-  transform: scale(1.2);
-}
-
-.completion-text {
-  color: #666;
-}
-
-.mat-mdc-tab-group {
-  --mdc-tab-indicator-active-indicator-color: #1976d2;
-}
-
-.mat-mdc-tab {
-  min-width: 120px;
-}
-
-@media (max-width: 768px) {
-  .mat-mdc-tab {
-    min-width: 80px;
+@media (max-width: 1100px) {
+  .language-grid {
+    grid-template-columns: 1fr;
   }
-  
-  .completion-indicator {
+
+  .multilingual-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
   }
 }
-
