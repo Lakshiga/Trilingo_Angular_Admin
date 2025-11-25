@@ -1098,14 +1098,23 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     return MultilingualActivityTemplates.getTemplate(activityTypeId);
   }
 
+  getFormattedTemplate(activityTypeId: number): string {
+    if (!activityTypeId || activityTypeId <= 0) {
+      return '';
+    }
+    try {
+      const parsed = JSON.parse(this.getActivityTemplate(activityTypeId));
+      return JSON.stringify(parsed, null, 2);
+    } catch {
+      // Fall back to the raw template if parsing fails
+      return this.getActivityTemplate(activityTypeId);
+    }
+  }
+
   goBack(): void {
     const lessonId = this.activity?.lessonId || this.lessonId;
-    if (lessonId) {
-      this.router.navigate(['activities'], { queryParams: { lessonId } });
-    } else {
-      // Fallback to levels page if no lesson ID
-      this.router.navigate(['levels']);
-    }
+    const params = lessonId ? { queryParams: { lessonId } } : undefined;
+    this.router.navigate(['activities'], params);
   }
 
   // Wrapper methods to handle type conversion

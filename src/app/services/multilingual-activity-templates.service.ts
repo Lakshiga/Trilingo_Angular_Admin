@@ -18,7 +18,8 @@ export class MultilingualActivityTemplates {
       11:() => this.getBubbleblastActivityTemplate(),
       12:() => this.getmemorypairActivityTemplate(),
       13:() => this.getgroupsorterActivityTemplate(),
-      14:() => this.getConversationPlayerTemplate()     
+      14:() => this.getConversationPlayerTemplate(),
+      15:() => this.getvideoplayerTemplate()    
     };
 
     const templateFunction = templates[activityTypeId];
@@ -666,5 +667,26 @@ export class MultilingualActivityTemplates {
         }
       }, null, 2);
     }
-  
+
+    private static getvideoplayerTemplate(): string {
+      return JSON.stringify({
+        "title": {
+        "ta": "தாகமுள்ள காகம் வீடியோ",
+        "en": "The Thirsty Crow Video",
+        "si": "පිපාසිත කපුටා වීඩියෝව"
+      },
+      "description": {
+        "ta": "வீடியோவைப் பார்த்து கதை புரிந்துகொள்ளுங்கள்.",
+        "en": "Watch the video to understand the story.",
+        "si": "වීඩියෝව බැලීමෙන් කතාව තේරුම් ගන්න."
+      },
+      "videoData": {
+        "videoUrl": {
+          "ta": "/videos/ta/thirsty_crow.mp4",
+          "en": "/videos/en/thirsty_crow.mp4",
+          "si": "/videos/si/thirsty_crow.mp4"
+        }
+      }
+    },null ,2);
+  }  
 }

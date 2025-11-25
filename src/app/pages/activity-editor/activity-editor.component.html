@@ -1,12 +1,4 @@
 <div class="activity-editor-container">
-    <button mat-flat-button
-            class="save-button"
-            (click)="handleSave()"
-            [disabled]="isLoading">
-      <mat-icon>save</mat-icon>
-      <span>Save Activity</span>
-    </button>
-  
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
@@ -18,8 +10,8 @@
   <div *ngIf="!isLoading && activity" class="main-content">
     
     <!-- Left Column: Activity Form -->
-    <div class="left-panel">
-      <div class="panel-card">
+    <section class="column column-form column-scroll">
+      <div class="panel-card sticky-panel">
         <div class="panel-header">
           <h2 class="panel-title">
             <mat-icon>edit</mat-icon>
@@ -36,82 +28,95 @@
           </app-activity-form>
         </div>
       </div>
-    </div>
+    </section>
     
     <!-- Middle Column: JSON Template & Exercises -->
-    <div class="middle-panel">
-      <div class="panels-container">
-        
-        <!-- JSON Template Section -->
-        <div class="panel-card template-card" 
-             [class.template-expanded]="(activity.activityTypeId || 0) > 0">
-          <div class="panel-header">
-            <h2 class="panel-title">
-              <mat-icon>code</mat-icon>
-              JSON Template
-            </h2>
-            <button 
-              mat-icon-button
-              class="icon-button"
-              (click)="handleCopyTemplate()"
-              [disabled]="!(activity.activityTypeId || 0) || (activity.activityTypeId || 0) <= 0"
-              matTooltip="Copy Template">
-              <mat-icon>content_copy</mat-icon>
-            </button>
+    <section class="column column-middle column-scroll">
+      <div class="panel-card template-card" 
+           [class.template-expanded]="(activity.activityTypeId || 0) > 0">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <mat-icon>code</mat-icon>
+            JSON Template
+          </h2>
+          <button 
+            mat-icon-button
+            class="icon-button"
+            (click)="handleCopyTemplate()"
+            [disabled]="!(activity.activityTypeId || 0) || (activity.activityTypeId || 0) <= 0"
+            matTooltip="Copy Template">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+        <div class="panel-body template-body scrollable-panel">
+          <div *ngIf="(activity.activityTypeId || 0) > 0; else noTemplate" class="template-content">
+            <pre class="code-block"><code>{{ getFormattedTemplate(activity.activityTypeId || 0) }}</code></pre>
           </div>
-          <div class="panel-body template-body">
-            <div *ngIf="(activity.activityTypeId || 0) > 0; else noTemplate" class="template-content">
-              <pre class="code-block"><code>{{ getActivityTemplate(activity.activityTypeId || 0) }}</code></pre>
+          <ng-template #noTemplate>
+            <div class="empty-state">
+              <mat-icon class="empty-icon">info</mat-icon>
+              <p class="empty-text">Select an Activity Type to view its JSON template</p>
             </div>
-            <ng-template #noTemplate>
-              <div class="empty-state">
-                <mat-icon class="empty-icon">info</mat-icon>
-                <p class="empty-text">Select an Activity Type to view its JSON template</p>
-              </div>
-            </ng-template>
-          </div>
+          </ng-template>
         </div>
-        
-        <!-- Exercises Section -->
-        <div class="panel-card exercises-card">
-          <div class="panel-header">
-            <h2 class="panel-title">
-              <mat-icon>fitness_center</mat-icon>
-              Exercises
-            </h2>
-          </div>
-          <div class="panel-body exercises-body">
-            <app-exercise-editor
-              [exercises]="exercises"
-              [activityId]="activityId"
-              [activityTypeId]="activity.activityTypeId || 0"
-              [expandedExercise]="expandedExercise"
-              (addExercise)="handleAddExercise()"
-              (updateExercise)="handleUpdateExercise($event.exerciseId, $event.jsonData)"
-              (deleteExercise)="handleDeleteExercise($event)"
-              (previewExercise)="handlePreviewExercise($event)"
-              (expansionChange)="expandedExercise = $event.isExpanded ? $event.index : false">
-            </app-exercise-editor>
-          </div>
-        </div>
-        
       </div>
-    </div>
-    
+      
+      <div class="panel-card exercises-card grow-card">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <mat-icon>fitness_center</mat-icon>
+            Exercises
+          </h2>
+        </div>
+        <div class="panel-body exercises-body scrollable-panel">
+          <app-exercise-editor
+            [exercises]="exercises"
+            [activityId]="activityId"
+            [activityTypeId]="activity.activityTypeId || 0"
+            [expandedExercise]="expandedExercise"
+            (addExercise)="handleAddExercise()"
+            (updateExercise)="handleUpdateExercise($event.exerciseId, $event.jsonData)"
+            (deleteExercise)="handleDeleteExercise($event)"
+            (previewExercise)="handlePreviewExercise($event)"
+            (expansionChange)="expandedExercise = $event.isExpanded ? $event.index : false">
+          </app-exercise-editor>
+        </div>
+      </div>
+    </section>
+
     <!-- Right Column: Device Preview -->
-    <div class="right-panel">
-      <div class="panel-card">
+    <section class="column column-preview column-scroll">
+      <div class="panel-card sticky-panel">
         <div class="panel-header">
           <h2 class="panel-title">
             <mat-icon>preview</mat-icon>
             Device Preview
           </h2>
         </div>
-        <div class="panel-body preview-body">
+        <div class="panel-body preview-body scrollable-panel">
           <app-device-preview [activityData]="previewContent || activity"></app-device-preview>
         </div>
       </div>
-    </div>
-    
+    </section>
+
   </div>
+
+  <!-- Footer Actions -->
+  <div class="footer-actions">
+    <button mat-stroked-button
+            class="cancel-button"
+            (click)="goBack()"
+            [disabled]="isLoading">
+      <mat-icon>close</mat-icon>
+      <span>Cancel</span>
+    </button>
+    <button mat-flat-button
+            class="save-button"
+            (click)="handleSave()"
+            [disabled]="isLoading">
+      <mat-icon>save</mat-icon>
+      <span>Save Activity</span>
+    </button>
+  </div>
+
 </div>

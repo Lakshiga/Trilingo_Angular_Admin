@@ -1,44 +1,33 @@
-<div class="multilingual-input space-y-4">
+<div class="multilingual-input">
+  <div class="multilingual-header">
+    <div class="label">{{ label }}</div>
+    <div class="completion" *ngIf="showCompletionIndicator">
+      {{ getCompletionText() }}
+    </div>
+  </div>
 
-  <!-- Tabs -->
-  <mat-tab-group 
-    class="language-tabs border-b border-slate-200 dark:border-slate-700"
-    (selectedTabChange)="onTabChange($event)">
-
-    <mat-tab 
-      *ngFor="let language of languages" 
-      [label]="getLanguageLabel(language.code)"
-      [disabled]="disabled">
-
-      <div class="tab-content py-4">
-
-        <!-- Label outside (NO floating) -->
-        <label class="block mb-1 text-sm font-medium text-slate-700 dark:text-slate-300">
-          {{ label }} ({{ language.nativeName }})
-        </label>
-
-        <mat-form-field appearance="outline" class="w-full">
-
-          <input 
-            matInput
-            class="py-2 !text-base"
-            [value]="getValue(language.code)"
-            (input)="onInputChange($event, language.code)"
-            [placeholder]="getPlaceholder(language.code)"
-            [disabled]="disabled"
-            [required]="required"
-          />
-
-          <!-- Right side check icon -->
-          <mat-icon 
-            matSuffix 
-            *ngIf="getValue(language.code)" 
-            class="text-green-600">
-            check_circle
-          </mat-icon>
-
-        </mat-form-field>
+  <div class="language-grid">
+    <div class="language-card" *ngFor="let language of languages">
+      <div class="language-card-header">
+        <span class="flag">{{ language.flag }}</span>
+        <div class="language-meta">
+          <span class="native-name">{{ language.nativeName }}</span>
+          <span class="locale">{{ language.code | uppercase }}</span>
+        </div>
+        <mat-icon *ngIf="getValue(language.code)" class="status-icon">check_circle</mat-icon>
       </div>
-    </mat-tab>
-  </mat-tab-group>
+
+      <mat-form-field appearance="outline" class="language-field">
+        <mat-label>{{ label }} ({{ language.nativeName }})</mat-label>
+        <input
+          matInput
+          [value]="getValue(language.code)"
+          (input)="onInputChange($event, language.code)"
+          [placeholder]="getPlaceholder(language.code)"
+          [disabled]="disabled"
+          [required]="required"
+        />
+      </mat-form-field>
+    </div>
+  </div>
 </div>

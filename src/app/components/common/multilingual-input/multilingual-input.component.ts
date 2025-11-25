@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MultilingualText, LanguageCode, SUPPORTED_LANGUAGES } from '../../../types/multilingual.types';
 
 @Component({
@@ -16,9 +14,7 @@ import { MultilingualText, LanguageCode, SUPPORTED_LANGUAGES } from '../../../ty
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTabsModule,
-    MatIconModule,
-    MatTooltipModule
+    MatIconModule
   ],
   templateUrl: './multilingual-input.component.html',
   styleUrls: ['./multilingual-input.component.css']
@@ -52,10 +48,6 @@ export class MultilingualInputComponent implements OnInit {
     const newValue = { ...this.value, [languageCode]: target.value };
     this.value = newValue;
     this.valueChange.emit(newValue);
-  }
-
-  onTabChange(event: any): void {
-    // Optional: Handle tab change if needed
   }
 
   getLanguageLabel(code: LanguageCode): string {

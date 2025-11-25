@@ -1,55 +1,46 @@
 <div class="activity-form-container">
-  <!-- Multilingual Activity Title -->
-  <div class="mb-3">
-    <label class="block mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300">
-      Activity Title
-    </label>
+  <div class="title-row">
     <app-multilingual-input
+      [label]="'Activity Name'"
       [value]="getTitleValue()"
       [placeholder]="getTitlePlaceholder()"
       [required]="true"
+      [showCompletionIndicator]="false"
       (valueChange)="onTitleChange($event)">
     </app-multilingual-input>
   </div>
-  <!-- Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-2.5">
-    <!-- Sequence Order -->
-    <div class="mb-2">
-      <label class="block mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300">
-        Sequence Order
-      </label>
+
+  <div class="form-row">
+    <div class="form-field">
+      <label>Sequence Number</label>
       <mat-form-field appearance="outline" class="w-full">
-        <input 
+        <input
           matInput
           type="number"
-          placeholder="Enter sequence order"
+          placeholder="Enter sequence number"
           [(ngModel)]="activityData.sequenceOrder"
           (ngModelChange)="onDataChange()"
-          class="!text-base"
           required>
       </mat-form-field>
     </div>
-    <!-- Main Activity Category -->
-    <div class="mb-2">
-      <label class="block mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300">
-        Main Activity Category
-      </label>
+
+    <div class="form-field">
+      <label>Main Activity Type</label>
       <mat-form-field appearance="outline" class="w-full">
         <mat-select
           [(ngModel)]="activityData.mainActivityId"
           (selectionChange)="onMainActivityChange($event)"
           required>
+          <mat-option [value]="null">Select Main Activity</mat-option>
           <mat-option *ngFor="let ma of mainActivities" [value]="ma.id">
             {{ ma.name }}
           </mat-option>
         </mat-select>
       </mat-form-field>
     </div>
-    <!-- Activity Type -->
-    <div class="mb-2 md:col-span-2">
-      <label class="block mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300">
-        Activity Type
-      </label>
+
+    <div class="form-field">
+      <label>Activity Type</label>
       <mat-form-field appearance="outline" class="w-full">
         <mat-select
           [(ngModel)]="activityData.activityTypeId"
