@@ -11,7 +11,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { ActivityFormComponent } from '../../components/activities/activity-form/activity-form.component';
 import { DevicePreviewComponent } from '../../components/activities/device-preview/device-preview.component';
 import { ExerciseEditorComponent } from '../../components/activities/exercise-editor/exercise-editor.component';
 import { MultilingualActivityTemplates } from '../../services/multilingual-activity-templates.service';
@@ -70,7 +69,6 @@ interface ActivityCreateDto {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatGridListModule,
-    ActivityFormComponent,
     DevicePreviewComponent,
     ExerciseEditorComponent,
   ],
@@ -86,7 +84,8 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
   previewContent: Partial<MultilingualActivity> | null = null;
   exercises: Exercise[] = [];
   isLoading = true;
-  expandedExercise: number | false = 0;
+  expandedExercise: number | false = false;
+  readonly exercisePageSize = 10;
   
   mainActivities: MainActivity[] = [];
   activityTypes: ActivityType[] = [];
@@ -151,6 +150,42 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  get hasExercises(): boolean {
+    return !!(this.exercises && this.exercises.length > 0);
+  }
+
+  get hasDraftExercises(): boolean {
+    return this.exercises?.some(ex => this.isDraftExercise(ex)) ?? false;
+  }
+
+  get isExerciseInteractionLocked(): boolean {
+    return this.expandedExercise !== false || this.hasDraftExercises;
+  }
+
+  get isStructureSelectionLocked(): boolean {
+    return this.hasExercises || this.isExerciseInteractionLocked;
+  }
+
+  get mainActivityLockMessage(): string | null {
+    if (this.hasExercises) {
+      return 'Main Activity cannot be changed while exercises exist.';
+    }
+    if (this.isExerciseInteractionLocked) {
+      return 'Finish editing or adding exercises before changing the Main Activity.';
+    }
+    return null;
+  }
+
+  get activityTypeLockMessage(): string | null {
+    if (this.hasExercises) {
+      return 'Activity type cannot be changed while exercises exist.';
+    }
+    if (this.isExerciseInteractionLocked) {
+      return 'Finish editing or adding exercises before changing the Activity Type.';
+    }
+    return null;
+  }
+
   ngOnDestroy(): void {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
@@ -200,9 +235,11 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
       if (this.isEditMode && this.activityId) {
         const exercisesData = await this.exerciseApiService.getByActivityId(parseInt(this.activityId, 10)).toPromise();
         this.exercises = exercisesData || [];
+        this.normalizeExpandedExercise();
       } else {
         // For new activities, start with an empty exercises array
         this.exercises = [];
+        this.normalizeExpandedExercise();
       }
 
       if (loadedActivity) {
@@ -905,6 +942,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
       } as Exercise & { isDraft: true };
 
       this.exercises = [...this.exercises, draftExercise];
+      this.normalizeExpandedExercise();
       this.expandedExercise = this.exercises.length - 1;
       // If current activity type is not in filtered list, load it for display
       const currentTypeId = this.activity?.activityTypeId || 0;
@@ -926,6 +964,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
        const newExercise = await this.exerciseApiService.create(createDto).toPromise();
        if (newExercise) {
          this.exercises.push(newExercise);
+         this.normalizeExpandedExercise();
          this.expandedExercise = this.exercises.length - 1;
          // If current activity type is not in filtered list, load it for display
          const currentTypeId = this.activity?.activityTypeId || 0;
@@ -972,11 +1011,6 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
   }
 
   async handleDeleteExercise(exerciseId: number): Promise<void> {
-    if (this.exercises.length <= 1) {
-      this.snackBar.open('An activity must have at least one exercise.', 'Close', { duration: 3000 });
-      return;
-    }
-
     const index = this.exercises.findIndex(ex => ex.id === exerciseId);
     if (index === -1) {
       return;
@@ -985,6 +1019,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     const exercise = this.exercises[index];
     if (this.isDraftExercise(exercise)) {
       this.exercises = this.exercises.filter(ex => ex.id !== exerciseId);
+      this.normalizeExpandedExercise();
       this.resequenceExercises();
       // If no exercises left, clear stored activity type
       if (this.exercises.length === 0) {
@@ -1002,6 +1037,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
       await this.exerciseApiService.delete(exerciseId).toPromise();
       this.exercises = this.exercises.filter(ex => ex.id !== exerciseId);
       this.resequenceExercises();
+      this.normalizeExpandedExercise();
       // If no exercises left, clear stored activity type
       if (this.exercises.length === 0) {
         this.currentActivityTypeForDisplay = null;
@@ -1098,23 +1134,14 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     return MultilingualActivityTemplates.getTemplate(activityTypeId);
   }
 
-  getFormattedTemplate(activityTypeId: number): string {
-    if (!activityTypeId || activityTypeId <= 0) {
-      return '';
-    }
-    try {
-      const parsed = JSON.parse(this.getActivityTemplate(activityTypeId));
-      return JSON.stringify(parsed, null, 2);
-    } catch {
-      // Fall back to the raw template if parsing fails
-      return this.getActivityTemplate(activityTypeId);
-    }
-  }
-
   goBack(): void {
     const lessonId = this.activity?.lessonId || this.lessonId;
-    const params = lessonId ? { queryParams: { lessonId } } : undefined;
-    this.router.navigate(['activities'], params);
+    if (lessonId) {
+      this.router.navigate(['activities'], { queryParams: { lessonId } });
+    } else {
+      // Fallback to levels page if no lesson ID
+      this.router.navigate(['levels']);
+    }
   }
 
   // Wrapper methods to handle type conversion
@@ -1136,8 +1163,65 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     this.handleSetExpanded(event as number);
   }
 
+  updateTitleField(code: 'ta' | 'en' | 'si', value: string): void {
+    if (!this.activity) return;
+    const currentTitle = this.activity.title || { ta: '', en: '', si: '' };
+    const updatedTitle = { ...currentTitle, [code]: value };
+    this.activity.title = updatedTitle;
+    this.handleFormChangeWrapper({ title: updatedTitle });
+  }
+
+  updateSequenceOrder(value: number | string): void {
+    if (!this.activity) return;
+    const numericValue = Number(value) || 0;
+    this.activity.sequenceOrder = numericValue;
+    this.handleFormChangeWrapper({ sequenceOrder: numericValue });
+  }
+
+  updateMainActivityId(value: number | string): void {
+    if (!this.activity) return;
+    if (this.isStructureSelectionLocked) {
+      this.snackBar.open(this.mainActivityLockMessage || 'Cannot change Main Activity right now.', 'Close', { duration: 4000 });
+      return;
+    }
+    const numericValue = Number(value) || 0;
+    this.activity.mainActivityId = numericValue;
+    this.handleFormChangeWrapper({ mainActivityId: numericValue });
+  }
+
+  updateActivityTypeId(value: number | string): void {
+    if (!this.activity) return;
+    if (this.isStructureSelectionLocked) {
+      this.snackBar.open(this.activityTypeLockMessage || 'Cannot change Activity Type right now.', 'Close', { duration: 4000 });
+      return;
+    }
+    const numericValue = Number(value) || 0;
+    this.activity.activityTypeId = numericValue;
+    this.handleFormChangeWrapper({ activityTypeId: numericValue });
+  }
+
   private isDraftExercise(exercise: Exercise): exercise is Exercise & { isDraft?: boolean } {
     return (exercise as any).isDraft === true || exercise.id < 0 || !exercise.activityId;
+  }
+
+  private normalizeExpandedExercise(): void {
+    if (!this.exercises.length) {
+      this.expandedExercise = false;
+      return;
+    }
+
+    if (this.expandedExercise === false) {
+      return;
+    }
+
+    if (this.expandedExercise < 0) {
+      this.expandedExercise = 0;
+      return;
+    }
+
+    if (this.expandedExercise >= this.exercises.length) {
+      this.expandedExercise = this.exercises.length - 1;
+    }
   }
 
   private resequenceExercises(): void {
@@ -1187,6 +1271,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
       const refreshed = await this.exerciseApiService.getByActivityId(activityId).toPromise();
       if (refreshed) {
         this.exercises = refreshed;
+        this.normalizeExpandedExercise();
       }
     } catch (error) {
     }

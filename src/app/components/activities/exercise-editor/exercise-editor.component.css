@@ -140,3 +140,29 @@ mat-expansion-panel {
 .exercise-editor::-webkit-scrollbar-thumb:hover {
   background: #a0a0a0;
 }
+
+.exercise-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0 0;
+}
+
+.exercise-pagination .page-info {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.exercise-pagination .page-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.exercise-pagination button {
+  min-width: 120px;
+}

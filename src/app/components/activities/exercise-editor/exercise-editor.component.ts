@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -26,11 +26,12 @@ import { Exercise } from '../../../services/exercise-api.service';
   templateUrl: './exercise-editor.component.html',
   styleUrls: ['./exercise-editor.component.css']
 })
-export class ExerciseEditorComponent {
+export class ExerciseEditorComponent implements OnChanges {
   @Input() exercises: Exercise[] = [];
   @Input() activityId: string | null = null;
   @Input() activityTypeId: number = 0;
   @Input() expandedExercise: number | false = false;
+  @Input() pageSize = 3;
   @Output() addExercise = new EventEmitter<void>();
   @Output() updateExercise = new EventEmitter<{ exerciseId: number; jsonData: string }>();
   @Output() deleteExercise = new EventEmitter<number>();
@@ -39,8 +40,50 @@ export class ExerciseEditorComponent {
 
   editingExercises: Map<number, string> = new Map();
   jsonErrors: Map<number, string> = new Map();
+  currentPage = 1;
 
   constructor(private snackBar: MatSnackBar) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['exercises']) {
+      this.ensureCurrentPageInRange();
+    }
+
+    if (changes['expandedExercise']) {
+      this.syncPageWithExpandedExercise();
+    }
+  }
+
+  get totalExercises(): number {
+    return this.exercises?.length || 0;
+  }
+
+  get totalPages(): number {
+    if (!this.totalExercises) {
+      return 1;
+    }
+    const size = this.getEffectivePageSize();
+    return Math.max(1, Math.ceil(this.totalExercises / size));
+  }
+
+  get paginatedExercises(): Exercise[] {
+    if (!this.exercises?.length) {
+      return [];
+    }
+    const startIndex = this.getPageStartIndex();
+    const size = this.getEffectivePageSize();
+    return this.exercises.slice(startIndex, startIndex + size);
+  }
+
+  get currentRange(): { start: number; end: number } {
+    if (!this.totalExercises) {
+      return { start: 0, end: 0 };
+    }
+    const start = this.getPageStartIndex() + 1;
+    const size = this.getEffectivePageSize();
+    const end = Math.min(start + size - 1, this.totalExercises);
+    return { start, end };
+  }
 
   getExerciseJson(exercise: Exercise): string {
     const exerciseId = exercise.id;
@@ -63,6 +106,18 @@ export class ExerciseEditorComponent {
 
   getJsonError(exercise: Exercise): string {
     return this.jsonErrors.get(exercise.id) || '';
+  }
+
+  getExerciseDisplayNumber(localIndex: number): number {
+    return this.getPageStartIndex() + localIndex + 1;
+  }
+
+  isPanelExpanded(localIndex: number): boolean {
+    if (this.expandedExercise === false) {
+      return false;
+    }
+    const globalIndex = this.getPageStartIndex() + localIndex;
+    return this.expandedExercise === globalIndex;
   }
 
   handleExerciseChange(exercise: Exercise, value: string): void {
@@ -257,18 +312,7 @@ export class ExerciseEditorComponent {
     if (event) {
       event.stopPropagation();
     }
-    
-    // Use editing version if available, otherwise use saved version
-    const jsonToPreview = this.editingExercises.get(exercise.id) || exercise.jsonData;
-    
-    try {
-      // Validate the JSON before emitting
-      JSON.parse(jsonToPreview);
-      this.previewExercise.emit(jsonToPreview);
-    } catch (error) {
-      console.error('Invalid JSON for preview:', error);
-      this.snackBar.open('Cannot preview invalid JSON', 'Close', { duration: 2000 });
-    }
+    this.emitPreview(exercise);
   }
 
   async onCopyExercise(exercise: Exercise, event: Event): Promise<void> {
@@ -290,7 +334,68 @@ export class ExerciseEditorComponent {
   }
 
   onExpansionChange(index: number, isExpanded: boolean): void {
-    this.expansionChange.emit({ index, isExpanded });
+    const globalIndex = this.getPageStartIndex() + index;
+    this.expansionChange.emit({ index: globalIndex, isExpanded });
+  }
+
+  handlePanelOpened(exercise: Exercise, index: number): void {
+    this.onExpansionChange(index, true);
+    this.emitPreview(exercise);
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage <= 1) {
+      return;
+    }
+    this.currentPage -= 1;
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage >= this.totalPages) {
+      return;
+    }
+    this.currentPage += 1;
+  }
+
+  private getPageStartIndex(): number {
+    const size = this.getEffectivePageSize();
+    return (this.currentPage - 1) * size;
+  }
+
+  private ensureCurrentPageInRange(): void {
+    const totalPages = this.totalPages;
+    if (this.currentPage > totalPages) {
+      this.currentPage = totalPages;
+    }
+    if (this.currentPage < 1) {
+      this.currentPage = 1;
+    }
+  }
+
+  private syncPageWithExpandedExercise(): void {
+    if (this.expandedExercise === false) {
+      return;
+    }
+    const size = this.getEffectivePageSize();
+    const targetPage = Math.floor(this.expandedExercise / size) + 1;
+    if (targetPage !== this.currentPage) {
+      this.currentPage = targetPage;
+      this.ensureCurrentPageInRange();
+    }
+  }
+
+  private getEffectivePageSize(): number {
+    return Math.max(1, this.pageSize || 0);
+  }
+
+  private emitPreview(exercise: Exercise): void {
+    const jsonToPreview = this.editingExercises.get(exercise.id) || exercise.jsonData;
+    try {
+      JSON.parse(jsonToPreview);
+      this.previewExercise.emit(jsonToPreview);
+    } catch (error) {
+      this.snackBar.open('Cannot preview invalid JSON', 'Close', { duration: 2000 });
+    }
   }
 
   isDraft(exercise: Exercise): boolean {

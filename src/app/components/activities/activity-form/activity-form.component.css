@@ -1,123 +1,81 @@
-/* Activity Form Container - Allow scrolling */
-.activity-form-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
-  min-height: 0;
-}
-
-.title-row {
-  padding: 0.5rem;
-  border-radius: 1rem;
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  margin-bottom: 1rem;
-}
-
-.form-row {
+.activity-form-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 20px;
 }
 
-.form-field {
+.field-card {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(52, 110, 140, 0.2);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 12px;
 }
 
-.form-field label {
-  font-weight: 600;
-  color: #0f172a;
+.field-label {
   font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #0f172a;
+  background: #f8fbff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #346e8c;
+  box-shadow: 0 0 0 3px rgba(52, 110, 140, 0.15);
+}
+
+.form-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper mat-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #64748b;
+}
+
+.select-wrapper select {
+  appearance: none;
+  background: #f8fbff;
+  cursor: pointer;
+}
+
+.select-wrapper.disabled select {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.hint-text {
+  font-size: 0.75rem;
+  color: #f97316;
+  font-weight: 500;
 }
 
 @media (max-width: 1100px) {
-  .form-row {
+  .activity-form-grid {
     grid-template-columns: 1fr;
   }
-}
-
-/* Material Form Field Styling - Compact */
-::ng-deep .mat-mdc-form-field {
-  margin-bottom: 0 !important;
-}
-
-::ng-deep .mat-mdc-form-field-subscript-wrapper {
-  margin-top: 4px !important;
-}
-
-.mat-form-field-appearance-outline {
-  .mat-form-field-outline-thick, .mat-form-field-outline {
-    color: #cbd5e1;
-  }
-  .mat-form-field-flex {
-    border-radius: 0.5rem;
-  }
-  .mat-form-field-label {
-    color: #64748b;
-  }
-  .mat-input-element, .mat-select-value-text {
-    color: #1e293b;
-  }
-  .mat-select-arrow {
-    color: #64748b;
-  }
-}
-
-.mat-form-field-appearance-outline.mat-focused {
-  .mat-form-field-outline-thick {
-    color: #346E8C;
-  }
-  .mat-form-field-label {
-    color: #346E8C;
-  }
-}
-
-.not-available-message {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: #fef3c7;
-  border: 1px solid #fbbf24;
-  border-radius: 8px;
-  color: #92400e;
-  font-size: 13px;
-  font-weight: 500;
-  margin-top: 4px;
-}
-
-.not-available-message .warning-icon {
-  color: #f59e0b;
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* Scrollbar styling for activity form */
-.activity-form-container {
-  scrollbar-width: thin;
-  scrollbar-color: #c7c7c7 #f5f5f5;
-}
-
-.activity-form-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.activity-form-container::-webkit-scrollbar-track {
-  background: #f5f5f5;
-  border-radius: 4px;
-}
-
-.activity-form-container::-webkit-scrollbar-thumb {
-  background: #c7c7c7;
-  border-radius: 4px;
-}
-
-.activity-form-container::-webkit-scrollbar-thumb:hover {
-  background: #a0a0a0;
 }

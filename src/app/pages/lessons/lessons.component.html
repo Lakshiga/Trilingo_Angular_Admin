@@ -132,29 +132,35 @@
               <span *ngIf="editRowId !== lesson.lessonId" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
                 {{ (lesson.lessonName && lesson.lessonName.en) || '-' }}
               </span>
-              <div *ngIf="editRowId === lesson.lessonId" class="edit-name-wrapper">
-                <app-multilingual-input
-                  [value]="editedLesson!.lessonName || { en: '', ta: '', si: '' }"
-                  [label]="'Lesson Name'"
-                  [placeholder]="{ en: 'Enter lesson name', ta: 'பாடம் பெயரை உள்ளிடவும்', si: 'පාඩමේ නම ඇතුළත් කරන්න' }"
-                  [required]="true"
-                  (valueChange)="onEditedLessonNameChange($event)">
-                </app-multilingual-input>
-              </div>
+              <input *ngIf="editRowId === lesson.lessonId"
+                     type="text"
+                     [(ngModel)]="editedLesson!.lessonName!.en"
+                     class="modern-input"
+                     placeholder="Enter English Name">
             </td>
 
             <!-- Tamil Name -->
-            <td *ngIf="editRowId !== lesson.lessonId" class="px-6 py-3 font-noto-sans-tamil">
-              <span class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+            <td class="px-6 py-3 font-noto-sans-tamil">
+              <span *ngIf="editRowId !== lesson.lessonId" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
                 {{ (lesson.lessonName && lesson.lessonName.ta) || '-' }}
               </span>
+              <input *ngIf="editRowId === lesson.lessonId"
+                     type="text"
+                     [(ngModel)]="editedLesson!.lessonName!.ta"
+                     class="modern-input font-noto-sans-tamil"
+                     placeholder="பாடம் பெயரை உள்ளிடவும்">
             </td>
 
             <!-- Sinhala Name -->
-            <td *ngIf="editRowId !== lesson.lessonId" class="px-6 py-3 font-noto-sans-sinhala">
-              <span class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+            <td class="px-6 py-3 font-noto-sans-sinhala">
+              <span *ngIf="editRowId !== lesson.lessonId" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
                 {{ (lesson.lessonName && lesson.lessonName.si) || '-' }}
               </span>
+              <input *ngIf="editRowId === lesson.lessonId"
+                     type="text"
+                     [(ngModel)]="editedLesson!.lessonName!.si"
+                     class="modern-input font-noto-sans-sinhala"
+                     placeholder="පාඩමේ නම ඇතුළත් කරන්න">
             </td>
 
             <!-- Manage Activities -->

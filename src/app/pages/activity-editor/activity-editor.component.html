@@ -1,122 +1,195 @@
-<div class="activity-editor-container">
+<div class="activity-editor-page">
+    <div class="header">
+        <div class="actions">
+            <button
+                mat-stroked-button
+                class="back-button"
+                (click)="goBack()"
+                matTooltip="Back to Activities">
+                <mat-icon>arrow_back</mat-icon>
+                Back to Activities
+            </button>
+            <div class="actions-spacer"></div>
+            <button mat-raised-button style="background-color: #346E8C; color: white;" (click)="handleSave()">Save Activity</button>
+        </div>
+    </div>
+  
+    <div class="content" *ngIf="!isLoading && activity">
+  
+        <!-- ⭐ TOP 2-ROW FORM GRID -->
+        <div class="top-form-grid">
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner diameter="60" class="spinner"></mat-spinner>
-    <p class="loading-text">Loading activity editor...</p>
-  </div>
-
-  <!-- Main Content -->
-  <div *ngIf="!isLoading && activity" class="main-content">
-    
-    <!-- Left Column: Activity Form -->
-    <section class="column column-form column-scroll">
-      <div class="panel-card sticky-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">
-            <mat-icon>edit</mat-icon>
-            Activity Details
-          </h2>
-        </div>
-        <div class="panel-body">
-          <app-activity-form
-            [activityData]="activity"
-            [mainActivities]="mainActivities"
-            [activityTypes]="getDisplayActivityTypes()"
-            [hasExercises]="exercises && exercises.length > 0"
-            (dataChange)="handleFormChangeWrapper($event)">
-          </app-activity-form>
-        </div>
-      </div>
-    </section>
-    
-    <!-- Middle Column: JSON Template & Exercises -->
-    <section class="column column-middle column-scroll">
-      <div class="panel-card template-card" 
-           [class.template-expanded]="(activity.activityTypeId || 0) > 0">
-        <div class="panel-header">
-          <h2 class="panel-title">
-            <mat-icon>code</mat-icon>
-            JSON Template
-          </h2>
-          <button 
-            mat-icon-button
-            class="icon-button"
-            (click)="handleCopyTemplate()"
-            [disabled]="!(activity.activityTypeId || 0) || (activity.activityTypeId || 0) <= 0"
-            matTooltip="Copy Template">
-            <mat-icon>content_copy</mat-icon>
-          </button>
-        </div>
-        <div class="panel-body template-body scrollable-panel">
-          <div *ngIf="(activity.activityTypeId || 0) > 0; else noTemplate" class="template-content">
-            <pre class="code-block"><code>{{ getFormattedTemplate(activity.activityTypeId || 0) }}</code></pre>
-          </div>
-          <ng-template #noTemplate>
-            <div class="empty-state">
-              <mat-icon class="empty-icon">info</mat-icon>
-              <p class="empty-text">Select an Activity Type to view its JSON template</p>
+            <div class="form-item">
+                <label>Name in Tamil</label>
+                <input
+                    type="text"
+                    class="form-input font-noto-sans-tamil"
+                    [ngModel]="activity!.title?.ta || ''"
+                    (ngModelChange)="updateTitleField('ta', $event)"
+                    placeholder="Name in Tamil">
             </div>
-          </ng-template>
-        </div>
-      </div>
-      
-      <div class="panel-card exercises-card grow-card">
-        <div class="panel-header">
-          <h2 class="panel-title">
-            <mat-icon>fitness_center</mat-icon>
-            Exercises
-          </h2>
-        </div>
-        <div class="panel-body exercises-body scrollable-panel">
-          <app-exercise-editor
-            [exercises]="exercises"
-            [activityId]="activityId"
-            [activityTypeId]="activity.activityTypeId || 0"
-            [expandedExercise]="expandedExercise"
-            (addExercise)="handleAddExercise()"
-            (updateExercise)="handleUpdateExercise($event.exerciseId, $event.jsonData)"
-            (deleteExercise)="handleDeleteExercise($event)"
-            (previewExercise)="handlePreviewExercise($event)"
-            (expansionChange)="expandedExercise = $event.isExpanded ? $event.index : false">
-          </app-exercise-editor>
-        </div>
-      </div>
-    </section>
 
-    <!-- Right Column: Device Preview -->
-    <section class="column column-preview column-scroll">
-      <div class="panel-card sticky-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">
-            <mat-icon>preview</mat-icon>
-            Device Preview
-          </h2>
-        </div>
-        <div class="panel-body preview-body scrollable-panel">
-          <app-device-preview [activityData]="previewContent || activity"></app-device-preview>
-        </div>
-      </div>
-    </section>
+            <div class="form-item">
+                <label>Name in English</label>
+                <input
+                    type="text"
+                    class="form-input"
+                    [ngModel]="activity!.title?.en || ''"
+                    (ngModelChange)="updateTitleField('en', $event)"
+                    placeholder="Name in English">
+            </div>
 
+            <div class="form-item">
+                <label>Name in Sinhala</label>
+                <input
+                    type="text"
+                    class="form-input font-noto-sans-sinhala"
+                    [ngModel]="activity!.title?.si || ''"
+                    (ngModelChange)="updateTitleField('si', $event)"
+                    placeholder="Name in Sinhala">
+            </div>
+
+            <div class="form-item">
+                <label>Sequence No.</label>
+                <input
+                    type="number"
+                    class="form-input"
+                    [ngModel]="activity!.sequenceOrder || 0"
+                    (ngModelChange)="updateSequenceOrder($event)"
+                    placeholder="e.g., 001">
+            </div>
+
+            <div class="form-item">
+                <label>Main Activity</label>
+                <div class="select-shell" [class.disabled]="isStructureSelectionLocked">
+                    <select
+                        class="form-input select-input"
+                        [disabled]="isStructureSelectionLocked"
+                        [ngModel]="activity!.mainActivityId || 0"
+                        (ngModelChange)="updateMainActivityId($event)">
+                        <option [value]="0" disabled>Select Main Activity</option>
+                        <option *ngFor="let ma of mainActivities" [value]="ma.id">
+                            {{ ma.name }}
+                        </option>
+                    </select>
+                    <mat-icon>expand_more</mat-icon>
+                </div>
+                <small class="hint-text" *ngIf="mainActivityLockMessage">
+                    {{ mainActivityLockMessage }}
+                </small>
+            </div>
+
+            <div class="form-item">
+                <label>Activity Type</label>
+                <div class="select-shell" [class.disabled]="isStructureSelectionLocked || !(activity!.mainActivityId)">
+                    <select
+                        class="form-input select-input"
+                        [disabled]="isStructureSelectionLocked || !(activity!.mainActivityId)"
+                        [ngModel]="activity!.activityTypeId || 0"
+                        (ngModelChange)="updateActivityTypeId($event)">
+                        <option [value]="0" disabled>Select Activity Type</option>
+                        <option *ngFor="let at of getDisplayActivityTypes()" [value]="at.activityTypeId">
+                            {{ at.activityName }}
+                        </option>
+                    </select>
+                    <mat-icon>expand_more</mat-icon>
+                </div>
+                <small class="hint-text" *ngIf="activityTypeLockMessage">
+                    {{ activityTypeLockMessage }}
+                </small>
+            </div>
+
+        </div>
+        <!-- END 2 ROW TOP GRID -->
+  
+  
+        <!-- ⭐ EXISTING GRID LAYOUT -->
+        <div class="activity-grid">
+  
+            <!-- LEFT COLUMN -->
+            <div class="column column-form">
+                <section class="panel template-panel">
+                    <div class="panel-header">
+                        <h3>JSON Template</h3>
+                        <button 
+                            mat-stroked-button 
+                            color="accent"
+                            (click)="handleCopyTemplate()"
+                            [disabled]="!(activity.activityTypeId || 0) || (activity.activityTypeId || 0) <= 0">
+                            <mat-icon>content_copy</mat-icon>
+                            COPY
+                        </button>
+                    </div>
+  
+                    <p class="panel-subtitle">
+                        Select an Activity Type to view and copy its required JSON structure.
+                    </p>
+  
+                    <div class="template-content" *ngIf="(activity.activityTypeId || 0) > 0; else noTemplate">
+                        <pre><code>{{ getActivityTemplate(activity.activityTypeId || 0) }}</code></pre>
+                    </div>
+  
+                    <ng-template #noTemplate>
+                        <div class="no-template">
+                            <p>Please select an Activity Type to view its template.</p>
+                        </div>
+                    </ng-template>
+  
+                </section>
+            </div>
+  
+            <!-- MIDDLE COLUMN -->
+            <div class="column column-editor">
+                <section class="panel exercises-panel">
+                    <div class="panel-header">
+                        <h3>Exercises</h3>
+                        <span class="badge">{{ exercises.length || 0 }}</span>
+                    </div>
+  
+                    <div class="exercise-editor-wrapper">
+                        <app-exercise-editor
+                            [exercises]="exercises"
+                            [pageSize]="exercisePageSize"
+                            [activityId]="activityId"
+                            [activityTypeId]="activity.activityTypeId || 0"
+                            [expandedExercise]="expandedExercise"
+                            (updateExercise)="handleUpdateExercise($event.exerciseId, $event.jsonData)"
+                            (deleteExercise)="handleDeleteExercise($event)"
+                            (previewExercise)="handlePreviewExercise($event)"
+                            (expansionChange)="expandedExercise = $event.isExpanded ? $event.index : false">
+                        </app-exercise-editor>
+                    </div>
+
+                    <button
+                        mat-raised-button
+                        color="accent"
+                        (click)="handleAddExercise()"
+                        [disabled]="!activity.activityTypeId || (activity.activityTypeId || 0) <= 0"
+                        class="add-exercise-btn">
+                        <mat-icon>add_circle_outline</mat-icon>
+                        Add Exercise
+                    </button>
+                </section>
+            </div>
+  
+            <!-- RIGHT COLUMN -->
+            <div class="column column-preview">
+                <section class="panel preview-panel">
+                    <div class="panel-header">
+                        <h3>Activity Preview</h3>
+                    </div>
+  
+                    <div class="preview-wrapper">
+                        <app-device-preview 
+                          [activityData]="previewContent || activity">
+                        </app-device-preview>
+                    </div>
+                </section>
+            </div>
+  
+        </div>
+    </div>
+  
+    <mat-spinner *ngIf="isLoading" class="loading-spinner"></mat-spinner>
   </div>
-
-  <!-- Footer Actions -->
-  <div class="footer-actions">
-    <button mat-stroked-button
-            class="cancel-button"
-            (click)="goBack()"
-            [disabled]="isLoading">
-      <mat-icon>close</mat-icon>
-      <span>Cancel</span>
-    </button>
-    <button mat-flat-button
-            class="save-button"
-            (click)="handleSave()"
-            [disabled]="isLoading">
-      <mat-icon>save</mat-icon>
-      <span>Save Activity</span>
-    </button>
-  </div>
-
-</div>
+  

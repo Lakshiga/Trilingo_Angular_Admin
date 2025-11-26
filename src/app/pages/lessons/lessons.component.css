@@ -214,16 +214,3 @@ tbody tr:hover {
   background: #2a5a73;
 }
 
-/* Multilingual Input in Table */
-.edit-name-wrapper {
-  min-width: 100%;
-  width: 100%;
-}
-
-::ng-deep .edit-name-wrapper app-multilingual-input {
-  display: block;
-}
-
-::ng-deep .edit-name-wrapper app-multilingual-input .mat-mdc-tab-group {
-  margin-bottom: 0;
-}

@@ -12,7 +12,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LessonApiService, MultilingualLesson, LessonCreateDto } from '../../services/lesson-api.service';
 import { MultilingualText } from '../../types/multilingual.types';
-import { MultilingualInputComponent } from '../../components/common/multilingual-input/multilingual-input.component';
 import { Subscription, takeUntil, Subject } from 'rxjs';
 
 @Component({
@@ -29,8 +28,7 @@ import { Subscription, takeUntil, Subject } from 'rxjs';
     MatInputModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    RouterLink,
-    MultilingualInputComponent
+    RouterLink
   ],
   templateUrl: './lessons.component.html',
   styleUrls: ['./lessons.component.css']
@@ -107,7 +105,11 @@ export class LessonsPageComponent implements OnInit, OnDestroy {
   startEditing(lesson: MultilingualLesson): void {
     this.editRowId = lesson.lessonId;
     this.editedLesson = {
-      lessonName: { ...lesson.lessonName },
+      lessonName: {
+        en: lesson.lessonName?.en || '',
+        ta: lesson.lessonName?.ta || '',
+        si: lesson.lessonName?.si || ''
+      },
       sequenceOrder: lesson.sequenceOrder
     };
   }
@@ -193,21 +195,11 @@ export class LessonsPageComponent implements OnInit, OnDestroy {
       });
   }
 
-  onNewLessonNameChange(value: MultilingualText): void {
-    this.newLesson.lessonName = value;
-  }
-
   onNewLessonNameFieldChange(field: 'en' | 'ta' | 'si', value: string): void {
     if (!this.newLesson.lessonName) {
       this.newLesson.lessonName = { en: '', ta: '', si: '' };
     }
     this.newLesson.lessonName[field] = value;
-  }
-
-  onEditedLessonNameChange(value: MultilingualText): void {
-    if (this.editedLesson) {
-      this.editedLesson.lessonName = value;
-    }
   }
 
   getLessonDisplayName(lesson: MultilingualLesson): string {
