@@ -8,8 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Activity } from '../../../types/activity.types';
 import { MainActivity } from '../../../types/main-activity.types';
 import { ActivityType } from '../../../types/activity-type.types';
-import { MultilingualText } from '../../../types/multilingual.types';
-import { MultilingualInputComponent } from '../../common/multilingual-input/multilingual-input.component';
+import { MultilingualText, LanguageCode } from '../../../types/multilingual.types';
 
 @Component({
   selector: 'app-activity-form',
@@ -20,8 +19,7 @@ import { MultilingualInputComponent } from '../../common/multilingual-input/mult
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatIconModule,
-    MultilingualInputComponent
+    MatIconModule
   ],
   templateUrl: './activity-form.component.html',
   styleUrls: ['./activity-form.component.css']
@@ -38,10 +36,8 @@ export class ActivityFormComponent {
     this.dataChange.emit({ ...this.activityData });
   }
 
-  onMainActivityChange(event: any): void {
-    // Handle Material Select change event
-    const selectedValue = event?.value !== undefined ? event.value : (event?.target?.value !== undefined ? event.target.value : null);
-    const mainActivityId = selectedValue !== null && selectedValue !== undefined ? Number(selectedValue) : 0;
+  onMainActivitySelect(value: string | number): void {
+    const mainActivityId = value !== null && value !== undefined ? Number(value) : 0;
     
     // Ensure we have a valid main activity ID
     if (mainActivityId && mainActivityId > 0 && !isNaN(mainActivityId)) {
@@ -58,15 +54,12 @@ export class ActivityFormComponent {
     }
   }
 
-  onActivityTypeChange(event: any): void {
-    // Don't allow activity type change if exercises exist
+  onActivityTypeSelect(value: string | number): void {
     if (this.hasExercises) {
-      // Revert to original value
-      event.source.value = this.activityData.activityTypeId;
       return;
     }
     
-    const activityTypeId = Number(event?.value || event?.target?.value);
+    const activityTypeId = Number(value);
     // Ensure we have a valid activity type ID
     if (activityTypeId && activityTypeId > 0) {
       this.activityData.activityTypeId = activityTypeId;
@@ -95,5 +88,11 @@ export class ActivityFormComponent {
     const updatedTitle = { ...newTitle };
     this.activityData = { ...this.activityData, title: updatedTitle };
     this.onDataChange();
+  }
+
+  updateTitleValue(code: LanguageCode, value: string): void {
+    const currentTitle = this.getTitleValue();
+    const updatedTitle = { ...currentTitle, [code]: value };
+    this.onTitleChange(updatedTitle);
   }
 }
