@@ -36,6 +36,12 @@
           <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
         </button>
       </mat-form-field>
+
+      <!-- Remember Me & Forgot Password Section -->
+      <div class="form-options">
+        <mat-checkbox formControlName="rememberMe" color="primary">Remember Me</mat-checkbox>
+        <a href="#" class="forgot-password-link">Forgot Password?</a>
+      </div>
       
       <div class="error-message" *ngIf="error">
         <mat-icon>error_outline</mat-icon>
