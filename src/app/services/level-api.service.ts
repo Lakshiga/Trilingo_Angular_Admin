@@ -22,7 +22,7 @@ export interface LevelCreateDto {
   providedIn: 'root'
 })
 export class LevelApiService {
-  private readonly endpoint = '/Levels';
+  private readonly endpoint = '/admin/Levels';
 
   constructor(private httpClient: HttpClientService) {}
 

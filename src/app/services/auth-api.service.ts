@@ -16,7 +16,9 @@ export class AuthApiService {
   }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.httpClient.post<AuthResponse, LoginRequest>(`${this.endpoint}/login`, credentials);
+    // Use login endpoint with admin=true query parameter for admin panel
+    // This works as a fallback if admin-login endpoint is not available
+    return this.httpClient.post<AuthResponse, LoginRequest>(`${this.endpoint}/login?admin=true`, credentials);
   }
 
   checkAuthStatus(): void {
@@ -26,6 +28,7 @@ export class AuthApiService {
 
   logout(): void {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userRole');
     this.isAuthenticatedSubject.next(false);
   }
 }

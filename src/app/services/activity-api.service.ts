@@ -32,7 +32,7 @@ export type ActivityUpdateDto = ActivityCreateDto;
   providedIn: 'root'
 })
 export class ActivityApiService {
-  private readonly endpoint = '/Activities';
+  private readonly endpoint = '/admin/Activities';
 
   constructor(private httpClient: HttpClientService) {}
 
@@ -78,7 +78,7 @@ export class ActivityApiService {
 
   // GET all activities for a specific lesson (use the proper endpoint)
   getActivitiesByLessonId(lessonId: number | string): Observable<MultilingualActivity[]> {
-    return this.httpClient.get<any[]>(`/Activities/stage/${lessonId}`).pipe(
+    return this.httpClient.get<any[]>(`${this.endpoint}/stage/${lessonId}`).pipe(
       map(list => (list || []).map(a => this.toFrontend(a)))
     );
   }

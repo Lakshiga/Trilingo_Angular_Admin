@@ -24,7 +24,7 @@ export interface LessonCreateDto {
 })
 export class LessonApiService {
   // Backend calls these "Stages". We map "lessons" <-> stages in the frontend.
-  private readonly endpoint = '/Stages';
+  private readonly endpoint = '/admin/Stages';
 
   constructor(private httpClient: HttpClientService) {}
 

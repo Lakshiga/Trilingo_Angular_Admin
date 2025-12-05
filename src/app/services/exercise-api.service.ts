@@ -26,7 +26,7 @@ export interface UpdateExerciseDto {
   providedIn: 'root'
 })
 export class ExerciseApiService {
-  private readonly endpoint = '/exercises';
+  private readonly endpoint = '/admin/exercises';
 
   constructor(private httpClient: HttpClientService) {}
 
@@ -37,7 +37,7 @@ export class ExerciseApiService {
 
   // GET exercises by activity ID
   getByActivityId(activityId: number): Observable<Exercise[]> {
-    return this.httpClient.get<Exercise[]>(`/activities/${activityId}/exercises`);
+    return this.httpClient.get<Exercise[]>(`${this.endpoint}/activity/${activityId}`);
   }
 
   // GET single exercise by ID

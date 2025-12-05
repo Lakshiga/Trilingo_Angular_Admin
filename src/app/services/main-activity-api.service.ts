@@ -21,7 +21,7 @@ export interface MainActivityCreateDto {
   providedIn: 'root'
 })
 export class MainActivityApiService {
-  private readonly endpoint = '/MainActivities';
+  private readonly endpoint = '/admin/MainActivities';
 
   constructor(private httpClient: HttpClientService) {}
 
