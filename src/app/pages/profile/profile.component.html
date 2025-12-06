@@ -1,0 +1,173 @@
+<div class="profile-page">
+  <!-- Header Section -->
+  <div class="profile-header">
+    <div class="breadcrumb">
+      <a routerLink="/dashboard" class="breadcrumb-link">Home</a>
+      <span class="breadcrumb-separator">></span>
+      <span class="breadcrumb-current">Profile</span>
+    </div>
+    <h1 class="page-title">Admin Profile</h1>
+    <p class="page-subtitle">Manage your personal information & security</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="profile-content">
+    <!-- Left Side: Profile Card -->
+    <div class="profile-card">
+      <div class="profile-image-container">
+        <div class="profile-image-wrapper" (click)="openImageModal()">
+          <img 
+            [src]="getProfileImageUrl()" 
+            [alt]="userProfile?.username || 'Admin'" 
+            class="profile-image"
+            onerror="this.src='/assets/images/default-profile.svg'"
+          />
+          <div class="image-overlay">
+            <svg xmlns="http://www.w3.org/2000/svg" class="camera-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="profile-info">
+        <h2 class="profile-name">{{ userProfile?.username || 'Admin' }}</h2>
+        <p class="profile-email">{{ userProfile?.email || 'admin@example.com' }}</p>
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span class="status-text">Active</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Profile Details Form -->
+    <div class="profile-form-card">
+      <h2 class="form-title">Profile Details</h2>
+      
+      <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
+        <div class="form-group">
+          <label for="username" class="form-label">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            formControlName="username"
+            class="form-input"
+            [class.input-error]="profileForm.get('username')?.invalid && profileForm.get('username')?.touched"
+          />
+          <div *ngIf="profileForm.get('username')?.invalid && profileForm.get('username')?.touched" class="error-message">
+            Username is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email"
+            class="form-input"
+            [class.input-error]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+          />
+          <div *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched" class="error-message">
+            Please enter a valid email address
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            [disabled]="profileForm.invalid || isLoading"
+            class="btn btn-primary"
+          >
+            {{ isLoading ? 'Saving...' : 'Save Changes' }}
+          </button>
+          <button 
+            type="button" 
+            (click)="router.navigate(['/dashboard'])"
+            class="btn btn-secondary"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Action Buttons Section -->
+  <div class="action-buttons-section">
+    <button 
+      type="button"
+      (click)="openChangePasswordDialog()"
+      class="btn btn-change-password"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+      </svg>
+      <span>Change Password</span>
+    </button>
+    
+    <button 
+      type="button"
+      (click)="logout()"
+      class="btn btn-logout"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+      <span>Logout</span>
+    </button>
+  </div>
+</div>
+
+<!-- Image Upload Modal -->
+<div class="modal-overlay" *ngIf="showImageModal" (click)="closeImageModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Update Profile Picture</h3>
+      <button type="button" class="modal-close" (click)="closeImageModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="image-preview-container">
+        <img 
+          [src]="previewImageUrl || getProfileImageUrl()" 
+          [alt]="'Preview'" 
+          class="image-preview"
+          onerror="this.src='/assets/images/default-profile.svg'"
+        />
+      </div>
+      
+      <div class="modal-actions">
+        <label for="modal-image-upload" class="btn btn-upload">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          Upload Photo
+        </label>
+        <input 
+          type="file" 
+          id="modal-image-upload" 
+          accept="image/*" 
+          class="hidden" 
+          (change)="onFileSelected($event)"
+        />
+        <button 
+          type="button"
+          (click)="removeProfileImage()"
+          class="btn btn-remove"
+          *ngIf="userProfile?.profileImageUrl"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          Remove Photo
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

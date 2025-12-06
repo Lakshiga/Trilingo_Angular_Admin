@@ -68,18 +68,21 @@ export class LoginPageComponent {
     this.authApiService.login(loginRequest).subscribe({
       next: (response) => {
         if (response.isSuccess) {
-          // Validate that user has Admin or SuperAdmin role
+          // Validate that user has Admin role
           const userRole = response.role || '';
-          if (userRole !== 'Admin' && userRole !== 'SuperAdmin') {
-            this.error = 'Access denied. Only Admin or SuperAdmin users can access the admin panel.';
+          if (userRole !== 'Admin') {
+            this.error = 'Access denied. Only Admin users can access the admin panel.';
             this.isLoading = false;
             return;
           }
 
           localStorage.setItem('authToken', response.token || '');
-          // Store user role for future use
+          // Store user role and username for future use
           if (response.role) {
             localStorage.setItem('userRole', response.role);
+          }
+          if (response.username) {
+            localStorage.setItem('username', response.username);
           }
           this.authApiService.checkAuthStatus();
           this.snackBar.open('Login successful!', 'Close', { duration: 3000 });

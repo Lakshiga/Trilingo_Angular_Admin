@@ -74,11 +74,26 @@ export class HttpClientService {
   }
 
   post<T, TBody>(endpoint: string, body: TBody): Observable<T> {
+    // For FormData, don't set Content-Type header (let browser set it with boundary)
+    const isFormData = body instanceof FormData;
+    const headers = isFormData ? this.getHeadersWithoutContentType() : this.getHeaders();
+    
     return this.http.post<T>(`${this.baseUrl}${endpoint}`, body, {
-      headers: this.getHeaders()
+      headers: headers
     }).pipe(
       catchError(error => this.handleError(error))
     );
+  }
+
+  private getHeadersWithoutContentType(): HttpHeaders {
+    const token = localStorage.getItem('authToken');
+    let headers = new HttpHeaders();
+    
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    
+    return headers;
   }
 
   put<T, TBody>(endpoint: string, body: TBody): Observable<T> {

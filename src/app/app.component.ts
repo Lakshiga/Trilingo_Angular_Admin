@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 // MatTypographyModule is not available in Angular Material v19
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthApiService } from './services/auth-api.service';
+import { HttpClientService } from './services/http-client.service';
 import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -26,11 +27,13 @@ import { filter } from 'rxjs/operators';
 })
 export class AppComponent implements OnInit {
   isAuthenticated$: Observable<boolean>;
-  showProfileDropdown = false;
   isLoginPage = false;
+  userProfile: any = null;
+  defaultProfileImage = '/assets/images/default-profile.svg';
 
   constructor(
     private authApiService: AuthApiService,
+    private httpClient: HttpClientService,
     public router: Router
   ) {
     this.isAuthenticated$ = this.authApiService.isAuthenticated$;
@@ -40,6 +43,9 @@ export class AppComponent implements OnInit {
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       this.isLoginPage = event.url === '/login' || event.urlAfterRedirects === '/login';
+      if (!this.isLoginPage) {
+        this.loadUserProfile();
+      }
     });
   }
 
@@ -48,30 +54,52 @@ export class AppComponent implements OnInit {
     this.authApiService.checkAuthStatus();
     // Check initial route
     this.isLoginPage = this.router.url === '/login';
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
-    const profileDropdown = document.querySelector('.profile-dropdown');
-    if (profileDropdown && !profileDropdown.contains(event.target as Node)) {
-      this.showProfileDropdown = false;
+    if (!this.isLoginPage) {
+      this.loadUserProfile();
     }
   }
 
-  toggleProfileDropdown(): void {
-    this.showProfileDropdown = !this.showProfileDropdown;
+  loadUserProfile(): void {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
+    this.httpClient.get<any>('/auth/profile').subscribe({
+      next: (response) => {
+        // Ensure profile image URL has full URL if it's a relative path
+        let profileImageUrl = response.profileImageUrl;
+        if (profileImageUrl && profileImageUrl.startsWith('/uploads') && !profileImageUrl.startsWith('http')) {
+          const baseUrl = 'http://localhost:5166';
+          profileImageUrl = `${baseUrl}${profileImageUrl}`;
+        }
+        
+        this.userProfile = {
+          username: response.username || 'Admin',
+          email: response.email || '',
+          profileImageUrl: profileImageUrl,
+          role: response.role
+        };
+        if (this.userProfile.username) {
+          localStorage.setItem('username', this.userProfile.username);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading profile:', err);
+        // Set default values
+        this.userProfile = {
+          username: 'Admin',
+          email: '',
+          profileImageUrl: null,
+          role: 'Admin'
+        };
+      }
+    });
   }
 
-  updateProfile(): void {
-    this.showProfileDropdown = false;
-    // TODO: Implement profile update functionality
-    console.log('Update profile clicked');
+  getProfileImageUrl(): string {
+    return this.userProfile?.profileImageUrl || this.defaultProfileImage;
   }
 
-  logout(): void {
-    // Only logout when explicitly called from logout button
-    this.showProfileDropdown = false;
-    this.authApiService.logout();
-    this.router.navigate(['login']);
+  navigateToProfile(): void {
+    this.router.navigate(['/profile']);
   }
 }
