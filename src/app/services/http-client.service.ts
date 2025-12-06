@@ -100,20 +100,69 @@ export class HttpClientService {
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'A network or unknown error occurred.';
     
-    if (error.error instanceof ErrorEvent) {
+    // Network error (status 0) - CORS, server down, etc.
+    if (error.status === 0) {
+      // More concise error message for UI
+      errorMessage = `Cannot connect to ${this.baseUrl}. Please check your network or try again later.`;
+      
+      // Detailed logging for developers
+      console.error('🚨 [HttpClientService] Network Error - Backend Connection Failed', {
+        baseUrl: this.baseUrl,
+        endpoint: error.url,
+        message: error.message,
+        error: error.error,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Helpful console messages
+      console.group('🔧 Troubleshooting Steps:');
+      console.log('1. Check if backend is running:');
+      console.log('   → Open http://localhost:5166/swagger in browser');
+      console.log('2. Start backend server:');
+      console.log('   → cd Trilingo_Backend/TES_Learning_App.API');
+      console.log('   → dotnet run');
+      console.log('3. Verify port: Backend should run on port 5166');
+      console.log('4. Check CORS: Ensure backend allows http://localhost:4200');
+      console.log('5. Check browser console for CORS errors (F12 → Console tab)');
+      console.groupEnd();
+      
+      // Quick test suggestion
+      console.warn('💡 Quick Test: Open http://localhost:5166/swagger to verify backend is running');
+    } else if (error.error instanceof ErrorEvent) {
       // Client-side error
-      errorMessage = error.error.message;
+      errorMessage = error.error.message || 'A client-side error occurred.';
+      console.error('[HttpClientService] Client-side Error:', error.error);
     } else {
-      // Server-side error
-      if (error.error && typeof error.error === 'string') {
-        errorMessage = error.error;
-      } else if (error.error && error.error.message) {
-        errorMessage = error.error.message;
+      // Server-side error - try to extract user-friendly message
+      if (error.error) {
+        if (typeof error.error === 'string') {
+          errorMessage = error.error;
+        } else if (error.error.message) {
+          errorMessage = error.error.message;
+        } else if (error.error.isSuccess === false && error.error.message) {
+          errorMessage = error.error.message;
+        } else {
+          errorMessage = error.message || `Server error (${error.status})`;
+        }
       } else {
-        errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+        errorMessage = error.message || `Server error (${error.status})`;
+      }
+      
+      // Log server errors for debugging
+      if (error.status >= 500) {
+        console.error('[HttpClientService] Server Error:', {
+          status: error.status,
+          message: errorMessage,
+          url: error.url
+        });
       }
     }
     
-    return throwError(() => new Error(errorMessage));
+    return throwError(() => new HttpErrorResponse({
+      error: errorMessage,
+      status: error.status || 0,
+      statusText: error.statusText || 'Unknown Error',
+      url: error.url || undefined
+    }));
   }
 }

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -20,6 +20,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
@@ -32,7 +33,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginPageComponent {
+export class LoginPageComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   error: string | null = null;
@@ -49,6 +50,19 @@ export class LoginPageComponent {
       password: ['Admin123!', [Validators.required]],
       rememberMe: [false]
     });
+  }
+
+  ngOnInit(): void {
+    // Load saved credentials if "Remember Me" was checked previously
+    const savedIdentifier = localStorage.getItem('rememberedIdentifier');
+    const savedPassword = localStorage.getItem('rememberedPassword');
+    if (savedIdentifier && savedPassword) {
+      this.loginForm.patchValue({
+        identifier: savedIdentifier,
+        password: savedPassword,
+        rememberMe: true
+      });
+    }
   }
 
   togglePasswordVisibility(): void {
@@ -75,24 +89,59 @@ export class LoginPageComponent {
           localStorage.setItem('authToken', response.token || '');
           this.authApiService.checkAuthStatus();
           this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
+
+          // Handle "Remember Me" functionality
+          if (this.loginForm.value.rememberMe) {
+            // Save credentials to localStorage
+            localStorage.setItem('rememberedIdentifier', loginRequest.identifier);
+            localStorage.setItem('rememberedPassword', loginRequest.password);
+          } else {
+            // Remove saved credentials if "Remember Me" is unchecked
+            localStorage.removeItem('rememberedIdentifier');
+            localStorage.removeItem('rememberedPassword');
+          }
+
           this.router.navigate(['/dashboard']);
         } else {
           this.error = response.message || 'Invalid credentials or login failed.';
         }
         this.isLoading = false;
       },
-      error: (err) => {
-        this.error = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      error: (err: unknown) => {
         this.isLoading = false;
-        this.error = this.handleError(err);
+        if (err instanceof HttpErrorResponse) {
+          this.error = this.handleError(err);
+        } else if (err instanceof Error) {
+          this.error = err.message || 'An unexpected error occurred.';
+        } else {
+          this.error = 'An unexpected error occurred. Please try again.';
+        }
       }
     });
   }
 
   private handleError(error: HttpErrorResponse): string {
     if (error.status === 0) {
-      // This is a client-side or network error. Could be CORS or server is down.
-      return 'Cannot connect to the server. Please check your network or try again later.';
+      // Network error (status 0) - Backend not running, CORS, or connection issue
+      const errorMessage = error.error?.error || error.message || '';
+      
+      // Extract base URL from error message if available
+      let baseUrl = 'the backend server';
+      if (errorMessage.includes('localhost:5166')) {
+        baseUrl = 'http://localhost:5166';
+      } else if (errorMessage.includes('localhost')) {
+        const match = errorMessage.match(/localhost:\d+/);
+        if (match) baseUrl = `http://${match[0]}`;
+      }
+      
+      // More user-friendly error message with actionable steps
+      return `Cannot connect to the server. Please check your network or try again later.
+
+🔧 Quick Fix Steps:
+1. Make sure backend is running: Open http://localhost:5166/swagger in browser
+2. Start backend: cd Trilingo_Backend/TES_Learning_App.API && dotnet run
+3. Check if port 5166 is correct
+4. Look for CORS errors in browser console (F12)`;
     } else if (error.status === 401) {
       // Unauthorized - typically wrong username/password
       return 'Invalid username or password. Please check your credentials.';
@@ -100,8 +149,9 @@ export class LoginPageComponent {
       // Server-side error
       return 'A server error occurred. Please try again in a few moments.';
     } else {
-      // Other generic errors
-      return 'An unexpected error occurred. Please try again.';
+      // Other generic errors - try to extract meaningful message
+      const serverMessage = error.error?.error || error.error?.message || error.message;
+      return serverMessage || 'An unexpected error occurred. Please try again.';
     }
   }
 }

@@ -21,7 +21,7 @@ export interface ImageUrl {
 // Defines the final structure for a single Flashcard Word object
 export interface FlashcardWord {
   id: string; 
-  // 💡 DESIGN SWITCH FIELD: If present/not null, it triggers the detailed design (Image 2 look).
+  
   // If omitted/null, it triggers the simple design (Image 1 look).
   label?: MultiLingualText | null; // Optional Secondary Text (e.g., phonetic spelling)
   // Top title/category (e.g., "உடல் உறுப்புகள்"). Used only in the detailed design.
@@ -46,7 +46,7 @@ export interface FlashcardContent {
 })
 export class FlashcardComponent implements OnInit {
   @Input() cardData?: FlashcardWord; 
-  @Input() content?: FlashcardContent | FlashcardWord | any; // Accept content input - can be FlashcardContent or single FlashcardWord
+  @Input() content?: FlashcardContent | FlashcardWord | any; 
   @Input() currentLang: Language = 'ta'; // Default language is Tamil
   @ViewChild('audioPlayer') audioPlayer!: ElementRef<HTMLAudioElement>;
 
@@ -102,8 +102,7 @@ export class FlashcardComponent implements OnInit {
   }
 
   // --- Design Switch Logic ---
-  
-  // 💡 This is the main switch: True if 'label' has data for the current language.
+
   get isDetailedDesign(): boolean {
     // Check if the label object exists AND has a value for the current language
     return !!this.cardDataToUse.label && !!this.cardDataToUse.label[this.currentLang];

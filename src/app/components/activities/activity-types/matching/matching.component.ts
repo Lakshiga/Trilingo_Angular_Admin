@@ -18,37 +18,36 @@ interface CardContent { [key: string]: string | null; }
 
 interface Card {
   id: string; 
-  matchId: string; 
-  side: 'A' | 'B'; 
-  type: CardType;
-  content: CardContent;
+  matchId: string; 
+  side: 'A' | 'B'; 
+  type: CardType;
+  content: CardContent;
 }
 
 interface ActivityContent {
-  title: MultiLingualText;
-  instruction: MultiLingualText;
-  cards: Card[]; 
+  title: MultiLingualText;
+  instruction: MultiLingualText;
+  cards: Card[]; 
 }
 
 // --- Component Definition ---
-
 @Component({
-  selector: 'app-matching',
-  // Using material components for a clean admin UI
-  imports: [
-    CommonModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, 
-    MatInputModule, MatSelectModule, MatIconModule, MatCardModule
-  ],
-  standalone: true,
-  templateUrl: './matching.component.html',
-  styleUrls: ['./matching.component.css']
+  selector: 'app-matching',
+  // Using material components for a clean admin UI
+ imports: [
+  CommonModule, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, 
+  MatInputModule, MatSelectModule, MatIconModule, MatCardModule
+  ],
+  standalone: true,
+  templateUrl: './matching.component.html',
+  styleUrls: ['./matching.component.css']
 })
 export class AppMatchingAdminForm implements OnInit {
-  // Input: DB-லிருந்து வரும் JSON Object
-  @Input() activityData?: ActivityContent;
-  // Input: Alternative input name for compatibility with activity-renderer
+
+  @Input() activityData?: ActivityContent;
+  
   @Input() content?: ActivityContent;
-  // Output: சேமிப்பதற்காக Parent Component-க்கு JSON String-ஐ அனுப்பும்
+  
   @Output() saveActivity = new EventEmitter<string>();
 
   activityForm!: FormGroup;
@@ -288,11 +287,11 @@ export class AppMatchingAdminForm implements OnInit {
     return '';
   }
 
-  // Get card media URL
-  getCardMediaUrl(card: any): string | null {
-    if (card.type === 'image' || card.type === 'audio') {
-      return card.content_default || null;
-    }
-    return null;
-  }
+ // Get card media URL
+ getCardMediaUrl(card: any): string | null {
+  if (card.type === 'image' || card.type === 'audio') {
+   return card.content_default || null;
+  }
+  return null;
+ }
 }

@@ -1,134 +1,45 @@
-<ng-container *ngIf="isLoginPage || !(isAuthenticated$ | async); else adminLayout">
-  <router-outlet />
-</ng-container>
-
-<ng-template #adminLayout>
-  <div class="admin-layout flex flex-col h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors duration-300 overflow-hidden">
-    
-    <!-- Top Navigation Bar -->
-    <header class="sticky top-0 w-full bg-[#346e8c] border-b border-white/10 shadow-sm z-[1000]">
-      <div class="flex justify-between items-center h-[72px] px-8 max-w-full relative lg:px-5">
-        
-        <div class="flex items-center h-full">
-          <div class="w-14 h-14 rounded-full bg-white shadow-md border border-gray-200 flex items-center justify-center overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5">
-            <img src="/assets/images/logo.png" alt="Q-bit Logo" class="w-full h-full object-cover rounded-full">
-          </div>
-        </div>
-    
-
-
-        
-        
-        <!-- Center: Desktop Navigation -->
-        <nav class="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-5 h-full z-[5]">
-
-          <a routerLink="/dashboard" routerLinkActive="active" #dashboardLink="routerLinkActive"
-             [ngClass]="{'active': dashboardLink.isActive}"
-             class="nav-link flex items-center gap-2 px-4.5 py-2.5 text-white font-medium text-sm whitespace-nowrap">
-            <span>Dashboard</span>
-          </a>
-        
-          <a routerLink="/main-activities" routerLinkActive="active" #mainActivitiesLink="routerLinkActive"
-             [ngClass]="{'active': mainActivitiesLink.isActive}"
-             class="nav-link flex items-center gap-2 px-4.5 py-2.5 text-white font-medium text-sm whitespace-nowrap">
-            <span>Main Activities</span>
-          </a>
-        
-          <a routerLink="/activity-types" routerLinkActive="active" #activityTypesLink="routerLinkActive"
-             [ngClass]="{'active': activityTypesLink.isActive}"
-             class="nav-link flex items-center gap-2 px-4.5 py-2.5 text-white font-medium text-sm whitespace-nowrap">
-            <span>Activity Types</span>
-          </a>
-        
-          <a routerLink="/levels" routerLinkActive="active" #levelsLink="routerLinkActive"
-             [ngClass]="{'active': levelsLink.isActive}"
-             class="nav-link flex items-center gap-2 px-4.5 py-2.5 text-white font-medium text-sm whitespace-nowrap">
-            <span>Levels</span>
-          </a>
-        
-        </nav>
-        
-        
-        <!-- Right: Profile Dropdown -->
-        <div class="flex items-center justify-end flex-shrink-0 z-10">
-          <div class="relative">
-            <div class="flex items-center gap-3 px-3 py-1.5 rounded-xl cursor-pointer transition-all bg-white/10 hover:bg-white/20" (click)="toggleProfileDropdown()">
-              <div class="relative flex items-center justify-center">
-                <img src="https://i.pravatar.cc/40?u=sarah" alt="User Avatar" class="w-9 h-9 rounded-lg object-cover border-2 border-white shadow-sm">
-                <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>
-              </div>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white transition-transform flex-shrink-0" [class.rotate-180]="showProfileDropdown" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-            
-            <div class="dropdown-menu" 
-                 [class.visible]="showProfileDropdown">
-              
-              <div class="dropdown-header">
-                <div class="dropdown-avatar-large">
-                  <img src="https://i.pravatar.cc/40?u=sarah" alt="User Avatar" class="profile-avatar-large">
-                </div>
-              </div>
-
-              <div class="dropdown-divider"></div>
-
-              <div class="dropdown-items">
-                <a href="#" class="dropdown-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                  </svg>
-                  <span>My Profile</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-                  </svg>
-                  <span>Settings</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </a>
-              </div>
-
-              <div class="dropdown-divider"></div>
-
-              <a href="#" class="dropdown-item logout-item" (click)="logout(); $event.preventDefault();">
-                <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-icon logout-icon" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
-                </svg>
-                <span>Logout</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mobile Navigation -->
-      <nav class="flex items-center gap-1.5 px-4 py-3 overflow-x-auto scrollbar-hide border-t border-white/10 bg-[#346E8C] lg:hidden">
-        <a routerLink="/dashboard" routerLinkActive="active" #dashboardLinkMobile="routerLinkActive" [ngClass]="{'active': dashboardLinkMobile.isActive}" class="flex-shrink-0 px-4 py-2 text-white no-underline text-xs font-medium rounded-lg transition-all whitespace-nowrap relative hover:bg-white/20">
-          <span>Dashboard</span>
-        </a>
-        <a routerLink="/main-activities" routerLinkActive="active" #mainActivitiesLinkMobile="routerLinkActive" [ngClass]="{'active': mainActivitiesLinkMobile.isActive}" class="flex-shrink-0 px-4 py-2 text-white no-underline text-xs font-medium rounded-lg transition-all whitespace-nowrap relative hover:bg-white/20">
-          <span>Main Activities</span>
-        </a>
-        <a routerLink="/activity-types" routerLinkActive="active" #activityTypesLinkMobile="routerLinkActive" [ngClass]="{'active': activityTypesLinkMobile.isActive}" class="flex-shrink-0 px-4 py-2 text-white no-underline text-xs font-medium rounded-lg transition-all whitespace-nowrap relative hover:bg-white/20">
-          <span>Activity Types</span>
-        </a>
-        <a routerLink="/levels" routerLinkActive="active" #levelsLinkMobile="routerLinkActive" [ngClass]="{'active': levelsLinkMobile.isActive}" class="flex-shrink-0 px-4 py-2 text-white no-underline text-xs font-medium rounded-lg transition-all whitespace-nowrap relative hover:bg-white/20">
-          <span>Levels</span>
-        </a>
-      </nav>
-    </header>
-
-    <!-- Main Content -->
-    <div class="content-wrapper flex flex-1 w-full overflow-hidden">
-      <main class="main-content flex-1 w-full p-4 sm:p-6 overflow-y-auto scrollbar-hide bg-white">
-          <router-outlet />
-      </main>
+<!-- SECURITY: Show loading screen during initial auth check to prevent content flash -->
+<ng-container *ngIf="isInitializing; else contentArea">
+  <div class="auth-loading-screen flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-slate-900">
+    <div class="text-center">
+      <mat-spinner diameter="50" class="mx-auto mb-4"></mat-spinner>
+      <p class="text-gray-600 dark:text-gray-400">Verifying authentication...</p>
     </div>
   </div>
+</ng-container>
+
+<!-- Main Content Area: Only shown after auth check completes -->
+<ng-template #contentArea>
+  <!-- Public Routes: Show without navbar -->
+  <ng-container *ngIf="isPublicRoute; else adminLayout">
+    <router-outlet />
+  </ng-container>
+
+  <!-- Admin Layout: Show with navbar ONLY for authenticated users -->
+  <ng-template #adminLayout>
+    <!-- SECURITY: Double check - Only show admin layout if authenticated -->
+    <ng-container *ngIf="isAuthenticated$ | async; else redirectToLogin">
+      <div class="admin-layout flex flex-col h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors duration-300 overflow-hidden">
+        <!-- Navbar Component -->
+        <app-navbar></app-navbar>
+
+        <!-- Main Content -->
+        <div class="content-wrapper flex flex-1 w-full overflow-hidden">
+          <main class="main-content flex-1 w-full p-4 sm:p-6 overflow-y-auto scrollbar-hide bg-white">
+            <router-outlet />
+          </main>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- SECURITY: If not authenticated, show nothing (AuthGuard will redirect) -->
+    <ng-template #redirectToLogin>
+      <div class="auth-loading-screen flex items-center justify-center h-screen w-full bg-slate-50 dark:bg-slate-900">
+        <div class="text-center">
+          <mat-spinner diameter="50" class="mx-auto mb-4"></mat-spinner>
+          <p class="text-gray-600 dark:text-gray-400">Redirecting to login...</p>
+        </div>
+      </div>
+    </ng-template>
+  </ng-template>
 </ng-template>

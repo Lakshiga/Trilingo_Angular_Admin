@@ -14,6 +14,10 @@ export interface AuthResponse {
   isSuccess: boolean;
   message: string;
   token: string | null;
+  username?: string | null;
+  email?: string | null;
+  profileImageUrl?: string | null;
+  role?: string | null;
   refreshToken?: string | null;
   user?: User | null;
 }

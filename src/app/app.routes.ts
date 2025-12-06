@@ -7,6 +7,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginPageComponent)
   },
   {
+    path: 'forgot-password',
+    loadComponent: () => import('./pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [AuthGuard]
@@ -44,6 +48,11 @@ export const routes: Routes = [
   {
     path: 'exercises',
     loadComponent: () => import('./pages/exercises-list/exercises-list.component').then(m => m.ExercisesListComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'settings',
+    loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
     canActivate: [AuthGuard]
   },
   {
