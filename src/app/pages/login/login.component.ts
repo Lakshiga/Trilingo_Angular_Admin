@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -19,6 +19,7 @@ import { LoginRequest } from '../../types/auth.types';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
@@ -30,7 +31,7 @@ import { LoginRequest } from '../../types/auth.types';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginPageComponent {
+export class LoginPageComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   error: string | null = null;
@@ -46,6 +47,19 @@ export class LoginPageComponent {
       identifier: ['admin', [Validators.required]],
       password: ['Admin123!', [Validators.required]]
     });
+  }
+
+  ngOnInit(): void {
+    // Load saved credentials if "Remember Me" was checked previously
+    const savedIdentifier = localStorage.getItem('rememberedIdentifier');
+    const savedPassword = localStorage.getItem('rememberedPassword');
+    if (savedIdentifier && savedPassword) {
+      this.loginForm.patchValue({
+        identifier: savedIdentifier,
+        password: savedPassword,
+        rememberMe: true
+      });
+    }
   }
 
   togglePasswordVisibility(): void {
@@ -71,14 +85,25 @@ export class LoginPageComponent {
           localStorage.setItem('authToken', response.token || '');
           this.authApiService.checkAuthStatus();
           this.snackBar.open('Login successful!', 'Close', { duration: 3000 });
+
+          // Handle "Remember Me" functionality
+          if (this.loginForm.value.rememberMe) {
+            // Save credentials to localStorage
+            localStorage.setItem('rememberedIdentifier', loginRequest.identifier);
+            localStorage.setItem('rememberedPassword', loginRequest.password);
+          } else {
+            // Remove saved credentials if "Remember Me" is unchecked
+            localStorage.removeItem('rememberedIdentifier');
+            localStorage.removeItem('rememberedPassword');
+          }
+
           this.router.navigate(['/dashboard']);
         } else {
           this.error = response.message || 'Login failed.';
         }
         this.isLoading = false;
       },
-      error: (err) => {
-        this.error = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      error: (err: unknown) => {
         this.isLoading = false;
       }
     });

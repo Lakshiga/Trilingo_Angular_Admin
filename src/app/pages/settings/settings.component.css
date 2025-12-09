@@ -1,0 +1,114 @@
+/**
+ * Settings Component Styles
+ */
+
+.settings-container {
+  min-height: calc(100vh - 200px);
+}
+
+.settings-header h1 {
+  color: #111827;
+}
+
+.dark .settings-header h1 {
+  color: #f9fafb;
+}
+
+.settings-header p {
+  color: #6b7280;
+}
+
+.dark .settings-header p {
+  color: #9ca3af;
+}
+
+.settings-card {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .settings-card {
+  background: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.setting-item {
+  transition: background-color 0.2s;
+}
+
+.setting-item:hover {
+  background-color: #f9fafb;
+}
+
+.dark .setting-item:hover {
+  background-color: #374151;
+}
+
+.settings-form mat-form-field {
+  width: 100%;
+}
+
+.password-form mat-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.account-info .info-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .account-info .info-item {
+  border-bottom-color: #374151;
+}
+
+.account-info .info-item:last-child {
+  border-bottom: none;
+}
+
+.account-info label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.account-info p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Material Card Overrides */
+::ng-deep .mat-mdc-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark ::ng-deep .mat-mdc-card {
+  background-color: #1f2937 !important;
+  color: #f9fafb !important;
+}
+
+::ng-deep .mat-mdc-card-header {
+  padding: 20px 24px 16px !important;
+}
+
+::ng-deep .mat-mdc-card-content {
+  padding: 0 24px 24px !important;
+}
+
+::ng-deep .mat-mdc-card-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+}
+
+/* Button Styles */
+button[mat-raised-button] {
+  margin-right: 8px;
+}
+
+button[mat-raised-button] mat-icon {
+  margin-right: 8px;
+}
+
+button[mat-button] mat-icon {
+  margin-right: 8px;
+}
+

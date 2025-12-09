@@ -99,7 +99,6 @@ export class MultilingualActivityTemplates {
       ]
     }, null, 2);
   }
-
   private static getFillInTheBlanksTemplate(): string {
     return JSON.stringify({
       "title": {
@@ -115,6 +114,9 @@ export class MultilingualActivityTemplates {
       "questions": [
         {
           "sentenceId": "S1",
+          "mediaUrl": { 
+            "default": "assets/images/sample_school.jpg"
+          },
           "segments": [
             {
               "type": "TEXT",

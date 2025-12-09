@@ -75,13 +75,6 @@ export class ActivityFormComponent {
     return this.activityData.title || { ta: '', en: '', si: '' };
   }
 
-  getTitlePlaceholder(): MultilingualText {
-    return {
-      ta: 'செயல்பாட்டின் தலைப்பை உள்ளிடவும்',
-      en: 'Enter activity title',
-      si: 'ක්‍රියාකාරකමේ මාතෘකාව ඇතුළත් කරන්න'
-    };
-  }
 
   onTitleChange(newTitle: MultilingualText): void {
     // Ensure we're creating a new object reference to trigger change detection

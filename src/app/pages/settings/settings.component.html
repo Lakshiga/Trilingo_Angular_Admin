@@ -1,0 +1,195 @@
+<div class="settings-container p-6 max-w-4xl mx-auto">
+  <div class="settings-header mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
+    <p class="text-gray-600 dark:text-gray-400">Manage your admin panel preferences and account settings</p>
+  </div>
+
+  <!-- General Settings -->
+  <mat-card class="settings-card mb-6">
+    <mat-card-header>
+      <mat-card-title class="flex items-center gap-2">
+        <mat-icon>settings</mat-icon>
+        <span>General Settings</span>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="settingsForm" class="settings-form">
+        
+        <!-- Dark Mode Toggle -->
+        <div class="setting-item flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-gray-600 dark:text-gray-400">dark_mode</mat-icon>
+            <div>
+              <label class="font-medium text-gray-900 dark:text-white">Dark Mode</label>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Switch between light and dark theme</p>
+            </div>
+          </div>
+          <mat-slide-toggle formControlName="darkMode" color="primary"></mat-slide-toggle>
+        </div>
+
+        <!-- Language Selection -->
+        <div class="setting-item py-4 border-b border-gray-200 dark:border-gray-700">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Language</mat-label>
+            <mat-icon matPrefix>language</mat-icon>
+            <mat-select formControlName="language">
+              <mat-option *ngFor="let lang of languages" [value]="lang.code">
+                {{ lang.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Notifications Toggle -->
+        <div class="setting-item flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-gray-600 dark:text-gray-400">notifications</mat-icon>
+            <div>
+              <label class="font-medium text-gray-900 dark:text-white">Enable Notifications</label>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Receive browser notifications</p>
+            </div>
+          </div>
+          <mat-slide-toggle formControlName="notifications" color="primary"></mat-slide-toggle>
+        </div>
+
+        <!-- Email Notifications -->
+        <div class="setting-item flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-gray-600 dark:text-gray-400">email</mat-icon>
+            <div>
+              <label class="font-medium text-gray-900 dark:text-white">Email Notifications</label>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Receive email alerts for important events</p>
+            </div>
+          </div>
+          <mat-slide-toggle formControlName="emailNotifications" color="primary"></mat-slide-toggle>
+        </div>
+
+        <!-- Auto Save -->
+        <div class="setting-item flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-gray-600 dark:text-gray-400">save</mat-icon>
+            <div>
+              <label class="font-medium text-gray-900 dark:text-white">Auto Save</label>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Automatically save changes while editing</p>
+            </div>
+          </div>
+          <mat-slide-toggle formControlName="autoSave" color="primary"></mat-slide-toggle>
+        </div>
+
+        <!-- Items Per Page -->
+        <div class="setting-item py-4 border-b border-gray-200 dark:border-gray-700">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Items Per Page</mat-label>
+            <mat-icon matPrefix>list</mat-icon>
+            <mat-select formControlName="itemsPerPage">
+              <mat-option value="10">10</mat-option>
+              <mat-option value="25">25</mat-option>
+              <mat-option value="50">50</mat-option>
+              <mat-option value="100">100</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- API URL (Developer Settings) -->
+        <div class="setting-item py-4">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>API URL (Developer)</mat-label>
+            <mat-icon matPrefix>api</mat-icon>
+            <input matInput formControlName="apiUrl" placeholder="http://localhost:5166/api">
+            <mat-hint>Change API endpoint for development/testing</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 mt-6">
+          <button mat-raised-button color="primary" (click)="onSaveSettings()" [disabled]="isLoading">
+            <mat-icon>save</mat-icon>
+            <span>Save Settings</span>
+          </button>
+          <button mat-button (click)="onResetSettings()">
+            <mat-icon>refresh</mat-icon>
+            <span>Reset to Default</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Change Password -->
+  <mat-card class="settings-card mb-6">
+    <mat-card-header>
+      <mat-card-title class="flex items-center gap-2">
+        <mat-icon>lock</mat-icon>
+        <span>Change Password</span>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="passwordForm" class="password-form">
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Current Password</mat-label>
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <input matInput type="password" formControlName="currentPassword" required>
+          <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
+            Current password is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>New Password</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input matInput type="password" formControlName="newPassword" required>
+          <mat-hint>Minimum 8 characters</mat-hint>
+          <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
+            New password is required
+          </mat-error>
+          <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+            Password must be at least 8 characters
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>Confirm New Password</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input matInput type="password" formControlName="confirmPassword" required>
+          <mat-error>{{ getPasswordError() }}</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" (click)="onChangePassword()" [disabled]="isLoading || passwordForm.invalid" class="mt-4">
+          <mat-icon>lock</mat-icon>
+          <span>Change Password</span>
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Account Information -->
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <mat-card-title class="flex items-center gap-2">
+        <mat-icon>account_circle</mat-icon>
+        <span>Account Information</span>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="account-info space-y-4">
+        <div class="info-item">
+          <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Username</label>
+          <p class="text-gray-900 dark:text-white">admin</p>
+        </div>
+        <div class="info-item">
+          <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Email</label>
+          <p class="text-gray-900 dark:text-white">{{ 'admin@teslearning.com' }}</p>
+        </div>
+        <div class="info-item">
+          <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Role</label>
+          <p class="text-gray-900 dark:text-white">Administrator</p>
+        </div>
+        <div class="info-item">
+          <label class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Login</label>
+          <p class="text-gray-900 dark:text-white">{{ lastLoginDate }}</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+

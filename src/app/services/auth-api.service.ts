@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { HttpClientService } from './http-client.service';
-import { LoginRequest, AuthResponse } from '../types/auth.types';
+import { LoginRequest, AuthResponse, UpdateProfileRequest } from '../types/auth.types';
 
 @Injectable({
   providedIn: 'root'
@@ -27,5 +27,19 @@ export class AuthApiService {
   logout(): void {
     localStorage.removeItem('authToken');
     this.isAuthenticatedSubject.next(false);
+  }
+
+  getProfile(): Observable<AuthResponse> {
+    return this.httpClient.get<AuthResponse>(`${this.endpoint}/profile`);
+  }
+
+  updateProfile(profileData: UpdateProfileRequest): Observable<AuthResponse> {
+    return this.httpClient.put<AuthResponse, UpdateProfileRequest>(`${this.endpoint}/update-profile`, profileData);
+  }
+
+  uploadProfileImage(file: File): Observable<AuthResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.httpClient.postFormData<AuthResponse>(`${this.endpoint}/upload-profile-image`, formData);
   }
 }

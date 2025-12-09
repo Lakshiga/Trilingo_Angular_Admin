@@ -1,8 +1,10 @@
-<div class="login-container">
-  <div class="login-box">
-    <div class="login-header">
-      <h1 class="login-title">Q-bit Admin Panel</h1>
-      <p class="login-subtitle">Sign in to your admin dashboard</p>
+<div class="login-split-container">
+
+  <div class="branding-pane">
+    <div class="branding-content">
+      <img src="/assets/images/Logo.png.png" alt="Q-bit Logo" class="logo">
+      <h1 class="branding-title">Q-bit Admin Panel</h1>
+      <p class="branding-subtitle">Empowering your digital learning experience.</p>
     </div>
     
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
@@ -37,23 +39,60 @@
         </button>
       </mat-form-field>
       
-      <div class="error-message" *ngIf="error">
-        <mat-icon>error_outline</mat-icon>
-        <span>{{ error }}</span>
-      </div>
-      
-      <button 
-        mat-raised-button 
-        color="primary" 
-        type="submit"
-        class="full-width login-button"
-        [disabled]="isLoading || loginForm.invalid">
-        <span *ngIf="isLoading" class="button-content">
-          <mat-spinner diameter="20" class="spinner"></mat-spinner>
-          <span>Signing in...</span>
-        </span>
-        <span *ngIf="!isLoading">Sign In</span>
-      </button>
-    </form>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Username or Email</mat-label>
+          <input 
+            matInput 
+            formControlName="identifier"
+            type="text"
+            autocomplete="username"
+            required>
+          <mat-icon matPrefix>person_outline</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Password</mat-label>
+          <input 
+            matInput 
+            formControlName="password"
+            [type]="hidePassword ? 'password' : 'text'"
+            autocomplete="current-password"
+            required>
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <button 
+            mat-icon-button 
+            matSuffix 
+            type="button"
+            (click)="togglePasswordVisibility()"
+            aria-label="Toggle password visibility">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <div class="form-options">
+          <mat-checkbox formControlName="rememberMe" color="primary">Remember Me</mat-checkbox>
+          <a routerLink="/forgot-password" class="forgot-password-link">Forgot Password?</a>
+        </div>
+        
+        <div class="error-message" *ngIf="error">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error }}</span>
+        </div>
+        
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="submit"
+          class="full-width login-button"
+          [disabled]="isLoading || loginForm.invalid">
+          <span *ngIf="!isLoading">Sign In</span>
+          <span *ngIf="isLoading" class="button-content">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Signing in...</span>
+          </span>
+        </button>
+      </form>
+    </div>
   </div>
 </div>

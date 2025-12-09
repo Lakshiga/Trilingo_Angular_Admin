@@ -1,77 +1,97 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-// MatTypographyModule is not available in Angular Material v19
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { AuthApiService } from './services/auth-api.service';
-import { Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { NavbarComponent } from './components/layout/navbar/navbar.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { filter, take } from 'rxjs/operators';
+import { Observable, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+/**
+ * App Component (Root Component)
+ * 
+ * Security Best Practices Applied:
+ * - Authentication check before rendering protected content
+ * - Loading state to prevent content flash
+ * - No protected content visible until authenticated
+ * - Proper route-based layout switching
+ */
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule,
     RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    MatToolbarModule,
-    MatButtonModule,
+    NavbarComponent,
     MatProgressSpinnerModule
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  isPublicRoute = false;
   isAuthenticated$: Observable<boolean>;
-  showProfileDropdown = false;
-  isLoginPage = false;
+  isInitializing = true; // Critical: Prevent content flash during auth check
+
+  // Define all public routes that should not show the navbar
+  // Best Practice: Centralized configuration
+  private readonly publicRoutes = ['/login', '/forgot-password', '/register', '/reset-password'];
 
   constructor(
     private authApiService: AuthApiService,
-    public router: Router
+    private router: Router
   ) {
     this.isAuthenticated$ = this.authApiService.isAuthenticated$;
     
-    // Track current route to determine if we're on login page
+    // Track current route to determine if we're on a public route
+    // Best Practice: Subscribe to router events for reactive updates
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      this.isLoginPage = event.url === '/login' || event.urlAfterRedirects === '/login';
+      const currentUrl = event.urlAfterRedirects || event.url;
+      this.isPublicRoute = this.isPublicRouteUrl(currentUrl);
     });
   }
 
   ngOnInit(): void {
-    // Check authentication status on app initialization
+    // CRITICAL SECURITY: Check authentication status FIRST
     this.authApiService.checkAuthStatus();
+    
     // Check initial route
-    this.isLoginPage = this.router.url === '/login';
+    this.isPublicRoute = this.isPublicRouteUrl(this.router.url);
+    
+    // Wait for initial auth check to complete before showing content
+    // This prevents protected content from flashing
+    this.isAuthenticated$.pipe(
+      take(1)
+    ).subscribe(() => {
+      // Small delay to ensure auth state is fully initialized
+      setTimeout(() => {
+        this.isInitializing = false;
+      }, 50);
+    });
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
-    const profileDropdown = document.querySelector('.profile-dropdown');
-    if (profileDropdown && !profileDropdown.contains(event.target as Node)) {
-      this.showProfileDropdown = false;
-    }
-  }
-
-  toggleProfileDropdown(): void {
-    this.showProfileDropdown = !this.showProfileDropdown;
-  }
-
-  updateProfile(): void {
-    this.showProfileDropdown = false;
-    // TODO: Implement profile update functionality
-    console.log('Update profile clicked');
-  }
-
-  logout(): void {
-    // Only logout when explicitly called from logout button
-    this.showProfileDropdown = false;
-    this.authApiService.logout();
-    this.router.navigate(['login']);
+  /**
+   * Check if the current URL is a public route
+   * Best Practice: Private method with clear documentation
+   * @param url The URL to check
+   * @returns true if the URL is a public route, false otherwise
+   */
+  private isPublicRouteUrl(url: string): boolean {
+    // Remove query parameters and hash for comparison
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    return this.publicRoutes.some(route => {
+      // Exact match
+      if (cleanUrl === route) {
+        return true;
+      }
+      // Check if URL starts with the route followed by a slash
+      if (cleanUrl.startsWith(route + '/')) {
+        return true;
+      }
+      return false;
+    });
   }
 }

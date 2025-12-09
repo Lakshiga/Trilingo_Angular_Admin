@@ -19,7 +19,7 @@ interface Segment {
 
 interface Question {
   sentenceId: string;
-  mediaUrl?: { default: string };
+  mediaUrl?: { default: string }; // New: Optional media URL for image display
   segments: Segment[];
   options: MultiLingualText[];
 }
@@ -50,6 +50,7 @@ export class FillInTheBlanksComponent {
   isFinished = signal(false);
 
   // Computed Values
+  // Assumes we are only showing the first question for simplicity
   currentQuestion = computed(() => this.content?.questions?.[0]);
   
   // Checks if all blank segments have an answer
@@ -174,7 +175,8 @@ export class FillInTheBlanksComponent {
         segments.map((s, index) => {
             if (s.type === 'BLANK' && s.userAnswer) {
                 // Check against the correct answer in the JSON (content)
-                const isCorrect = s.userAnswer === this.text(s.content);
+                const correctWord = this.text(s.content);
+                const isCorrect = s.userAnswer === correctWord;
                 if (!isCorrect) {
                     allCorrect = false;
                 }
@@ -212,4 +214,25 @@ export class FillInTheBlanksComponent {
     return multiLingual[this.currentLang] || multiLingual['en'] || 'N/A';
   }
 
+  // Handle image loading errors
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    console.warn('Image failed to load:', img.src);
+  }
+
+  // Get image URL - handle both relative and absolute paths
+  getImageUrl(url: string): string {
+    if (!url) return '';
+    // If it's already an absolute URL (http/https), return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // If it starts with /, return as is (absolute path from root)
+    if (url.startsWith('/')) {
+      return url;
+    }
+    // Otherwise, assume it's a relative path from assets
+    return url.startsWith('assets/') ? `/${url}` : `/assets/${url}`;
+  }
 }

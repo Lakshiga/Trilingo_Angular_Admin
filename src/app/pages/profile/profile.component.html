@@ -1,0 +1,116 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1 class="profile-title">My Profile</h1>
+    <p class="profile-subtitle">Manage your account information and preferences</p>
+  </div>
+
+  <div class="profile-content" *ngIf="!isLoading && profileData">
+    <!-- Profile Image Section -->
+    <mat-card class="profile-image-card">
+      <mat-card-content>
+        <div class="image-section">
+          <div class="image-container">
+            <img 
+              [src]="previewImageUrl || (profileImageUrl ? profileImageUrl : 'https://i.pravatar.cc/150?u=user')" 
+              alt="Profile Image" 
+              class="profile-image"
+              (error)="onImageError($event)"
+            />
+            <div class="image-overlay" *ngIf="previewImageUrl">
+              <button mat-icon-button class="remove-image-btn" (click)="removeImagePreview()" title="Remove">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+          <div class="image-actions">
+            <input 
+              type="file" 
+              id="profileImageInput" 
+              accept="image/*" 
+              (change)="onFileSelected($event)"
+              style="display: none;"
+            />
+            <label for="profileImageInput" class="upload-btn">
+              <mat-icon>camera_alt</mat-icon>
+              <span>Choose Image</span>
+            </label>
+            
+            <button 
+              mat-raised-button 
+              color="primary" 
+              (click)="uploadProfileImage()" 
+              [disabled]="!selectedFile || isUploadingImage"
+              class="upload-submit-btn"
+            >
+              <mat-spinner *ngIf="isUploadingImage" diameter="20" class="inline-spinner"></mat-spinner>
+              <span *ngIf="!isUploadingImage">Upload</span>
+              <span *ngIf="isUploadingImage">Uploading...</span>
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Profile Information Section -->
+    <mat-card class="profile-info-card">
+      <mat-card-header>
+        <mat-card-title>Profile Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+          <div class="form-row">
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Username</mat-label>
+              <input matInput [value]="profileData?.username || 'N/A'" readonly>
+              <mat-icon matPrefix>person</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Email *</mat-label>
+              <input matInput type="email" formControlName="email" required>
+              <mat-icon matPrefix>email</mat-icon>
+              <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+                Please enter a valid email
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Role</mat-label>
+              <input matInput [value]="profileData?.role || 'N/A'" readonly>
+              <mat-icon matPrefix>admin_panel_settings</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              type="submit" 
+              [disabled]="profileForm.invalid || isLoading"
+              class="save-btn"
+            >
+              <mat-spinner *ngIf="isLoading" diameter="20" class="inline-spinner"></mat-spinner>
+              <span *ngIf="!isLoading">Save Changes</span>
+              <span *ngIf="isLoading">Saving...</span>
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading && !profileData">
+    <mat-spinner></mat-spinner>
+    <p>Loading profile...</p>
+  </div>
+</div>
+

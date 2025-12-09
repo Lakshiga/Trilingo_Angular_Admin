@@ -73,31 +73,34 @@
   </div>
 
   <!-- Charts Section -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Activity Types Grouped Bar Chart -->
     <mat-card class="chart-card rounded-2xl shadow-lg p-4 bg-white">
       <mat-card-header>
-        <mat-card-title class="text-gray-800 font-semibold">Lesson Completion</mat-card-title>
+        <mat-card-title class="text-gray-800 font-semibold">Activity Types Distribution by Main Activity</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="chart-placeholder h-56 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">Chart Placeholder</div>
+        <div class="chart-container h-96">
+          <canvas id="activityTypeChart"></canvas>
+        </div>
+        <div *ngIf="activityTypeData.length === 0" class="h-96 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+          <p>No activity type data available</p>
+        </div>
       </mat-card-content>
     </mat-card>
 
+    <!-- Users Pie Chart -->
     <mat-card class="chart-card rounded-2xl shadow-lg p-4 bg-white">
       <mat-card-header>
-        <mat-card-title class="text-gray-800 font-semibold">Activity Progress</mat-card-title>
+        <mat-card-title class="text-gray-800 font-semibold">Users by Role</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="chart-placeholder h-56 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">Chart Placeholder</div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="chart-card rounded-2xl shadow-lg p-4 bg-white">
-      <mat-card-header>
-        <mat-card-title class="text-gray-800 font-semibold">Exercises Overview</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="chart-placeholder h-56 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">Chart Placeholder</div>
+        <div class="chart-container h-96">
+          <canvas id="userPieChart"></canvas>
+        </div>
+        <div *ngIf="userData.length === 0" class="h-96 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+          <p>No user data available</p>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>

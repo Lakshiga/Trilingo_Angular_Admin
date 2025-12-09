@@ -33,3 +33,15 @@
   color: #6b7280;
   font-size: 14px;
 }
+
+/* Chart container */
+.chart-container {
+  position: relative;
+  height: 320px;
+  width: 100%;
+}
+
+.chart-container canvas {
+  max-height: 100%;
+  max-width: 100%;
+}
