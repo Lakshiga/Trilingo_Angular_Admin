@@ -6,16 +6,38 @@
       <h1 class="branding-title">Q-bit Admin Panel</h1>
       <p class="branding-subtitle">Empowering your digital learning experience.</p>
     </div>
-    <div class="branding-shape"></div>
-  </div>
-
-  <!-- 🔥 வலது பக்கம்: உள்நுழைவுப் படிவத்திற்கான பகுதி -->
-  <div class="form-pane">
-    <div class="login-box">
-      <div class="login-header">
-        <h2 class="login-title">Welcome Back!</h2>
-        <p class="login-subtitle">Please sign in to continue</p>
-      </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Username or Email</mat-label>
+        <input 
+          matInput 
+          formControlName="identifier"
+          type="text"
+          autocomplete="username"
+          required>
+        <mat-icon matPrefix>person</mat-icon>
+      </mat-form-field>
+      
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Password</mat-label>
+        <input 
+          matInput 
+          formControlName="password"
+          [type]="hidePassword ? 'password' : 'text'"
+          autocomplete="current-password"
+          required>
+        <mat-icon matPrefix>lock</mat-icon>
+        <button 
+          mat-icon-button 
+          matSuffix 
+          type="button"
+          (click)="togglePasswordVisibility()"
+          [attr.aria-label]="'Hide password'"
+          [attr.aria-pressed]="hidePassword">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+      </mat-form-field>
       
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <mat-form-field appearance="fill" class="full-width">
