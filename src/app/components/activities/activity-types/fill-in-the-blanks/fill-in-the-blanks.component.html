@@ -8,6 +8,20 @@
     @if (currentQuestion()) {
         
         <div class="space-y-6">
+
+            <!-- Image Display Area (New addition for mediaUrl) -->
+            @let question = currentQuestion();
+            @if (question && question.mediaUrl && question.mediaUrl.default) {
+                <div class="mb-6 text-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <img 
+                        [src]="getImageUrl(question.mediaUrl.default)" 
+                        [alt]="text(content.title) + ' - Image'"
+                        (error)="onImageError($event)"
+                        class="max-h-96 w-full max-w-2xl mx-auto object-contain rounded-lg shadow-md border border-gray-300"
+                        loading="lazy"
+                    >
+                </div>
+            }
             
             <!-- 1. The Sentence Area (Segments) -->
             <div class="p-6 border-2 border-indigo-200 rounded-lg bg-indigo-50 min-h-24">

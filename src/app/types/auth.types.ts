@@ -20,4 +20,16 @@ export interface AuthResponse {
   role?: string | null;
   refreshToken?: string | null;
   user?: User | null;
+  fullName?: string | null;
+  jobTitle?: string | null;
+}
+
+export interface UpdateProfileRequest {
+  name?: string;
+  email?: string;
+  age?: string;
+  nativeLanguage?: string;
+  learningLanguage?: string;
+  profileImageUrl?: string;
+  jobTitle?: string;
 }

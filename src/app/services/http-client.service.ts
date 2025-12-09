@@ -97,6 +97,35 @@ export class HttpClientService {
     );
   }
 
+  postFormData<T>(endpoint: string, formData: FormData): Observable<T> {
+    const token = localStorage.getItem('authToken');
+    let headers = new HttpHeaders();
+    
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    // Don't set Content-Type for FormData - let browser set it with boundary
+    
+    return this.http.post<T>(`${this.baseUrl}${endpoint}`, formData, {
+      headers: headers,
+      reportProgress: false
+    }).pipe(
+      catchError(error => {
+        // For FormData uploads, preserve the error structure better
+        // Backend might return AuthResponseDto in error response
+        if (error.error && typeof error.error === 'object') {
+          // If backend returns structured error (like AuthResponseDto with isSuccess/message), preserve it
+          if (error.error.isSuccess !== undefined || error.error.message) {
+            // Return the error as-is so component can handle it
+            return throwError(() => error);
+          }
+        }
+        // For other errors, use standard error handler
+        return this.handleError(error);
+      })
+    );
+  }
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'A network or unknown error occurred.';
     

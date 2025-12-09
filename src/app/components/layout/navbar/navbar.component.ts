@@ -1,8 +1,10 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthApiService } from '../../../services/auth-api.service';
+import { Subscription, filter } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Navbar Component
@@ -30,8 +32,14 @@ import { AuthApiService } from '../../../services/auth-api.service';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
   showProfileDropdown = false;
+  profileImageUrl: string | null = null;
+  username: string | null = null;
+  email: string | null = null;
+  private routerSubscription?: Subscription;
+  private profileUpdateHandler = () => this.loadProfile();
+  private windowFocusHandler = () => this.loadProfile();
 
   constructor(
     private authApiService: AuthApiService,
@@ -39,7 +47,78 @@ export class NavbarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Component initialization if needed
+    this.loadProfile();
+    
+    // Reload profile when navigating to profile page and back
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        // Reload profile when navigating (especially after profile update)
+        if (event.urlAfterRedirects) {
+          setTimeout(() => this.loadProfile(), 300);
+        }
+      });
+
+    // Reload profile when window gains focus (user comes back to tab)
+    window.addEventListener('focus', this.windowFocusHandler);
+
+    // Listen for custom event when profile is updated
+    window.addEventListener('profileUpdated', this.profileUpdateHandler);
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+    // Remove event listeners
+    window.removeEventListener('focus', this.windowFocusHandler);
+    window.removeEventListener('profileUpdated', this.profileUpdateHandler);
+  }
+
+  private getFullImageUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    // If it's already a full URL, return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // If it's a relative URL starting with /uploads, convert to full URL
+    if (url.startsWith('/uploads/')) {
+      // Get base URL from environment (remove /api if present)
+      const apiUrl = environment.apiUrl || 'http://localhost:5166/api';
+      const baseUrl = apiUrl.replace('/api', '');
+      return `${baseUrl}${url}`;
+    }
+    return url;
+  }
+
+  loadProfile(): void {
+    this.authApiService.getProfile().subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.profileImageUrl = this.getFullImageUrl(response.profileImageUrl);
+          this.username = response.username || null;
+          this.email = response.email || null;
+          console.log('Navbar profile loaded:', {
+            profileImageUrl: response.profileImageUrl,
+            fullImageUrl: this.profileImageUrl
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error loading profile in navbar:', error);
+        // Set default values on error
+        this.profileImageUrl = null;
+        this.username = null;
+        this.email = null;
+      }
+    });
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.src = 'https://i.pravatar.cc/40?u=user';
+    }
   }
 
   /**
@@ -67,15 +146,6 @@ export class NavbarComponent implements OnInit {
     this.showProfileDropdown = !this.showProfileDropdown;
   }
 
-  /**
-   * Handle profile update action
-   * TODO: Implement profile update functionality
-   */
-  onUpdateProfile(): void {
-    this.showProfileDropdown = false;
-    // TODO: Navigate to profile page or open profile modal
-    console.log('Update profile clicked');
-  }
 
   /**
    * Handle logout action

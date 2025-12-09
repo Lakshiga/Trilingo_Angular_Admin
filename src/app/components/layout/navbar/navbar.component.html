@@ -42,7 +42,12 @@
         <div class="flex items-center gap-3 px-3 py-1.5 rounded-xl cursor-pointer transition-all bg-white/10 hover:bg-white/20" 
              (click)="toggleProfileDropdown($event)">
           <div class="relative flex items-center justify-center">
-            <img src="https://i.pravatar.cc/40?u=sarah" alt="User Avatar" class="w-9 h-9 rounded-lg object-cover border-2 border-white shadow-sm">
+            <img 
+              [src]="profileImageUrl || 'https://i.pravatar.cc/40?u=user'" 
+              [alt]="username || 'User Avatar'" 
+              class="w-9 h-9 rounded-lg object-cover border-2 border-white shadow-sm"
+              (error)="onImageError($event)"
+            >
             <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white transition-transform flex-shrink-0" 
@@ -56,27 +61,23 @@
           
           <div class="dropdown-header">
             <div class="dropdown-avatar-large">
-              <img src="https://i.pravatar.cc/40?u=sarah" alt="User Avatar" class="profile-avatar-large">
+              <img 
+                [src]="profileImageUrl || 'https://i.pravatar.cc/40?u=user'" 
+                [alt]="username || 'User Avatar'" 
+                class="profile-avatar-large"
+                (error)="onImageError($event)"
+              >
             </div>
           </div>
 
           <div class="dropdown-divider"></div>
 
           <div class="dropdown-items">
-            <a href="#" class="dropdown-item" (click)="onUpdateProfile(); $event.preventDefault();">
+            <a routerLink="/profile" class="dropdown-item" (click)="showProfileDropdown = false">
               <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
               </svg>
               <span>My Profile</span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </a>
-            <a routerLink="/settings" class="dropdown-item" (click)="showProfileDropdown = false">
-              <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-icon" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
-              </svg>
-              <span>Settings</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>

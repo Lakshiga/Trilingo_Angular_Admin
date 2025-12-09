@@ -10,5 +10,6 @@
 }
 
 .animate-pulse {
-    animation: pulse 0.8s ease-in-out 3; /* Pulse 3 times on check */
+    /* Pulse 3 times on check to draw attention to incorrect answer */
+    animation: pulse 0.8s ease-in-out 3; 
 }

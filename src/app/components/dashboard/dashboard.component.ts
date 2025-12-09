@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,10 @@ import { ActivityApiService } from '../../services/activity-api.service';
 import { ExerciseApiService } from '../../services/exercise-api.service';
 import { MainActivityApiService } from '../../services/main-activity-api.service';
 import { ActivityTypeApiService } from '../../services/activity-type-api.service';
+import { DashboardApiService, ActivityTypeStatistic, UserStatistic } from '../../services/dashboard-api.service';
+import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 interface DashboardStats {
   totalLevels: number;
@@ -60,7 +64,7 @@ interface HierarchyMainActivity {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   stats: DashboardStats = {
     totalLevels: 0,
     totalLessons: 0,
@@ -76,6 +80,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   error: string | null = null;
   private destroy$ = new Subject<void>();
 
+  // Chart data
+  activityTypeChart: Chart | null = null;
+  userPieChart: Chart | null = null;
+  activityTypeData: ActivityTypeStatistic[] = [];
+  userData: UserStatistic[] = [];
+
   constructor(
     private router: Router,
     private levelApiService: LevelApiService,
@@ -83,16 +93,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private activityApiService: ActivityApiService,
     private exerciseApiService: ExerciseApiService,
     private mainActivityApiService: MainActivityApiService,
-    private activityTypeApiService: ActivityTypeApiService
+    private activityTypeApiService: ActivityTypeApiService,
+    private dashboardApiService: DashboardApiService
   ) {}
 
   ngOnInit() {
     this.loadDashboardData();
   }
 
+  ngAfterViewInit() {
+    // Charts will be created after data is loaded
+  }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    
+    // Destroy charts
+    if (this.activityTypeChart) {
+      this.activityTypeChart.destroy();
+    }
+    if (this.userPieChart) {
+      this.userPieChart.destroy();
+    }
   }
 
   private loadDashboardData() {
@@ -130,8 +153,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
           activities: []
         }));
 
-        // For lessons and activities, we need to fetch all levels first and then get lessons/activities
+                // For lessons and activities, we need to fetch all levels first and then get lessons/activities
         this.loadLessonsAndActivities(data.levels || [], data.mainActivities || []);
+        
+        // Load chart data
+        this.loadChartData();
       },
       error: (err) => {
         console.error('Error loading dashboard data:', err);
@@ -139,6 +165,270 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
+  }
+
+  private loadChartData() {
+    console.log('Loading chart data...');
+    
+    forkJoin({
+      activityTypeStats: this.dashboardApiService.getActivityTypeStatistics().pipe(
+        catchError((error) => {
+          console.error('❌ Error loading activity type statistics:', {
+            status: error?.status,
+            statusText: error?.statusText,
+            message: error?.message,
+            error: error?.error,
+            url: error?.url
+          });
+          return [];
+        })
+      ),
+      userStats: this.dashboardApiService.getUserStatistics().pipe(
+        catchError((error) => {
+          console.error('❌ Error loading user statistics:', {
+            status: error?.status,
+            statusText: error?.statusText,
+            message: error?.message,
+            error: error?.error,
+            url: error?.url
+          });
+          return [];
+        })
+      )
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (data) => {
+        console.log('✅ Chart data loaded:', {
+          activityTypeStats: data.activityTypeStats,
+          activityTypeCount: data.activityTypeStats?.length || 0,
+          userStats: data.userStats,
+          userStatsCount: data.userStats?.length || 0
+        });
+        
+        this.activityTypeData = data.activityTypeStats || [];
+        this.userData = data.userStats || [];
+        
+        if (this.activityTypeData.length === 0) {
+          console.warn('⚠️ No activity type data available - database might be empty or API call failed');
+        }
+        if (this.userData.length === 0) {
+          console.warn('⚠️ No user data available - database might be empty or API call failed');
+        }
+        
+        if (this.activityTypeData.length > 0 || this.userData.length > 0) {
+          this.createCharts();
+        }
+      },
+      error: (err) => {
+        console.error('❌ Error loading chart data:', err);
+      }
+    });
+  }
+
+  private createCharts() {
+    // Destroy existing charts if they exist
+    if (this.activityTypeChart) {
+      this.activityTypeChart.destroy();
+    }
+    if (this.userPieChart) {
+      this.userPieChart.destroy();
+    }
+
+    // Wait for view to be ready
+    setTimeout(() => {
+      // Create Bar Chart
+      const activityTypeCtx = document.getElementById('activityTypeChart') as HTMLCanvasElement;
+      if (activityTypeCtx && this.activityTypeData.length > 0) {
+
+      console.log('📊 Creating chart with data:', this.activityTypeData);
+
+      // Deduplicate by mainActivityId to ensure one entry per main activity
+      const uniqueData = new Map<number, { name: string; count: number }>();
+      this.activityTypeData.forEach(item => {
+        console.log('Processing item:', item);
+        if (!uniqueData.has(item.mainActivityId)) {
+          uniqueData.set(item.mainActivityId, {
+            name: item.mainActivityName,
+            count: item.activityTypeCount
+          });
+        } else {
+          // If duplicate, sum the counts
+          const existing = uniqueData.get(item.mainActivityId)!;
+          existing.count += item.activityTypeCount;
+        }
+      });
+
+      // Sort by name and extract arrays
+      const sortedData = Array.from(uniqueData.values()).sort((a, b) => a.name.localeCompare(b.name));
+      const mainActivityNames = sortedData.map(item => item.name);
+      const activityTypeCounts = sortedData.map(item => {
+        const count = Number(item.count) || 0;
+        console.log(`Count for ${item.name}: ${count}`);
+        return count;
+      });
+
+      console.log('📊 Chart data prepared:', {
+        labels: mainActivityNames,
+        counts: activityTypeCounts,
+        sortedData: sortedData,
+        hasData: activityTypeCounts.some(c => c > 0)
+      });
+
+      // Ensure we have valid data
+      if (mainActivityNames.length === 0 || activityTypeCounts.every(c => c === 0)) {
+        console.warn('⚠️ No valid data to display in chart');
+        return;
+      }
+
+        // Gradient color palette (dark blue to light teal/mint green) - matching second image style
+        const gradientColors = [
+          'rgba(52, 110, 140, 0.9)',   // Dark Blue (leftmost)
+          'rgba(79, 163, 247, 0.9)',   // Medium Blue
+          'rgba(52, 152, 219, 0.9)',   // Bright Blue
+          'rgba(46, 204, 113, 0.9)',   // Teal Green
+          'rgba(26, 188, 156, 0.9)',   // Darker Teal
+          'rgba(85, 239, 196, 0.9)'    // Light Mint Green (rightmost)
+        ];
+
+        const gradientBorderColors = [
+          'rgba(52, 110, 140, 1)',
+          'rgba(79, 163, 247, 1)',
+          'rgba(52, 152, 219, 1)',
+          'rgba(46, 204, 113, 1)',
+          'rgba(26, 188, 156, 1)',
+          'rgba(85, 239, 196, 1)'
+        ];
+        
+        try {
+          this.activityTypeChart = new Chart(activityTypeCtx, {
+            type: 'bar',
+            data: {
+              labels: mainActivityNames, // X-axis: Main Activities (6 main activities)
+              datasets: [{
+                label: 'Number of Activity Types',
+                data: activityTypeCounts, // Y-axis: Count of Activity Types per main activity
+                backgroundColor: mainActivityNames.map((_, index) => gradientColors[index % gradientColors.length]),
+                borderColor: mainActivityNames.map((_, index) => gradientBorderColors[index % gradientBorderColors.length]),
+                borderWidth: 2,
+                borderRadius: 4
+              }]
+            },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                  font: {
+                    size: 12
+                  }
+                }
+              },
+              title: {
+                display: true,
+                text: 'Activity Types Count by Main Activity',
+                font: {
+                  size: 16
+                }
+              }
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Main Activity',
+                  font: {
+                    size: 14
+                  }
+                }
+              },
+              y: {
+                beginAtZero: true,
+                min: 0,
+                max: 8, // Set max to 8 as per user requirement
+                ticks: {
+                  stepSize: 1,
+                  callback: function(value) {
+                    return Number.isInteger(value) ? value : '';
+                  }
+                },
+                title: {
+                  display: true,
+                  text: 'Number of Activity Types (Count)',
+                  font: {
+                    size: 14
+                  }
+                }
+              }
+            }
+          }
+        });
+        console.log('✅ Chart created successfully');
+      } catch (error) {
+        console.error('❌ Error creating chart:', error);
+      }
+      }
+
+      // Create User Pie Chart (larger size)
+      const userCtx = document.getElementById('userPieChart') as HTMLCanvasElement;
+      if (userCtx && this.userData.length > 0) {
+        const labels = this.userData.map(d => d.roleName);
+        const counts = this.userData.map(d => d.count);
+        
+        this.userPieChart = new Chart(userCtx, {
+          type: 'pie',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Users by Role',
+              data: counts,
+              backgroundColor: [
+                'rgba(52, 110, 140, 0.8)',
+                'rgba(79, 163, 247, 0.8)',
+                'rgba(108, 99, 255, 0.8)',
+                'rgba(249, 115, 22, 0.8)',
+                'rgba(16, 185, 129, 0.8)',
+                'rgba(244, 63, 94, 0.8)'
+              ],
+              borderColor: [
+                'rgba(52, 110, 140, 1)',
+                'rgba(79, 163, 247, 1)',
+                'rgba(108, 99, 255, 1)',
+                'rgba(249, 115, 22, 1)',
+                'rgba(16, 185, 129, 1)',
+                'rgba(244, 63, 94, 1)'
+              ],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  padding: 15,
+                  font: {
+                    size: 12
+                  }
+                }
+              },
+              title: {
+                display: true,
+                text: 'Users Distribution by Role',
+                font: {
+                  size: 16
+                }
+              }
+            }
+          }
+        });
+      }
+    }, 200);
   }
 
   private loadLessonsAndActivities(levels: any[], mainActivitiesData: any[]) {
@@ -216,6 +506,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   refresh() {
     this.loadDashboardData();
   }
+
 
   private buildHierarchy(activities: any[], lessons: any[], levels: any[], mainActivitiesData: any[]) {
     // Create a map of main activity ID to main activity
