@@ -29,7 +29,6 @@ import { RouterLink } from '@angular/router';
     MatFormFieldModule,
     MatInputModule,
     MatTooltipModule,
-    MultilingualInputComponent,
     RouterLink
   ],
   templateUrl: './levels-table.component.html',
