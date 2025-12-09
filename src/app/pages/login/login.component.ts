@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 // MatTypographyModule is not available in Angular Material v19
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthApiService } from '../../services/auth-api.service';
 import { LoginRequest } from '../../types/auth.types';
 
@@ -26,7 +27,8 @@ import { LoginRequest } from '../../types/auth.types';
     MatInputModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatCheckboxModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
@@ -45,7 +47,8 @@ export class LoginPageComponent implements OnInit {
   ) {
     this.loginForm = this.fb.group({
       identifier: ['admin', [Validators.required]],
-      password: ['Admin123!', [Validators.required]]
+      password: ['Admin123!', [Validators.required]],
+      rememberMe: [false]
     });
   }
 
