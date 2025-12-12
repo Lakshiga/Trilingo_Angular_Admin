@@ -67,7 +67,7 @@ export class ActivityRendererComponent implements OnChanges {
 
   isKnownActivityType(): boolean {
     // Activity types 1-8 are implemented: 1 (flashcard), 2 (matching), 3 (fill-in-the-blanks), 4 (mcq-activity), 5 (true-false), 6 (song-player), 7 (story-player), 8 (pronunciation-activity)
-    const knownTypes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17];
+    const knownTypes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
     return knownTypes.includes(this.activityTypeId);
   }
 
