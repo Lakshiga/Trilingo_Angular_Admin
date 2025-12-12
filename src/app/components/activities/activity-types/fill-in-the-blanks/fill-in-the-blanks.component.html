@@ -25,7 +25,7 @@
             
             <!-- 1. The Sentence Area (Segments) -->
             <div class="p-6 border-2 border-indigo-200 rounded-lg bg-indigo-50 min-h-24">
-                <p class="text-xl font-medium text-gray-800 flex flex-wrap gap-x-2">
+                <p class="text-xl font-medium text-gray-800 sentence-line">
                     @for (segment of segments(); track segment.id) {
                         
                         <!-- Static Text Segment -->
@@ -45,7 +45,7 @@
                                     'bg-red-100 border-red-600 text-red-800 font-semibold animate-pulse': segment.status === 'incorrect',
                                     'cursor-not-allowed': isFinished()
                                 }"
-                                class="inline-flex items-center justify-center min-w-[120px] h-10 px-3 rounded-md transition-all duration-200"
+                                class="inline-flex blank-span items-center justify-center rounded-md transition-all duration-200"
                             >
                                 @if (segment.userAnswer) {
                                     <!-- Answer is filled -->

@@ -17,7 +17,6 @@
             @for (bubble of fixedBubbles(); track bubble.id) {
               <div 
                 (click)="shoot(bubble)"
-                [innerHTML]="renderContent(bubble)"
                 class="bubble fixed-bubble"
                 [class.exploded]="bubble.isExploded"
                 [class.cursor-not-allowed]="bubble.isExploded || !shooterBubble()"
@@ -26,6 +25,10 @@
                   'animate-shake': isChecking()
                 }"
               >
+                <ng-container [ngSwitch]="getDisplayType(bubble)">
+                  <img *ngSwitchCase="'image'" [src]="getBubbleImage(bubble)" alt="Bubble Content" (error)="onImageError($event)" />
+                  <span *ngSwitchDefault>{{ getBubbleText(bubble) }}</span>
+                </ng-container>
               </div>
             }
           </div>
@@ -37,7 +40,10 @@
             [ngClass]="{'bg-indigo-600 text-white border-4 border-yellow-300': shooterBubble()}"
           >
             @if (shooterBubble()) {
-              <div [innerHTML]="renderContent(shooterBubble()!)"></div>
+              <ng-container [ngSwitch]="getDisplayType(shooterBubble()!)">
+                <img *ngSwitchCase="'image'" [src]="getBubbleImage(shooterBubble()!)" alt="Bubble Content" (error)="onImageError($event)" />
+                <span *ngSwitchDefault>{{ getBubbleText(shooterBubble()!) }}</span>
+              </ng-container>
             } @else {
               <span class="text-sm text-gray-400">இங்கே ஏற்றவும்</span>
             }
@@ -50,9 +56,12 @@
             @for (bubble of availableProjectiles(); track bubble.id) {
               <div 
                 (click)="loadShooter(bubble)"
-                [innerHTML]="renderContent(bubble)"
                 class="bubble shootable-bubble bg-green-400 text-white hover:bg-green-500"
               >
+              <ng-container [ngSwitch]="getDisplayType(bubble)">
+                  <img *ngSwitchCase="'image'" [src]="getBubbleImage(bubble)" alt="Bubble Content" (error)="onImageError($event)" />
+                  <span *ngSwitchDefault>{{ getBubbleText(bubble) }}</span>
+                </ng-container>
               </div>
             }
           </div>

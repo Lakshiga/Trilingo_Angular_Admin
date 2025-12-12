@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { LanguageService } from '../../../../services/language.service';
 
 // --- Interfaces (Data Model) ---
 
@@ -50,6 +51,8 @@ export class McqActivityComponent {
 
   @Input() content?: ActivityContent;
   @Input() currentLang: Language = 'ta';
+
+  constructor(private languageService: LanguageService) {}
 
   // Hardcoded Data for running the demo (fallback)
   private defaultContent: ActivityContent = {
@@ -106,16 +109,36 @@ export class McqActivityComponent {
   // --- Helpers ---
   text(multiLingual: MultiLingualText | undefined): string {
     if (!multiLingual) return '';
-    return multiLingual[this.currentLang] || multiLingual['en'] || '';
+    return (
+      multiLingual[this.currentLang] ||
+      multiLingual['en'] ||
+      multiLingual['ta'] ||
+      multiLingual['si'] ||
+      ''
+    );
   }
 
   getQuestionContent(): string {
     const q = this.currentQuestion().question;
-    return q.content[this.currentLang] || '';
+    const val =
+      q.content[this.currentLang] ||
+      q.content['en'] ||
+      q.content['ta'] ||
+      q.content['si'] ||
+      q.content['default'] ||
+      '';
+    return this.normalizeMedia(val, q.type);
   }
 
   getOptionContent(option: Option): string {
-    return option.content[this.currentLang] || '';
+    const val =
+      option.content[this.currentLang] ||
+      option.content['en'] ||
+      option.content['ta'] ||
+      option.content['si'] ||
+      option.content['default'] ||
+      '';
+    return this.normalizeMedia(val, this.currentQuestion().answerType);
   }
 
   // --- Game Logic ---
@@ -154,7 +177,14 @@ export class McqActivityComponent {
   // --- Media ---
   playSound(content: ContentData, event?: Event): void {
     if (event) event.stopPropagation();
-    const audioPath = content[this.currentLang];
+    const audioPath = this.normalizeMedia(
+      content[this.currentLang] ||
+      content['en'] ||
+      content['ta'] ||
+      content['si'] ||
+      content['default'] ||
+      ''
+    );
     if (audioPath) {
       const audio = new Audio(audioPath);
       audio.play().catch(e => console.error("Audio playback failed:", e));
@@ -165,5 +195,12 @@ export class McqActivityComponent {
     if (type === 'image') return 'https://placehold.co/100x100/60A5FA/ffffff?text=Image';
     if (type === 'audio') return 'https://placehold.co/100x100/10B981/ffffff?text=Audio';
     return '';
+  }
+
+  normalizeMedia(path: string, type?: ContentType): string {
+    if (!path) return '';
+    // If likely text (no slash/dot) OR type says text, return as is.
+    if (type === 'text' || !/[/\.]/.test(path)) return path;
+    return this.languageService.resolveUrl(path) || path;
   }
 }

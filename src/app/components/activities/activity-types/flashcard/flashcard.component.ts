@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { environment } from '../../../../../environments/environment';
 
 type Language = 'ta' | 'en' | 'si';
 // Defines the structure for fields that support Tamil (ta), English (en), and Sinhalese (si)
@@ -104,33 +105,37 @@ export class FlashcardComponent implements OnInit {
   // --- Design Switch Logic ---
 
   get isDetailedDesign(): boolean {
-    // Check if the label object exists AND has a value for the current language
-    return !!this.cardDataToUse.label && !!this.cardDataToUse.label[this.currentLang];
+    // Show detailed layout if we have any of: label, referenceTitle, or image for current / fallback language
+    return !!(this.labelToDisplay || this.referenceTitleToDisplay || this.imagePath);
   }
 
   // --- Data Getters ---
 
   get referenceTitleToDisplay(): string | null {
-    if (!this.cardDataToUse.referenceTitle || !this.cardDataToUse.referenceTitle[this.currentLang]) {
-      return null;
-    }
-    return this.cardDataToUse.referenceTitle[this.currentLang];
+    const ref = this.cardDataToUse.referenceTitle;
+    if (!ref) return null;
+    return ref[this.currentLang] || ref.en || ref.ta || ref.si || null;
   }
 
   get labelToDisplay(): string | null {
-    if (!this.cardDataToUse.label || !this.cardDataToUse.label[this.currentLang]) {
-      return null;
-    }
-    return this.cardDataToUse.label[this.currentLang];
+    const lbl = this.cardDataToUse.label;
+    if (!lbl) return null;
+    return lbl[this.currentLang] || lbl.en || lbl.ta || lbl.si || null;
   }
 
   get mainWordToDisplay(): string | null {
-    // 'word' is mandatory per JSON structure
-    return this.cardDataToUse.word[this.currentLang];
+    const w = this.cardDataToUse.word;
+    if (!w) return null;
+    return w[this.currentLang] || w.en || w.ta || w.si || null;
   }
 
   get audioPath(): string | null {
-    const url = this.cardDataToUse.audioUrl[this.currentLang];
+    const url =
+      this.cardDataToUse.audioUrl?.[this.currentLang] ||
+      this.cardDataToUse.audioUrl?.en ||
+      this.cardDataToUse.audioUrl?.ta ||
+      this.cardDataToUse.audioUrl?.si ||
+      null;
     return this.addMediaBaseUrl(url);
   }
 
@@ -139,7 +144,13 @@ export class FlashcardComponent implements OnInit {
     
     // Support both multilingual format (ta/en/si) and default format
     const imageUrl = this.cardDataToUse.imageUrl;
-    const url = imageUrl[this.currentLang] || imageUrl['default'] || null;
+    const url =
+      imageUrl[this.currentLang] ||
+      imageUrl.en ||
+      imageUrl.ta ||
+      imageUrl.si ||
+      imageUrl['default'] ||
+      null;
     return this.addMediaBaseUrl(url);
   }
 
@@ -147,8 +158,13 @@ export class FlashcardComponent implements OnInit {
 
   private addMediaBaseUrl(url: string | null): string | null {
     if (!url) return null;
-    const mediaBaseUrl = ''; // Define your base URL here (e.g., from environment variables)
-    return `${mediaBaseUrl}${url}`;
+    // If already absolute, return as is
+    if (/^https?:\/\//i.test(url)) return url;
+    const base = environment.awsBaseUrl || window.location.origin;
+    // If root-relative, prefix with AWS base (fallback to origin)
+    if (url.startsWith('/')) return `${base}${url}`;
+    // Otherwise treat as relative path under AWS base
+    return `${base}/${url}`;
   }
 
   ngOnInit(): void {

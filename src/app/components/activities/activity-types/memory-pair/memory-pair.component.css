@@ -1,15 +1,16 @@
 .game-grid {
     display: grid;
-    /* Responsive Grid: Adjust columns based on available space, keeping minimum size 110px */
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
-    gap: 1rem;
-    perspective: 1000px; /* Perspective for 3D flip effect */
-    min-height: 400px;
-    max-width: 600px;
+    gap: 0.75rem;
+    perspective: 1000px;
+    min-height: 320px;
+    max-width: 480px;
+    justify-items: center;
 }
 
 .card-container {
-    height: 120px;
+    width: 110px;
+    height: 140px;
     position: relative;
     cursor: pointer;
     transition: transform 0.6s;
@@ -69,4 +70,15 @@
     max-width: 90%;
     max-height: 90%;
     object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .game-grid {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    max-width: 400px;
+  }
+  .card-container {
+    width: 95px;
+    height: 120px;
+  }
 }

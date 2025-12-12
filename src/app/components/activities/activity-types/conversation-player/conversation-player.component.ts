@@ -1,8 +1,9 @@
-import { Component, Input, signal, computed, ElementRef, ViewChild, AfterViewInit, OnDestroy, effect } from '@angular/core';
+import { Component, Input, signal, computed, ElementRef, ViewChild, AfterViewInit, OnDestroy, effect, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { LanguageService } from '../../../../services/language.service';
 
 // --- Interfaces ---
 export type Language = 'ta' | 'en' | 'si';
@@ -43,7 +44,7 @@ export interface ActivityContent {
   templateUrl: './conversation-player.component.html',
   styleUrls: ['./conversation-player.component.css']
 })
-export class ConversationPlayerComponent implements AfterViewInit, OnDestroy {
+export class ConversationPlayerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   @Input() content!: ActivityContent;
   @Input() currentLang: Language = 'ta';
@@ -62,7 +63,7 @@ export class ConversationPlayerComponent implements AfterViewInit, OnDestroy {
 
   currentAudioUrl: SafeUrl = '';
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor(private sanitizer: DomSanitizer, private languageService: LanguageService) {
     // Effect: Auto-scroll when dialogue index changes
     effect(() => {
       const index = this.currentDialogueIndex();
@@ -75,6 +76,13 @@ export class ConversationPlayerComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (this.audioPlayerRef) {
+      this.updateAudioSource();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['currentLang'] && !changes['currentLang'].firstChange) {
+      // Language changed; reload audio and reset state
       this.updateAudioSource();
     }
   }
@@ -221,7 +229,13 @@ export class ConversationPlayerComponent implements AfterViewInit, OnDestroy {
   getAudioPath(): string {
     const audioContent = this.currentConversationData()?.audioUrl;
     if (!audioContent) return '';
-    return audioContent[this.currentLang] || audioContent['ta'] || '';
+    const raw =
+      audioContent[this.currentLang] ||
+      audioContent['en'] ||
+      audioContent['ta'] ||
+      audioContent['si'] ||
+      '';
+    return this.languageService.resolveUrl(raw) || '';
   }
 
   formatTime(seconds: number): string {

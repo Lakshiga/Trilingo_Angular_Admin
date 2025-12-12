@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { LanguageCode, LanguageConfig, SUPPORTED_LANGUAGES, MultilingualText, MultilingualUtils } from '../types/multilingual.types';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -45,12 +46,24 @@ export class LanguageService {
 
   getAudio(content: any, language?: LanguageCode): string | undefined {
     const targetLanguage = language || this.getCurrentLanguage();
-    return MultilingualUtils.getAudio(content, targetLanguage);
+    const raw = MultilingualUtils.getAudio(content, targetLanguage);
+    return this.resolveUrl(raw);
   }
 
   getImage(content: any, language?: LanguageCode): string | undefined {
     const targetLanguage = language || this.getCurrentLanguage();
-    return MultilingualUtils.getImage(content, targetLanguage);
+    const raw = MultilingualUtils.getImage(content, targetLanguage);
+    return this.resolveUrl(raw);
+  }
+
+  // Normalize media URLs with AWS base; allow absolute URLs as-is.
+  resolveUrl(url?: string | null): string | undefined {
+    if (!url) return undefined;
+    // Absolute URL
+    if (/^https?:\/\//i.test(url)) return url;
+    const base = environment.awsBaseUrl || window.location.origin;
+    if (url.startsWith('/')) return `${base}${url}`;
+    return `${base}/${url}`;
   }
 
   private isValidLanguageCode(code: string): code is LanguageCode {

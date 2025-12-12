@@ -2,6 +2,7 @@ import { Component, Input, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { LanguageService } from '../../../../services/language.service';
 
 // --- Interfaces ---
 
@@ -63,7 +64,7 @@ export class TripleBlastComponent {
   // Get the actual selected tile objects
   selectedTiles = computed(() => this.tiles().filter(t => t.status === 'selected'));
 
-  constructor() {
+  constructor(private languageService: LanguageService) {
     effect(() => {
       // Initialize game when content loads
       if (this.content && this.content.data.length > 0) {
@@ -205,7 +206,25 @@ export class TripleBlastComponent {
 
   text(multiLingual: MultiLingualText | TileContent | undefined): string {
     if (!multiLingual) return 'N/A';
-    const value = multiLingual[this.currentLang] || multiLingual['en'];
+    const value =
+      multiLingual[this.currentLang] ||
+      (multiLingual as any)['en'] ||
+      (multiLingual as any)['ta'] ||
+      (multiLingual as any)['si'];
     return value || 'N/A';
+  }
+
+  resolve(url?: string | null): string {
+    if (!url) return '';
+    return this.languageService.resolveUrl(url) || url;
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+  }
+
+  trackTile(index: number, tile: GameTile): string {
+    return tile.id;
   }
 }

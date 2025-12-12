@@ -1,5 +1,6 @@
-import { Component, Input, AfterViewInit, ElementRef, ViewChild, signal, computed } from '@angular/core';
+import { Component, Input, AfterViewInit, ElementRef, ViewChild, signal, computed, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../../../services/language.service';
 
 type Language = 'ta' | 'en' | 'si';
 
@@ -22,7 +23,7 @@ interface ActivityContent {
   templateUrl: './video-player.component.html',
   styleUrls: ['./video-player.component.css']
 })
-export class VideoPlayerComponent implements AfterViewInit {
+export class VideoPlayerComponent implements AfterViewInit, OnChanges {
 
   @Input() content!: ActivityContent;
   @Input() currentLang: Language = 'ta';
@@ -32,12 +33,26 @@ export class VideoPlayerComponent implements AfterViewInit {
   currentVideoData = computed(() => this.content?.videoData || null);
   currentVideoUrl = '';
 
+  constructor(private languageService: LanguageService) {}
+
   ngAfterViewInit(): void {
     this.loadVideoSource();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['currentLang'] && !changes['currentLang'].firstChange) {
+      this.loadVideoSource();
+    }
+  }
+
   loadVideoSource(): void {
-    const url = this.currentVideoData()?.videoUrl[this.currentLang];
+    const raw =
+      this.currentVideoData()?.videoUrl[this.currentLang] ||
+      this.currentVideoData()?.videoUrl['en'] ||
+      this.currentVideoData()?.videoUrl['ta'] ||
+      this.currentVideoData()?.videoUrl['si'] ||
+      '';
+    const url = this.languageService.resolveUrl(raw);
     this.currentVideoUrl = url ?? '';
   }
 

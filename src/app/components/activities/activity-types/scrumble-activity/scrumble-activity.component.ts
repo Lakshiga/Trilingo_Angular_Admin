@@ -1,8 +1,10 @@
-import { Component, Input, signal, computed, effect, ElementRef } from '@angular/core';
+import { Component, Input, signal, computed, effect, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { LanguageService } from '../../../../services/language.service';
+import { Subscription } from 'rxjs';
 
 // --- Interfaces ---
 
@@ -49,7 +51,7 @@ interface ActivityContent {
    templateUrl: './scrumble-activity.component.html',
   styleUrl: './scrumble-activity.component.css'
 })
-export class ScrumbleActivityComponent { // Class name set to App for root component
+export class ScrumbleActivityComponent implements OnInit, OnDestroy { // Class name set to App for root component
 
   @Input() content!: ActivityContent;
   @Input() currentLang: Language = 'ta';
@@ -63,11 +65,15 @@ export class ScrumbleActivityComponent { // Class name set to App for root compo
   
   // Feedback state
   feedback = signal<'default' | 'correct' | 'incorrect'>('default');
+  private langSub?: Subscription;
 
   // --- Computed Values ---
   currentTask = computed(() => this.content?.taskData || null);
 
-  constructor() {
+  constructor(
+    private languageService: LanguageService,
+    private sanitizer: DomSanitizer
+  ) {
     effect(() => {
         // Initialize game when task data changes or loads
         const task = this.currentTask();
@@ -75,6 +81,18 @@ export class ScrumbleActivityComponent { // Class name set to App for root compo
             this.initializeGame();
         }
     }, { allowSignalWrites: true });
+  }
+
+  ngOnInit(): void {
+    // When language changes, rebuild state so hint/letters/answer switch immediately
+    this.langSub = this.languageService.currentLanguage$.subscribe(lang => {
+      this.currentLang = lang;
+      this.initializeGame();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   // --- Initialization Logic ---
@@ -211,7 +229,13 @@ export class ScrumbleActivityComponent { // Class name set to App for root compo
 
   text(multiLingual: MultiLingualText | undefined): string {
     if (!multiLingual) return 'N/A';
-    return multiLingual[this.currentLang] || multiLingual['en'] || 'N/A';
+    return (
+      multiLingual[this.currentLang] ||
+      multiLingual['en'] ||
+      multiLingual['ta'] ||
+      multiLingual['si'] ||
+      'N/A'
+    );
   }
 
   getAnswerText(): string {
@@ -222,22 +246,63 @@ export class ScrumbleActivityComponent { // Class name set to App for root compo
     const scrambled = this.currentTask()?.scrambled;
     if (!scrambled) return [];
     
-    const lettersString = scrambled[this.currentLang] || scrambled['ta'] || [];
-    // Assumes scrambled content is an array of strings in JSON, but our interface is MultiLingualText, 
-    // so we handle it as a string array or comma-separated string depending on what the user enters in the Admin Form.
-    // Based on the JSON example: ["ப்", "ஆ", "ள்", "பி"]
+    const lettersString =
+      scrambled[this.currentLang] ||
+      scrambled['en'] ||
+      scrambled['ta'] ||
+      scrambled['si'] ||
+      [];
+
     if (Array.isArray(lettersString)) {
         return lettersString as string[];
     }
-    // Simple fallback if the JSON tool encodes it as a string like "ப்,ஆ,ள்,பி"
-    return lettersString.split(/[\s,]+/); 
+    return String(lettersString).split(/[\s,]+/); 
   }
   
+  // Hint helpers
+  getHintText(): string {
+    const hint = this.currentTask()?.hint?.hintText;
+    if (!hint) return 'N/A';
+    return (
+      hint[this.currentLang] ||
+      hint['en'] ||
+      hint['ta'] ||
+      hint['si'] ||
+      'N/A'
+    );
+  }
+
+  getHintImage(): string | undefined {
+    const url = this.currentTask()?.hint?.hintImageUrl;
+    if (!url) return undefined;
+    return this.languageService.resolveUrl(url) || url;
+  }
+
+  getHintAudio(): SafeUrl | null {
+    const audioUrl = this.currentTask()?.hint?.hintAudioUrl;
+    if (!audioUrl) return null;
+    const path =
+      audioUrl[this.currentLang] ||
+      audioUrl['en'] ||
+      audioUrl['ta'] ||
+      audioUrl['si'] ||
+      '';
+    if (!path) return null;
+    const resolved = this.languageService.resolveUrl(path) || path;
+    return this.sanitizer.bypassSecurityTrustUrl(resolved);
+  }
+
   playSound(audioUrl: MultiLingualText | undefined): void {
       if (!audioUrl) return;
-      const path = audioUrl[this.currentLang] || audioUrl['en'] || '';
+      const path =
+        audioUrl[this.currentLang] ||
+        audioUrl['en'] ||
+        audioUrl['ta'] ||
+        audioUrl['si'] ||
+        '';
       if (path) {
-          const audio = new Audio(path);
+          const resolved = this.languageService.resolveUrl(path) || path;
+          const audio = new Audio(resolved);
           audio.play().catch(e => console.error("Audio playback failed:", e));
       }
   }

@@ -2,6 +2,7 @@ import { Component, Input, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { LanguageService } from '../../../../services/language.service';
 
 // --- Interfaces ---
 
@@ -58,7 +59,7 @@ export class MemoryPairComponent {
   flippedCards = computed(() => this.gameCards().filter(c => c.isFlipped && !c.isMatched));
   isGameWon = computed(() => this.gameCards().length > 0 && this.gameCards().every(c => c.isMatched));
 
-  constructor() {
+  constructor(private languageService: LanguageService) {
     effect(() => {
       // Initialize game when content loads
       if (this.content && this.content.cards && this.content.cards.length > 0) {
@@ -172,21 +173,33 @@ export class MemoryPairComponent {
   // Extracts text from MultiLingual object
   text(multiLingual: MultiLingualText | undefined): string {
     if (!multiLingual) return 'N/A';
-    return multiLingual[this.currentLang] || multiLingual['en'] || 'N/A';
+    return (
+      multiLingual[this.currentLang] ||
+      multiLingual['en'] ||
+      multiLingual['ta'] ||
+      multiLingual['si'] ||
+      'N/A'
+    );
   }
 
   // Renders the content of the card face
   getCardFaceContent(card: GameCard): string {
-    const content = card.content[this.currentLang];
     const type = card.contentType;
+    const val =
+      card.content[this.currentLang] ||
+      card.content['en'] ||
+      card.content['ta'] ||
+      card.content['si'] ||
+      card.content['default'] ||
+      '';
 
-    if (!content) return '';
+    if (!val) return '';
 
-    if (type === 'image' || type === 'audio') {
-      // Return URL for image/audio (image is rendered via <img> tag in HTML)
-      return content;
+    // If text and no obvious URL pattern, return as-is
+    if (type !== 'image' && type !== 'audio' && !/[/\.]/.test(val)) {
+      return val;
     }
-    // Return text content
-    return content;
+    // Otherwise treat as media and resolve URL
+    return this.languageService.resolveUrl(val) || val;
   }
 }

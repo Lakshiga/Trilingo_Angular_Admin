@@ -13,3 +13,18 @@
     /* Pulse 3 times on check to draw attention to incorrect answer */
     animation: pulse 0.8s ease-in-out 3; 
 }
+
+.sentence-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  line-height: 1.8;
+}
+
+.blank-span {
+  min-width: 90px;
+  max-width: 140px;
+  height: 40px;
+  padding: 0 8px;
+  text-align: center;
+}

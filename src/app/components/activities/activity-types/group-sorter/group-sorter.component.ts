@@ -1,9 +1,11 @@
-import { Component, Input, OnInit, signal, computed } from '@angular/core';
+import { Component, Input, OnInit, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, moveItemInArray, transferArrayItem, DragDropModule } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { LanguageService } from '../../../../services/language.service';
+import { Subscription } from 'rxjs';
 
 // --- Interfaces ---
 
@@ -57,6 +59,7 @@ export class GroupSorterComponent implements OnInit {
   
   isChecking = signal(false);
   isFinished = signal(false);
+  private langSub?: Subscription;
 
   // --- Computed Values ---
   groupDefinitions = computed(() => this.content?.groups || []);
@@ -66,12 +69,22 @@ export class GroupSorterComponent implements OnInit {
     return this.unassignedItems().length === 0;
   });
 
-  constructor() {}
+  constructor(private languageService: LanguageService) {}
 
   ngOnInit(): void {
     if (this.content && this.content.items.length > 0) {
       this.initializeGame();
     }
+
+    // Rebuild items when language changes so text/image updates immediately
+    this.langSub = this.languageService.currentLanguage$.subscribe(lang => {
+      this.currentLang = lang;
+      this.initializeGame();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   // --- Initialization ---
@@ -193,7 +206,14 @@ export class GroupSorterComponent implements OnInit {
   // Extracts text from MultiLingual object
   text(multiLingual: MultiLingualText | undefined): string {
     if (!multiLingual) return 'N/A';
-    return multiLingual[this.currentLang] || multiLingual['en'] || 'N/A';
+    return (
+      multiLingual[this.currentLang] ||
+      multiLingual['en'] ||
+      multiLingual['ta'] ||
+      multiLingual['si'] ||
+      multiLingual['default'] ||
+      'N/A'
+    );
   }
 
   // Renders content (Text/Image/Audio Icon)
@@ -201,10 +221,12 @@ export class GroupSorterComponent implements OnInit {
     const content = this.text(item.content as MultiLingualText);
     const type = this.content.contentType;
 
+    const resolved = this.languageService.resolveUrl(content) || content;
+
     switch (type) {
         // Since the JSON implies 'word', we use spans. Modify for image/audio.
         case 'image':
-            return `<img src="${content}" alt="Item" class="max-h-8 object-contain"/>`;
+            return `<img src="${resolved}" alt="Item" class="max-h-10 max-w-[120px] object-contain"/>`;
         case 'word':
         case 'letter':
         default:

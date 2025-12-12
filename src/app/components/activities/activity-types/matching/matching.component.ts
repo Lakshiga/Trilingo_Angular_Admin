@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { LanguageService } from '../../../../services/language.service';
 
 // --- Interfaces (Data Model) ---
 
@@ -47,6 +48,7 @@ export class AppMatchingAdminForm implements OnInit {
   @Input() activityData?: ActivityContent;
   
   @Input() content?: ActivityContent;
+  @Input() currentLang: Language = 'en';
   
   @Output() saveActivity = new EventEmitter<string>();
 
@@ -54,7 +56,7 @@ export class AppMatchingAdminForm implements OnInit {
   languages: Language[] = ['ta', 'en', 'si'];
   cardTypes: CardType[] = ['text', 'image', 'audio'];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private languageService: LanguageService) {}
 
   ngOnInit(): void {
     this.initializeForm();
@@ -262,36 +264,61 @@ export class AppMatchingAdminForm implements OnInit {
 
   // Get title for preview (English priority)
   getPreviewTitle(): string {
-    return this.activityForm.get('title_en')?.value || 
-           this.activityForm.get('title_ta')?.value || 
-           'Activity Title';
+    const lang = this.currentLang || 'en';
+    const fallbackOrder: Language[] = [lang, 'en', 'ta', 'si'];
+    for (const l of fallbackOrder) {
+      const ctrl = this.activityForm.get(`title_${l}`);
+      if (ctrl?.value) return ctrl.value;
+    }
+    return 'Activity Title';
   }
 
   // Get instruction for preview (English priority)
   getPreviewInstruction(): string {
-    return this.activityForm.get('instruction_en')?.value || 
-           this.activityForm.get('instruction_ta')?.value || 
-           'Activity Instructions';
+    const lang = this.currentLang || 'en';
+    const fallbackOrder: Language[] = [lang, 'en', 'ta', 'si'];
+    for (const l of fallbackOrder) {
+      const ctrl = this.activityForm.get(`instruction_${l}`);
+      if (ctrl?.value) return ctrl.value;
+    }
+    return 'Activity Instructions';
   }
 
   // Get card content for display (Text/Label, English priority)
   getCardDisplayContent(card: any): string {
     // card object contains content_ta, content_en, etc. directly
-    if (card.type === 'text' || card.type === 'audio') {
-      return card.content_en || card.content_ta || card.content_si || '';
-    }
+    if (card.type === 'text' || card.type === 'audio') {
+      const lang = this.currentLang || 'en';
+      const fallbackOrder: Language[] = [lang, 'en', 'ta', 'si'];
+      for (const l of fallbackOrder) {
+        const v = card[`content_${l}`];
+        if (v) return v;
+      }
+      return '';
+    }
     // For image, display the path as the label
     if (card.type === 'image') {
-      return card.content_default || 'Image File';
+      return card.content_default || '';
     }
     return '';
   }
 
- // Get card media URL
+ // Get card media URL (AWS/relative aware, language fallback)
  getCardMediaUrl(card: any): string | null {
-  if (card.type === 'image' || card.type === 'audio') {
-   return card.content_default || null;
-  }
-  return null;
+   if (card.type === 'image' || card.type === 'audio') {
+     const lang = this.currentLang || 'en';
+     const fallbackOrder: Language[] = [lang, 'en', 'ta', 'si'];
+     for (const l of fallbackOrder) {
+       const v = card[`content_${l}`];
+       if (v) return this.languageService.resolveUrl(v) || v;
+     }
+     if (card.content_default) return this.languageService.resolveUrl(card.content_default) || card.content_default;
+   }
+   return null;
+ }
+
+ onImageError(event: Event): void {
+   const img = event.target as HTMLImageElement;
+   img.style.display = 'none';
  }
 }

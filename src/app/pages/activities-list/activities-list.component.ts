@@ -72,6 +72,7 @@ export class ActivitiesListPageComponent implements OnInit, OnDestroy {
   lesson: MultilingualLesson | null = null;
   isLoading = true;
   error: string | null = null;
+  flashStatus: 'saved' | 'updated' | null = null;
   
   isPreviewOpen = false;
   activityToPreview: MultilingualActivity | null = null;
@@ -113,7 +114,11 @@ export class ActivitiesListPageComponent implements OnInit, OnDestroy {
     this.routeSubscription = this.route.queryParams.subscribe(params => {
       this.lessonId = params['lessonId'];
       this.numericLessonId = this.lessonId ? parseInt(this.lessonId, 10) : 0;
-      this.previewOnLoadId = params['previewId'] ? Number(params['previewId']) : null;
+      const previewParam = params['previewId'];
+      const parsedPreviewId = previewParam ? Number(previewParam) : null;
+      this.previewOnLoadId = Number.isFinite(parsedPreviewId as number) && (parsedPreviewId as number) > 0 ? (parsedPreviewId as number) : null;
+      const statusParam = params['status'];
+      this.flashStatus = statusParam === 'saved' || statusParam === 'updated' ? statusParam : null;
       // Clear existing data before loading new data
       this.activities = [];
       this.lesson = null;
@@ -168,10 +173,29 @@ export class ActivitiesListPageComponent implements OnInit, OnDestroy {
       // Log the activities for debugging
       console.log('Loaded activities:', this.activities);
 
-      // Auto-open preview if requested
+      // Auto-open preview if requested and present in this lesson
       if (this.previewOnLoadId) {
-        setTimeout(() => this.openPreview(this.previewOnLoadId as number), 0);
+        const existsInLesson = this.activities.some(a => a.activityId === this.previewOnLoadId);
+        if (existsInLesson) {
+          setTimeout(() => this.openPreview(this.previewOnLoadId as number, true), 0);
+        } else {
+          this.snackBar.open('Activity not found for preview in this lesson.', 'Close', { duration: 4000 });
+        }
         this.previewOnLoadId = null;
+      }
+
+      // Show one-time status message (saved/updated)
+      if (this.flashStatus) {
+        const msg = this.flashStatus === 'updated' ? 'Activity updated successfully.' : 'Activity saved successfully.';
+        this.snackBar.open(msg, 'Close', { duration: 3000 });
+        // Clear status param from URL to avoid repeat on refresh
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { status: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        });
+        this.flashStatus = null;
       }
     } catch (err) {
       console.error(err);
@@ -404,11 +428,20 @@ export class ActivitiesListPageComponent implements OnInit, OnDestroy {
     );
   }
 
-  async openPreview(activityId: number): Promise<void> {
+  async openPreview(activityId: number, isAuto = false): Promise<void> {
     // Validate activityId before proceeding
-    if (!activityId || activityId <= 0) {
-      console.error("Invalid activity ID for preview:", activityId);
-      this.snackBar.open("Invalid activity ID for preview.", 'Close', { duration: 5000 });
+    if (!activityId || !Number.isFinite(activityId) || activityId <= 0) {
+      if (!isAuto) {
+        this.snackBar.open("Preview not available for this activity.", 'Close', { duration: 4000 });
+      }
+      return;
+    }
+
+    const existsInLesson = this.activities.some(a => a.activityId === activityId);
+    if (!existsInLesson) {
+      if (!isAuto) {
+        this.snackBar.open("Activity not found in this lesson for preview.", 'Close', { duration: 4000 });
+      }
       return;
     }
     
@@ -418,6 +451,9 @@ export class ActivitiesListPageComponent implements OnInit, OnDestroy {
     try {
       const fullActivityData = await this.activityApiService.getById(activityId).toPromise();
       this.activityToPreview = fullActivityData!;
+      if (!isAuto) {
+        this.snackBar.open("Preview ready.", 'Close', { duration: 3000 });
+      }
     } catch (err) {
       console.error("Failed to fetch activity details for preview", err);
       this.snackBar.open("Could not load activity preview.", 'Close', { duration: 5000 });

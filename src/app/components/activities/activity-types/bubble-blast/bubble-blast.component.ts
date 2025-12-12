@@ -2,6 +2,7 @@ import { Component, Input, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { LanguageService } from '../../../../services/language.service';
 
 // --- Interfaces ---
 
@@ -69,7 +70,7 @@ export class BubbleBlastComponent {
   // Get the remaining shootable bubbles (for the tray)
   availableProjectiles = computed(() => this.shootableBubbles().filter(b => b.isAvailable));
 
-  constructor() {
+  constructor(private languageService: LanguageService) {
     effect(() => {
       if (this.content && this.content.fixedBubbles.length > 0) {
         this.initializeGame();
@@ -176,27 +177,61 @@ export class BubbleBlastComponent {
 
   text(multiLingual: MultiLingualText | undefined): string {
     if (!multiLingual) return 'N/A';
-    return multiLingual[this.currentLang] || multiLingual['en'] || 'N/A';
+    return (
+      multiLingual[this.currentLang] ||
+      multiLingual['en'] ||
+      multiLingual['ta'] ||
+      multiLingual['si'] ||
+      'N/A'
+    );
   }
 
-  // Gets content string based on current language
+  // Gets text content based on current language (for word/letter)
+  getBubbleText(bubble: Bubble): string {
+    return (
+      bubble.content[this.currentLang] ||
+      bubble.content['en'] ||
+      bubble.content['ta'] ||
+      bubble.content['si'] ||
+      bubble.content['default'] ||
+      ''
+    );
+  }
+
+  // Gets image URL based on current language and resolves AWS/relative paths
+  getBubbleImage(bubble: Bubble): string {
+    const raw =
+      bubble.content[this.currentLang] ||
+      bubble.content['en'] ||
+      bubble.content['ta'] ||
+      bubble.content['si'] ||
+      bubble.content['default'] ||
+      '';
+    return this.languageService.resolveUrl(raw) || raw;
+  }
+
+  private looksLikeUrl(val: string): boolean {
+    return /^(https?:\/\/|\/|.*\.(png|jpe?g|gif|webp|svg))/i.test(val);
+  }
+
+  getDisplayType(bubble: Bubble): 'image' | 'text' {
+    // Prefer explicit contentType, otherwise infer from value pattern
+    if (this.content.contentType === 'image') return 'image';
+    const val = this.getBubbleText(bubble);
+    return this.looksLikeUrl(val) ? 'image' : 'text';
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+  }
+
+  // Unified getter used for comparisons and messages
   getBubbleContent(bubble: Bubble): string {
-    return bubble.content[this.currentLang] || bubble.content['en'] || 'N/A';
-  }
-
-  // Renders content (Text/Image/Audio Icon) inside the bubble
-  renderContent(bubble: Bubble): string {
-    const type = this.content.contentType;
-    const content = this.getBubbleContent(bubble);
-
-    switch (type) {
-        case 'image':
-            return `<img src="${content}" alt="Bubble Content" class="max-h-12 object-contain mx-auto"/>`;
-        case 'word':
-        case 'letter':
-            return `<span>${content}</span>`;
-        default:
-            return `<span>${content}</span>`;
+    if (this.content.contentType === 'image') {
+      return this.getBubbleImage(bubble);
     }
+    // word/letter
+    return this.getBubbleText(bubble);
   }
 }

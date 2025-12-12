@@ -1,9 +1,10 @@
-import { Component, Input, signal, computed, effect, ElementRef, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, Input, signal, computed, effect, ElementRef, ViewChild, OnDestroy, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { LanguageService } from '../../../../services/language.service';
 
 // --- Interfaces ---
 type Language = 'ta' | 'en' | 'si';
@@ -37,7 +38,7 @@ interface ActivityContent {
   templateUrl: './song-player.component.html',
   styleUrls: ['./song-player.component.css'],
 })
-export class SongPlayerComponent implements AfterViewInit, OnDestroy {
+export class SongPlayerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   @Input() content!: ActivityContent;
   @Input() currentLang: Language = 'ta';
@@ -56,7 +57,16 @@ export class SongPlayerComponent implements AfterViewInit, OnDestroy {
   private audioContext: AudioContext | null = null;
   private audioSource: MediaElementAudioSourceNode | null = null;
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(private sanitizer: DomSanitizer, private languageService: LanguageService) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['currentLang'] && !changes['currentLang'].firstChange) {
+      this.currentLyricIndex.set(0);
+      this.currentTime.set(0);
+      this.isPlaying.set(false);
+      this.updateAudioSource(true);
+    }
+  }
 
   ngAfterViewInit(): void {
     this.updateAudioSource();
@@ -69,10 +79,15 @@ export class SongPlayerComponent implements AfterViewInit, OnDestroy {
   }
 
   // --- Core Methods ---
-  updateAudioSource(): void {
+  updateAudioSource(forceReload = false): void {
     const audioPath = this.getAudioPath();
     if (audioPath) {
       this.currentAudioUrl = this.sanitizer.bypassSecurityTrustUrl(audioPath);
+      const player = this.audioPlayerRef?.nativeElement;
+      if (player && forceReload) {
+        player.pause();
+        player.load();
+      }
     }
     this.setupAudioEvents();
   }
@@ -148,13 +163,31 @@ export class SongPlayerComponent implements AfterViewInit, OnDestroy {
   // --- Helpers ---
   text(multiLingual: MultiLingualText | undefined): string {
     if (!multiLingual) return 'N/A';
-    return multiLingual[this.currentLang] || multiLingual['en'] || 'N/A';
+    return (
+      multiLingual[this.currentLang] ||
+      multiLingual['en'] ||
+      multiLingual['ta'] ||
+      multiLingual['si'] ||
+      'N/A'
+    );
   }
 
   getAudioPath(): string {
     const audioContent = this.currentSongData()?.audioUrl;
     if (!audioContent) return '';
-    return audioContent[this.currentLang] || audioContent['ta'] || '';
+    const raw =
+      audioContent[this.currentLang] ||
+      audioContent['en'] ||
+      audioContent['ta'] ||
+      audioContent['si'] ||
+      audioContent['default'] ||
+      '';
+    return this.languageService.resolveUrl(raw) || '';
+  }
+
+  getAlbumArtUrl(): string {
+    const raw = this.currentSongData()?.albumArtUrl || '';
+    return this.languageService.resolveUrl(raw) || raw || 'https://placehold.co/96x96/D1D5DB/4B5563?text=Album';
   }
 
   formatTime(seconds: number): string {
