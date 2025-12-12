@@ -19,7 +19,8 @@ export class MultilingualActivityTemplates {
       12:() => this.getmemorypairActivityTemplate(),
       13:() => this.getgroupsorterActivityTemplate(),
       14:() => this.getConversationPlayerTemplate(),
-      15:() => this.getvideoplayerTemplate()    
+      15:() => this.getvideoplayerTemplate(),
+      17:() => this.getLetterTrackingTemplate()    
     };
 
     const templateFunction = templates[activityTypeId];
@@ -691,4 +692,54 @@ export class MultilingualActivityTemplates {
       }
     },null ,2);
   }  
+
+  private static getLetterTrackingTemplate(): string {
+    return JSON.stringify({
+      "title": {
+        "en": "Learn Letters",
+        "ta": "எழுத்துக்கள் கற்போம்",
+        "si": "අකුරු ඉගෙන ගන්න"
+      },
+      "subtitle": {
+        "en": "Choose a language and letter to practice",
+        "ta": "மொழியும் எழுத்தும் தேர்ந்து பயிற்சி செய்யுங்கள்",
+        "si": "භාෂාවක් සහ අකුරක් තෝරන්න"
+      },
+      "languages": [
+        {
+          "code": "en",
+          "label": "English",
+          "subtitle": "English Letters",
+          "letters": "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').map((ch: string) => ({
+            "id": `en-${ch}`,
+            "glyph": { "en": ch, "ta": ch, "si": ch }
+          }))
+        },
+        {
+          "code": "ta",
+          "label": "Tamil",
+          "subtitle": "Tamil Letters",
+          "letters": [
+            "அ","ஆ","இ","ஈ","உ","ஊ","எ","ஏ","ஐ","ஒ","ஓ","ஔ",
+            "க","ங","ச","ஞ","ட","ண","த","ந","ப","ம","ய","ர","ல"
+          ].map((ch: string) => ({
+            "id": `ta-${ch}`,
+            "glyph": { "ta": ch, "en": ch, "si": ch }
+          }))
+        },
+        {
+          "code": "si",
+          "label": "Sinhala",
+          "subtitle": "Sinhala Letters",
+          "letters": [
+            "අ","ආ","ඇ","ඈ","ඉ","ඊ","උ","ඌ","ඍ","ඎ","එ","ඒ","ඔ","ඕ","ඖ",
+            "ක","ඛ","ග","ඝ","ච","ඡ","ජ","ඣ","ට","ඩ"
+          ].map((ch: string) => ({
+            "id": `si-${ch}`,
+            "glyph": { "si": ch, "en": ch, "ta": ch }
+          }))
+        }
+      ]
+    }, null, 2);
+  }
 }
