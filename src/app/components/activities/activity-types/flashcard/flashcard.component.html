@@ -3,19 +3,22 @@
   <mat-card class="flashcard">
       
       <ng-container *ngIf="!isDetailedDesign">
-          <mat-card-content class="card-content vowel-design">
-              <span class="word large-vowel-text">{{ mainWordToDisplay }}</span>
-              
-              <button
-                *ngIf="audioPath"
-                mat-icon-button
-                color="primary"
-                (click)="playAudio()"
-                class="audio-button large-audio-button"
-              >
-                <mat-icon>volume_up</mat-icon>
-              </button>
-          </mat-card-content>
+        <mat-card-content class="card-content vowel-design">
+          <div class="simple-image-wrapper" *ngIf="imagePath">
+            <img [src]="imagePath" [alt]="mainWordToDisplay || 'Flashcard Image'" />
+          </div>
+          <span class="word large-vowel-text">{{ mainWordToDisplay }}</span>
+          
+          <button
+            *ngIf="audioPath"
+            mat-icon-button
+            color="primary"
+            (click)="playAudio()"
+            class="audio-button large-audio-button"
+          >
+            <mat-icon>volume_up</mat-icon>
+          </button>
+        </mat-card-content>
       </ng-container>
 
       <ng-container *ngIf="isDetailedDesign">

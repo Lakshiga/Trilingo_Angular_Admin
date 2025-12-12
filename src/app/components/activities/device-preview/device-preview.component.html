@@ -1,6 +1,17 @@
 <div class="device-preview">
   <div class="preview-header">
     <h3>Activity Preview</h3>
+    <div class="language-switch">
+      <mat-button-toggle-group
+        [value]="currentLanguage"
+        (change)="setLanguage($event.value)">
+        <mat-button-toggle
+          *ngFor="let lang of languages"
+          [value]="lang.code">
+          {{ lang.nativeName }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
   </div>
   <div class="preview-container">
     <mat-card 

@@ -20,23 +20,36 @@
       </div>
   
       <section class="game-grid bg-white border rounded-xl shadow-inner">
-        @for (tile of tiles(); track tile.id) {
-          <div 
-            (click)="selectTile(tile)" 
-            class="tile text-base font-bold text-gray-800 p-3"
-            [ngClass]="{
-              'bg-white hover:bg-gray-50': tile.status === 'default',
-              'selected bg-blue-200 border-blue-600': tile.status === 'selected',
-              'hidden': tile.status === 'hidden',
-              'matched': tile.status === 'matched_temp',
-              'incorrect_temp animate-shake bg-red-300 border-red-600': tile.status === 'incorrect_temp'
-            }"
-          >
-            @if (tile.status !== 'hidden') {
-              {{ text(tile.content) }}
-            }
-          </div>
-        }
+        <div 
+          *ngFor="let tile of tiles(); trackBy: trackTile"
+          (click)="selectTile(tile)" 
+          class="tile text-base font-bold text-gray-800 p-3"
+          [ngClass]="{
+            'bg-white hover:bg-gray-50': tile.status === 'default',
+            'selected bg-blue-200 border-blue-600': tile.status === 'selected',
+            'hidden': tile.status === 'hidden',
+            'matched': tile.status === 'matched_temp',
+            'incorrect_temp animate-shake bg-red-300 border-red-600': tile.status === 'incorrect_temp'
+          }"
+        >
+          <ng-container *ngIf="tile.status !== 'hidden'">
+            <ng-container *ngIf="content?.contentType === 'image'; else nonImage">
+                <img
+                  class="tile-image"
+                  [src]="resolve(tile.content[currentLang] || tile.content['en'] || tile.content['ta'] || tile.content['si'] || '')"
+                  alt="Tile Image"
+                  (error)="onImageError($event)" />
+            </ng-container>
+            <ng-template #nonImage>
+              <ng-container *ngIf="content?.contentType === 'audio'; else textContent">
+                <mat-icon>volume_up</mat-icon>
+              </ng-container>
+              <ng-template #textContent>
+                {{ text(tile.content) }}
+              </ng-template>
+            </ng-template>
+          </ng-container>
+        </div>
       </section>
       
       @if (isGameWon()) {

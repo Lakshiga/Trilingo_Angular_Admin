@@ -1,9 +1,12 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { Activity } from '../../../types/activity.types';
+import { LanguageService } from '../../../services/language.service';
+import { LanguageCode } from '../../../types/multilingual.types';
+import { Subscription } from 'rxjs';
 import { ActivityRendererComponent } from '../activity-renderer/activity-renderer.component';
 
 @Component({
@@ -19,14 +22,28 @@ import { ActivityRendererComponent } from '../activity-renderer/activity-rendere
   templateUrl: './device-preview.component.html',
   styleUrls: ['./device-preview.component.css']
 })
-export class DevicePreviewComponent implements OnChanges {
+export class DevicePreviewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() activityData: Partial<Activity> = {};
 
   device: 'phone' | 'tablet' = 'phone';
   orientation: 'portrait' | 'landscape' = 'portrait';
+  private langSub?: Subscription;
+
+  constructor(public languageService: LanguageService, private cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    // When language changes, force change detection so preview updates
+    this.langSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.cdr.detectChanges();
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     // console.log('Device preview data changed:', changes);
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   get parsedContent(): any {
@@ -80,5 +97,18 @@ export class DevicePreviewComponent implements OnChanges {
   // Check if we have valid data to display
   get hasValidData(): boolean {
     return !!(this.numericActivityTypeId > 0 && this.parsedContent && !this.parsedContent.error);
+  }
+
+  // Multilingual helpers
+  get languages() {
+    return this.languageService.getSupportedLanguages();
+  }
+
+  get currentLanguage(): LanguageCode {
+    return this.languageService.getCurrentLanguage();
+  }
+
+  setLanguage(code: LanguageCode): void {
+    this.languageService.setLanguage(code);
   }
 }

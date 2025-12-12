@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { LanguageService } from '../../../../services/language.service';
 
 // --- Interfaces ---
 
@@ -13,7 +14,7 @@ interface MultiLingualText { [key: string]: string; }
 interface TaskContent {
   word: MultiLingualText;
   audioUrl: MultiLingualText;
-  imageUrl: string;
+  imageUrl: MultiLingualText | string;
 }
 
 interface Task {
@@ -64,7 +65,7 @@ export class PronunciationActivityComponent implements OnInit, OnDestroy { // Ch
   private audioChunks: Blob[] = [];
   private audioBlob: Blob | null = null;
   
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(private sanitizer: DomSanitizer, private languageService: LanguageService) {}
 
   ngOnInit(): void {
     // Initial check to ensure content structure is valid
@@ -80,7 +81,14 @@ export class PronunciationActivityComponent implements OnInit, OnDestroy { // Ch
 
   text(multiLingual: MultiLingualText | undefined): string {
     if (!multiLingual) return 'N/A';
-    return multiLingual[this.currentLang] || multiLingual['en'] || 'N/A';
+    return (
+      multiLingual[this.currentLang] ||
+      multiLingual['en'] ||
+      multiLingual['ta'] ||
+      multiLingual['si'] ||
+      multiLingual['default'] ||
+      'N/A'
+    );
   }
 
   currentTask = computed(() => this.content?.task || null);
@@ -92,11 +100,32 @@ export class PronunciationActivityComponent implements OnInit, OnDestroy { // Ch
   getTargetAudioPath(): string {
     const audioContent = this.currentTask()?.content.audioUrl;
     if (!audioContent) return '';
-    return audioContent[this.currentLang] || audioContent['ta'] || '';
+    const raw =
+      audioContent[this.currentLang] ||
+      audioContent['en'] ||
+      audioContent['ta'] ||
+      audioContent['si'] ||
+      audioContent['default'] ||
+      '';
+    return this.languageService.resolveUrl(raw) || raw;
   }
 
   getTargetImagePath(): string {
-    return this.currentTask()?.content.imageUrl || 'https://placehold.co/100x100/D1D5DB/4B5563?text=IMG';
+    const imageContent = this.currentTask()?.content.imageUrl;
+    if (!imageContent) {
+      return 'https://placehold.co/100x100/D1D5DB/4B5563?text=IMG';
+    }
+    if (typeof imageContent === 'string') {
+      return this.languageService.resolveUrl(imageContent) || imageContent;
+    }
+    const raw =
+      imageContent[this.currentLang] ||
+      imageContent['en'] ||
+      imageContent['ta'] ||
+      imageContent['si'] ||
+      imageContent['default'] ||
+      '';
+    return this.languageService.resolveUrl(raw) || raw || 'https://placehold.co/100x100/D1D5DB/4B5563?text=IMG';
   }
 
   // --- Audio Playback ---

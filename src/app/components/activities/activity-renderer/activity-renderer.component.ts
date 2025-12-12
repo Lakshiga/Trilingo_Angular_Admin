@@ -59,6 +59,10 @@ export class ActivityRendererComponent implements OnChanges {
     // Force change detection when inputs change
   }
 
+  get currentLanguage() {
+    return this.languageService.getCurrentLanguage();
+  }
+
   isKnownActivityType(): boolean {
     // Activity types 1-8 are implemented: 1 (flashcard), 2 (matching), 3 (fill-in-the-blanks), 4 (mcq-activity), 5 (true-false), 6 (song-player), 7 (story-player), 8 (pronunciation-activity)
     const knownTypes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,14, 15];
@@ -69,9 +73,15 @@ export class ActivityRendererComponent implements OnChanges {
     if (!value) return '';
     if (typeof value === 'string') return value;
     if (typeof value === 'object') {
-      // Prefer English explicitly for preview/title rendering
-      if ('en' in value) return String((value as any).en || '');
-      if ('ta' in value || 'si' in value) return String((value as any).en || (value as any).ta || (value as any).si || '');
+      try {
+        // Use LanguageService so preview follows selected language (ta/en/si)
+        return this.languageService.getText(value as any);
+      } catch {
+        // Fallback to any available field
+        if ('en' in value || 'ta' in value || 'si' in value) {
+          return String((value as any).en || (value as any).ta || (value as any).si || '');
+        }
+      }
     }
     return JSON.stringify(value);
   }

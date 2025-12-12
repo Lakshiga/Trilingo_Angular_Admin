@@ -51,49 +51,49 @@
     </mat-card>
   </ng-template>
   <!-- Flashcard -->
-  <app-flashcard *ngIf="activityTypeId === 1" [content]="content"></app-flashcard>
+  <app-flashcard *ngIf="activityTypeId === 1" [content]="content" [currentLang]="currentLanguage"></app-flashcard>
   
   <!-- Matching -->
-  <app-matching *ngIf="activityTypeId === 2" [content]="content"></app-matching>
+  <app-matching *ngIf="activityTypeId === 2" [content]="content" [currentLang]="currentLanguage"></app-matching>
   
   <!-- Fill in the Blanks -->
-  <app-fill-in-the-blanks *ngIf="activityTypeId === 3" [content]="content"></app-fill-in-the-blanks>
+  <app-fill-in-the-blanks *ngIf="activityTypeId === 3" [content]="content" [currentLang]="currentLanguage"></app-fill-in-the-blanks>
   
   <!-- MCQ Activity -->
-  <app-mcq-activity *ngIf="activityTypeId === 4" [content]="content"></app-mcq-activity>
+  <app-mcq-activity *ngIf="activityTypeId === 4" [content]="content" [currentLang]="currentLanguage"></app-mcq-activity>
 
   <!-- True False -->
-  <app-true-false *ngIf="activityTypeId === 5" [content]="content"></app-true-false>
+  <app-true-false *ngIf="activityTypeId === 5" [content]="content" [currentLang]="currentLanguage"></app-true-false>
 
   <!-- Song Player -->
-  <app-song-player *ngIf="activityTypeId === 6" [content]="content"></app-song-player>
+  <app-song-player *ngIf="activityTypeId === 6" [content]="content" [currentLang]="currentLanguage"></app-song-player>
   
   <!-- Story Player -->
-  <app-story-player *ngIf="activityTypeId === 7" [content]="content"></app-story-player>
+  <app-story-player *ngIf="activityTypeId === 7" [content]="content" [currentLang]="currentLanguage"></app-story-player>
 
   <!-- Pronunciation Activity -->
-  <app-pronunciation-activity *ngIf="activityTypeId === 8" [content]="content"></app-pronunciation-activity>
+  <app-pronunciation-activity *ngIf="activityTypeId === 8" [content]="content" [currentLang]="currentLanguage"></app-pronunciation-activity>
   
   <!-- Scrumble Activity -->
-  <app-scrumble-activity *ngIf="activityTypeId === 9" [content]="content"></app-scrumble-activity>
+  <app-scrumble-activity *ngIf="activityTypeId === 9" [content]="content" [currentLang]="currentLanguage"></app-scrumble-activity>
 
   <!-- Triple Blast Activity -->
-  <app-triple-blast *ngIf="activityTypeId === 10" [content]="content"></app-triple-blast>
+  <app-triple-blast *ngIf="activityTypeId === 10" [content]="content" [currentLang]="currentLanguage"></app-triple-blast>
 
   <!-- Bubble Blast Activity -->
-  <app-bubble-blast *ngIf="activityTypeId === 11" [content]="content"></app-bubble-blast>
+  <app-bubble-blast *ngIf="activityTypeId === 11" [content]="content" [currentLang]="currentLanguage"></app-bubble-blast>
 
   <!-- Memory Pair Activity -->
-  <app-memory-pair *ngIf="activityTypeId === 12" [content]="content"></app-memory-pair>
+  <app-memory-pair *ngIf="activityTypeId === 12" [content]="content" [currentLang]="currentLanguage"></app-memory-pair>
 
   <!-- Group Sorter Activity -->
-  <app-group-sorter *ngIf="activityTypeId === 13" [content]="content"></app-group-sorter>
+  <app-group-sorter *ngIf="activityTypeId === 13" [content]="content" [currentLang]="currentLanguage"></app-group-sorter>
 
   <!-- Conversation Player Activity -->
-  <app-conversation-player *ngIf="activityTypeId === 14" [content]="content"></app-conversation-player>
+  <app-conversation-player *ngIf="activityTypeId === 14" [content]="content" [currentLang]="currentLanguage"></app-conversation-player>
 
   <!-- video player activity -->
-   <app-video-player *ngIf="activityTypeId === 15" [content]="content"></app-video-player>
+   <app-video-player *ngIf="activityTypeId === 15" [content]="content" [currentLang]="currentLanguage"></app-video-player>
 
    
   <!-- All other activity types use generic template -->

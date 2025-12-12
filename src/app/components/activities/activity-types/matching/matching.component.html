@@ -25,15 +25,14 @@
               }
               
               @if (card.type === 'image') {
-                <div class="p-2 bg-gray-50 rounded">
+                <div class="p-2 bg-gray-50 rounded media-box">
                   @if (getCardMediaUrl(card)) {
                     <img [src]="getCardMediaUrl(card)" 
                           [alt]="getCardDisplayContent(card)" 
-                          class="w-full h-32 object-contain rounded"
-                          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23ddd\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' font-family=\'sans-serif\' font-size=\'14\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EImage%3C/text%3E%3C/svg%3E'">
-                    <p class="text-xs text-gray-500 mt-1 text-center">{{ getCardDisplayContent(card) }}</p>
+                          class="card-image"
+                          (error)="onImageError($event)">
                   } @else {
-                    <div class="w-full h-32 bg-gray-200 rounded flex items-center justify-center">
+                    <div class="media-fallback">
                       <span class="text-gray-400">No image URL</span>
                     </div>
                   }
@@ -41,11 +40,15 @@
               }
               
               @if (card.type === 'audio') {
-                <div class="p-3 bg-gray-50 rounded">
+                <div class="p-3 bg-gray-50 rounded media-box">
                   @if (getCardMediaUrl(card)) {
                     <audio [src]="getCardMediaUrl(card)" controls class="w-full mb-2"></audio>
+                  } @else {
+                    <div class="media-fallback">
+                      <span class="text-gray-400">No audio URL</span>
+                    </div>
                   }
-                  <p class="text-sm font-medium text-center">{{ getCardDisplayContent(card) || '(Audio Label)' }}</p>
+                  <p class="text-sm font-medium text-center truncate">{{ getCardDisplayContent(card) || '(Audio Label)' }}</p>
                 </div>
               }
             </mat-card>
@@ -71,15 +74,14 @@
               }
               
               @if (card.type === 'image') {
-                <div class="p-2 bg-gray-50 rounded">
+                <div class="p-2 bg-gray-50 rounded media-box">
                   @if (getCardMediaUrl(card)) {
                     <img [src]="getCardMediaUrl(card)" 
                           [alt]="getCardDisplayContent(card)" 
-                          class="w-full h-32 object-contain rounded"
-                          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23ddd\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' font-family=\'sans-serif\' font-size=\'14\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EImage%3C/text%3E%3C/svg%3E'">
-                    <p class="text-xs text-gray-500 mt-1 text-center">{{ getCardDisplayContent(card) }}</p>
+                          class="card-image"
+                          (error)="onImageError($event)">
                   } @else {
-                    <div class="w-full h-32 bg-gray-200 rounded flex items-center justify-center">
+                    <div class="media-fallback">
                       <span class="text-gray-400">No image URL</span>
                     </div>
                   }
@@ -87,11 +89,15 @@
               }
               
               @if (card.type === 'audio') {
-                <div class="p-3 bg-gray-50 rounded">
+                <div class="p-3 bg-gray-50 rounded media-box">
                   @if (getCardMediaUrl(card)) {
                     <audio [src]="getCardMediaUrl(card)" controls class="w-full mb-2"></audio>
+                  } @else {
+                    <div class="media-fallback">
+                      <span class="text-gray-400">No audio URL</span>
+                    </div>
                   }
-                  <p class="text-sm font-medium text-center">{{ getCardDisplayContent(card) || '(Audio Label)' }}</p>
+                  <p class="text-sm font-medium text-center truncate">{{ getCardDisplayContent(card) || '(Audio Label)' }}</p>
                 </div>
               }
             </mat-card>

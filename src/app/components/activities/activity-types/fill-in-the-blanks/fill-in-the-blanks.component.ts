@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../../../services/language.service';
 
 // --- Interfaces for Type Safety ---
 
@@ -58,7 +59,7 @@ export class FillInTheBlanksComponent {
 
   // --- Initialization ---
 
-  constructor() {
+  constructor(private languageService: LanguageService) {
     // Initialize the activity when content is loaded
     effect(() => {
       if (this.currentQuestion()) {
@@ -211,7 +212,13 @@ export class FillInTheBlanksComponent {
   }
   
   text(multiLingual: MultiLingualText): string {
-    return multiLingual[this.currentLang] || multiLingual['en'] || 'N/A';
+    return (
+      multiLingual[this.currentLang] ||
+      multiLingual['en'] ||
+      multiLingual['ta'] ||
+      multiLingual['si'] ||
+      'N/A'
+    );
   }
 
   // Handle image loading errors
@@ -224,15 +231,7 @@ export class FillInTheBlanksComponent {
   // Get image URL - handle both relative and absolute paths
   getImageUrl(url: string): string {
     if (!url) return '';
-    // If it's already an absolute URL (http/https), return as is
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    // If it starts with /, return as is (absolute path from root)
-    if (url.startsWith('/')) {
-      return url;
-    }
-    // Otherwise, assume it's a relative path from assets
-    return url.startsWith('assets/') ? `/${url}` : `/assets/${url}`;
+    const resolved = this.languageService.resolveUrl(url);
+    return resolved || url;
   }
 }

@@ -24,28 +24,6 @@ import { ActivityType } from '../../types/activity-type.types';
 import { MultilingualText } from '../../types/multilingual.types';
 import { Subscription } from 'rxjs';
 
-const MAIN_ACTIVITY_ALLOWED_TYPES: Record<string, string[]> = {
-  learning: ['Flash Card'],
-  practice: [
-    'Matching',
-    'Fill in the blanks',
-    'MCQ Activity',
-    'True / False',
-    'Scrumble Activity',
-    'Memory Pair Activity'
-  ],
-  listening: ['Song Player', 'Story Player', 'Pronunciation Activity'],
-  games: ['Triple Blast Activity', 'Bubble Blast Activity', 'Group Sorter Activity'],
-  videos: [],
-  conversations: []
-};
-
-const normalizeString = (value?: string | null): string => {
-  if (!value) return '';
-  // Trim, convert to lowercase, and remove extra spaces
-  return value.trim().toLowerCase().replace(/\s+/g, ' ');
-};
-
 interface ActivityCreateDto {
   title: MultilingualText;
   sequenceOrder: number;
@@ -163,25 +141,20 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
   }
 
   get isStructureSelectionLocked(): boolean {
-    return this.hasExercises || this.isExerciseInteractionLocked;
+    // Lock main activity / activity type only after at least one exercise exists
+    return this.hasExercises;
   }
 
   get mainActivityLockMessage(): string | null {
     if (this.hasExercises) {
-      return 'Main Activity cannot be changed while exercises exist.';
-    }
-    if (this.isExerciseInteractionLocked) {
-      return 'Finish editing or adding exercises before changing the Main Activity.';
+      return 'Main Activity cannot be changed once exercises are added.';
     }
     return null;
   }
 
   get activityTypeLockMessage(): string | null {
     if (this.hasExercises) {
-      return 'Activity type cannot be changed while exercises exist.';
-    }
-    if (this.isExerciseInteractionLocked) {
-      return 'Finish editing or adding exercises before changing the Activity Type.';
+      return 'Activity Type cannot be changed once exercises are added.';
     }
     return null;
   }
@@ -285,12 +258,12 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
           const mainActivityId = this.activity.mainActivityId || 0;
           // Track the initial main activity ID
           this.lastMainActivityId = mainActivityId > 0 ? mainActivityId : null;
-          const allowedNames = this.evaluateMainActivityAvailability(mainActivityId);
+          this.evaluateMainActivityAvailability(mainActivityId);
           if (this.isMainActivityNotAvailable) {
             this.filteredActivityTypes = [];
             this.activity.activityTypeId = 0;
           } else {
-            await this.applyActivityTypeFilter(mainActivityId, allowedNames);
+            await this.applyActivityTypeFilter(mainActivityId);
             
             // Check if current activity type is valid for the main activity
             const currentTypeId = this.activity.activityTypeId || 0;
@@ -393,9 +366,8 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
                                 newMainActivityIdFromUpdate > 0;
     const hasMainActivityChange = isFirstTimeSelection || isSubsequentChange;
     
-    let allowedNames: string[] | null = null;
     if (hasMainActivityChange) {
-      allowedNames = this.evaluateMainActivityAvailability(mergedData.mainActivityId || 0);
+      this.evaluateMainActivityAvailability(mergedData.mainActivityId || 0);
     }
     
     // Ensure title is properly handled
@@ -412,7 +384,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
       this.lastMainActivityId = newMainActivityIdFromUpdate;
       
       // First, evaluate if this main activity is available
-      const currentAllowedNames = this.evaluateMainActivityAvailability(newMainActivityIdFromUpdate);
+      this.evaluateMainActivityAvailability(newMainActivityIdFromUpdate);
       
       if (this.isMainActivityNotAvailable) {
         this.filteredActivityTypes = [];
@@ -423,7 +395,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
         }
       } else {
         // Immediately apply filter when main activity changes
-        await this.applyActivityTypeFilter(newMainActivityIdFromUpdate, currentAllowedNames);
+        await this.applyActivityTypeFilter(newMainActivityIdFromUpdate);
         
         // Manually trigger change detection to ensure UI updates
         this.cdr.detectChanges();
@@ -490,7 +462,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async applyActivityTypeFilter(mainActivityId: number, allowedNames?: string[] | null): Promise<void> {
+  private async applyActivityTypeFilter(mainActivityId: number): Promise<void> {
     if (!mainActivityId || mainActivityId <= 0) {
       this.filteredActivityTypes = [];
       return;
@@ -636,47 +608,6 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     return this.filteredActivityTypes;
   }
 
-  private getMainActivityKey(mainActivityId: number): string | null {
-    const mainActivity = this.mainActivities.find(ma => ma.id === mainActivityId);
-    if (!mainActivity) {
-      return null;
-    }
-    // Try multiple ways to get the name
-    const raw =
-      (mainActivity as any).name ||
-      (mainActivity as any).name_en ||
-      mainActivity.title?.en ||
-      mainActivity.title?.ta ||
-      mainActivity.title?.si ||
-      '';
-    const normalized = normalizeString(raw);
-    
-    // Check if normalized key exists in mapping
-    if (normalized && MAIN_ACTIVITY_ALLOWED_TYPES[normalized]) {
-      return normalized;
-    }
-    
-    // Try to find a matching key by checking all available keys
-    const availableKeys = Object.keys(MAIN_ACTIVITY_ALLOWED_TYPES);
-    for (const key of availableKeys) {
-      const normalizedKey = normalizeString(key);
-      if (normalized === normalizedKey) {
-        return normalizedKey;
-      }
-    }
-    
-    return normalized || null;
-  }
-
-  private getAllowedNamesSnapshot(mainActivityId: number): string[] | null {
-    const key = this.getMainActivityKey(mainActivityId);
-    if (!key) {
-      return null;
-    }
-    const allowedNames = MAIN_ACTIVITY_ALLOWED_TYPES[key] ?? null;
-    return allowedNames;
-  }
-
   private evaluateMainActivityAvailability(mainActivityId: number): string[] | null {
     // If no main activity is selected, don't mark as "not available"
     if (!mainActivityId || mainActivityId <= 0) {
@@ -685,110 +616,19 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
       return null;
     }
 
-    const allowedNames = this.getAllowedNamesSnapshot(mainActivityId);
-    this.selectedMainActivityName = this.getMainActivityKey(mainActivityId);
-    
-    // Check if this is Videos or Conversations (empty array means not available)
-    if (allowedNames !== null && allowedNames.length === 0) {
-      this.isMainActivityNotAvailable = true;
-    } else if (allowedNames === null) {
-      // No mapping found, but don't treat as "not available" if main activity exists
-      // This might be a new main activity that doesn't have hardcoded mapping
-      this.isMainActivityNotAvailable = false;
-    } else {
-      this.isMainActivityNotAvailable = false;
-    }
-    
-    return allowedNames;
-  }
+    const mainActivity = this.mainActivities.find(ma => ma.id === mainActivityId);
+    this.selectedMainActivityName =
+      mainActivity?.title?.en ||
+      mainActivity?.title?.ta ||
+      mainActivity?.title?.si ||
+      null;
 
-  private filterTypesByAllowedNames(allowedNames: string[] | null): ActivityType[] {
-    if (!allowedNames) {
-      return [...this.activityTypes];
-    }
-    if (!allowedNames.length) {
-      return [];
-    }
-    const allowedSet = new Set(allowedNames.map(name => normalizeString(name)));
-    
-    // Filter activity types by exact name match (case-insensitive)
-    // Maintain the order from allowedNames array
-    const filtered: ActivityType[] = [];
-    const matchedIds = new Set<number>();
-    
-    // First, add types in the order specified in allowedNames
-    for (const allowedName of allowedNames) {
-      const normalizedAllowed = normalizeString(allowedName);
-      const matchedType = this.activityTypes.find(type => {
-        const typeName = normalizeString(type.activityName);
-        return typeName === normalizedAllowed && !matchedIds.has(type.activityTypeId);
-      });
-      if (matchedType) {
-        filtered.push(matchedType);
-        matchedIds.add(matchedType.activityTypeId);
-      }
-    }
-    
-    // Then add any remaining types that match but weren't in the ordered list
-    for (const type of this.activityTypes) {
-      if (!matchedIds.has(type.activityTypeId)) {
-        const typeName = normalizeString(type.activityName);
-        if (allowedSet.has(typeName)) {
-          filtered.push(type);
-          matchedIds.add(type.activityTypeId);
-        }
-      }
-    }
-    
-    return filtered;
-  }
+    // Mark as unavailable only if the main activity itself does not exist.
+    // The presence or absence of activity types is determined purely by backend data.
+    this.isMainActivityNotAvailable = !mainActivity;
 
-  private filterTypesByFlexibleMatching(allowedNames: string[]): ActivityType[] {
-    if (!allowedNames || !allowedNames.length) {
-      return [];
-    }
-    
-    // Create normalized sets for flexible matching
-    const allowedNormalized = allowedNames.map(name => normalizeString(name));
-    
-    const filtered = this.activityTypes.filter(type => {
-      const typeName = normalizeString(type.activityName);
-      
-      // Try exact match first
-      if (allowedNormalized.includes(typeName)) {
-        return true;
-      }
-      
-      // Try partial matching - check if any allowed name is contained in type name or vice versa
-      for (const allowedName of allowedNormalized) {
-        // Remove common words for better matching
-        const cleanAllowed = allowedName.replace(/\b(activity|player)\b/gi, '').trim();
-        const cleanType = typeName.replace(/\b(activity|player)\b/gi, '').trim();
-        
-        if (cleanAllowed && cleanType) {
-          if (cleanType.includes(cleanAllowed) || cleanAllowed.includes(cleanType)) {
-            return true;
-          }
-        }
-        
-        // Also try word-by-word matching
-        const allowedWords = cleanAllowed.split(/\s+/).filter(w => w.length > 2);
-        const typeWords = cleanType.split(/\s+/).filter(w => w.length > 2);
-        
-        if (allowedWords.length > 0 && typeWords.length > 0) {
-          const matchingWords = allowedWords.filter(aw => 
-            typeWords.some(tw => tw.includes(aw) || aw.includes(tw))
-          );
-          if (matchingWords.length >= Math.min(2, allowedWords.length)) {
-            return true;
-          }
-        }
-      }
-      
-      return false;
-    });
-    
-    return filtered;
+    // No hard‑coded “allowed names” – everything is data‑driven from the API.
+    return null;
   }
 
   handlePreviewExercise(exerciseJsonString: string): void {
@@ -807,6 +647,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
 
   async handleSave(): Promise<void> {
     if (!this.activity) return;
+    const isUpdate = this.isEditMode && !!this.activityId;
 
     // Construct payload with strong coercion and fallbacks
     const coercedLessonId = Number(this.activity.lessonId || this.lessonId || 0);
@@ -907,7 +748,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
       const lessonId = payload.lessonId;
       const actId = createdOrUpdated?.activityId || (this.activityId ? Number(this.activityId) : undefined);
       if (lessonId && actId) {
-        this.router.navigate(['/activities'], { queryParams: { lessonId, previewId: actId } });
+        this.router.navigate(['/activities'], { queryParams: { lessonId, previewId: actId, status: isUpdate ? 'updated' : 'saved' } });
       } else {
         this.goBack();
       }
@@ -944,13 +785,19 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
       this.exercises = [...this.exercises, draftExercise];
       this.normalizeExpandedExercise();
       this.expandedExercise = this.exercises.length - 1;
+      // Immediately show preview for the newly added exercise
+      this.previewContent = {
+        ...(this.activity || {}),
+        activityTypeId: this.activity?.activityTypeId || 0,
+        contentJson: jsonTemplate
+      };
       // If current activity type is not in filtered list, load it for display
       const currentTypeId = this.activity?.activityTypeId || 0;
       if (currentTypeId > 0 && !this.filteredActivityTypes.some(at => at.activityTypeId === currentTypeId)) {
         await this.loadCurrentActivityTypeForDisplay(currentTypeId);
       }
       this.cdr.detectChanges();
-      this.snackBar.open('புதிய உடற்பயிற்சி வரைவு உருவாக்கப்பட்டது. செயல்பாட்டைச் சேமிக்கும்போது இது சேமிக்கப்படும்.', 'Close', { duration: 4000 });
+      this.snackBar.open('Draft exercise created. It will be saved when you save the activity.', 'Close', { duration: 4000 });
       return;
     }
 
@@ -966,6 +813,12 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
          this.exercises.push(newExercise);
          this.normalizeExpandedExercise();
          this.expandedExercise = this.exercises.length - 1;
+         // Immediately show preview for the newly added exercise
+         this.previewContent = {
+           ...(this.activity || {}),
+           activityTypeId: this.activity?.activityTypeId || 0,
+           contentJson: newExercise.jsonData
+         };
          // If current activity type is not in filtered list, load it for display
          const currentTypeId = this.activity?.activityTypeId || 0;
          if (currentTypeId > 0 && !this.filteredActivityTypes.some(at => at.activityTypeId === currentTypeId)) {
@@ -988,7 +841,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
     const targetExercise = this.exercises[index];
     if (this.isDraftExercise(targetExercise)) {
       this.exercises[index] = { ...targetExercise, jsonData, updatedAt: new Date().toISOString() };
-      this.snackBar.open('வரைவு உடற்பயிற்சி புதுப்பிக்கப்பட்டது!', 'Close', { duration: 2000 });
+      this.snackBar.open('Draft exercise updated!', 'Close', { duration: 2000 });
       return;
     }
 
@@ -1026,7 +879,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
         this.currentActivityTypeForDisplay = null;
       }
       this.cdr.detectChanges();
-      this.snackBar.open('வரைவு உடற்பயிற்சி நீக்கப்பட்டது.', 'Close', { duration: 2000 });
+      this.snackBar.open('Draft exercise deleted.', 'Close', { duration: 2000 });
       return;
     }
 
@@ -1251,7 +1104,7 @@ export class ActivityEditorPageComponent implements OnInit, OnDestroy {
           replacementMap.set(draft.id, created);
         }
       } catch (error) {
-        this.snackBar.open('ஒரு வரைவு உடற்பயிற்சியைச் சேமிக்க முடியவில்லை. பின்னர் முயற்சிக்கவும்.', 'Close', { duration: 5000 });
+        this.snackBar.open('Could not save a draft exercise. Please try again later.', 'Close', { duration: 5000 });
       }
     }
 
