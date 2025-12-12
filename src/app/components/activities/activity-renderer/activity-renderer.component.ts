@@ -21,6 +21,7 @@ import { MemoryPairComponent } from '../activity-types/memory-pair/memory-pair.c
 import { GroupSorterComponent } from '../activity-types/group-sorter/group-sorter.component';
 import { ConversationPlayerComponent } from '../activity-types/conversation-player/conversation-player.component';
 import { VideoPlayerComponent } from '../activity-types/video-player/video-player.component';
+import { LetterTrackingComponent } from '../activity-types/letter-tracking/letter-tracking.component';
 
 @Component({
   selector: 'app-activity-renderer',
@@ -45,6 +46,7 @@ import { VideoPlayerComponent } from '../activity-types/video-player/video-playe
     GroupSorterComponent,
     ConversationPlayerComponent,
     VideoPlayerComponent,
+    LetterTrackingComponent,
 ],
   templateUrl: './activity-renderer.component.html',
   styleUrls: ['./activity-renderer.component.css']
@@ -65,7 +67,7 @@ export class ActivityRendererComponent implements OnChanges {
 
   isKnownActivityType(): boolean {
     // Activity types 1-8 are implemented: 1 (flashcard), 2 (matching), 3 (fill-in-the-blanks), 4 (mcq-activity), 5 (true-false), 6 (song-player), 7 (story-player), 8 (pronunciation-activity)
-    const knownTypes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,14, 15];
+    const knownTypes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17];
     return knownTypes.includes(this.activityTypeId);
   }
 

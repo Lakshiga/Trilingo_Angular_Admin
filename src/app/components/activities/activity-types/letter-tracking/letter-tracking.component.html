@@ -1,0 +1,72 @@
+<div class="lt-screen">
+  <div class="lt-frame">
+    <div class="lt-header">
+      <div class="lt-back">
+        <span class="lt-arrow">←</span>
+        <span class="lt-pencil">✏️</span>
+      </div>
+      <div class="lt-title-wrap">
+        <div class="lt-title">{{ headerTitle }}</div>
+        <div class="lt-subtitle">{{ headerSubtitle }}</div>
+      </div>
+      <div class="lt-books">📚</div>
+    </div>
+
+    <div class="lt-section">
+      <div class="lt-section-title">Select Language</div>
+      <div class="lt-lang-toggle">
+        @for (lang of languages; track lang.code) {
+          <button
+            class="lt-lang-btn"
+            type="button"
+            [class.active]="lang.code === selectedLang"
+            (click)="selectLanguage(lang.code)"
+          >
+            {{ lang.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="lt-letters">
+      <div class="lt-section-title center">{{ activeLanguage?.subtitle }}</div>
+      <div class="lt-letter-grid">
+        @for (letter of letters; track letter.id) {
+          <button
+            type="button"
+            class="lt-letter-card"
+            [class.active]="letter.id === selectedLetter?.id"
+            (click)="selectLetter(letter)"
+          >
+            <span>{{ glyph(letter, activeLanguage?.code || selectedLang) }}</span>
+            <small *ngIf="letter.exampleWord">{{ text(letter.exampleWord) }}</small>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="lt-trace-pane">
+      <div class="lt-trace-header">
+        <div class="lt-chip">{{ glyph(selectedLetter) || '⋯' }}</div>
+        <div class="lt-trace-meta">
+          <div class="lt-trace-title">Trace Here</div>
+          <div class="lt-trace-sub">Draw over the guide like on mobile.</div>
+        </div>
+        <div class="lt-score">Score: {{ score }} / 10</div>
+        <button class="lt-reset" type="button" (click)="clearDrawing()">Reset</button>
+      </div>
+      <div class="lt-canvas-wrap">
+        <canvas
+          #traceCanvas
+          class="lt-canvas"
+          touch-action="none"
+          (pointerdown)="startDrawing($event)"
+          (pointermove)="draw($event)"
+          (pointerup)="endDrawing()"
+          (pointercancel)="endDrawing()"
+          (pointerleave)="endDrawing()"
+        ></canvas>
+      </div>
+    </div>
+  </div>
+</div>

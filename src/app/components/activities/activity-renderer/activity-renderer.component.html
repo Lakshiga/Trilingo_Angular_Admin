@@ -95,6 +95,9 @@
   <!-- video player activity -->
    <app-video-player *ngIf="activityTypeId === 15" [content]="content" [currentLang]="currentLanguage"></app-video-player>
 
+  <!-- Letter Tracking Activity -->
+  <app-letter-tracking *ngIf="activityTypeId === 17" [content]="content" [currentLang]="currentLanguage"></app-letter-tracking>
+
    
   <!-- All other activity types use generic template -->
   <ng-container *ngIf="
@@ -112,7 +115,8 @@
     activityTypeId !== 12 && 
     activityTypeId !== 13 &&
     activityTypeId !== 14 &&
-    activityTypeId !== 15"
+    activityTypeId !== 15 &&
+    activityTypeId !== 17"
     [ngTemplateOutlet]="generic">
   </ng-container>
   

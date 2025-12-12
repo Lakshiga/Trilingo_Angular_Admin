@@ -172,6 +172,8 @@ export class ExerciseEditorComponent implements OnChanges {
         return this.validateMemoryPairStructure(json);
       case 13: // Group Sorter
         return this.validateGroupSorterStructure(json);
+      case 17: // Letter Tracking
+        return null; // allow flexible letter set structure
       default:
         return null; // Unknown activity type, allow any structure
     }
