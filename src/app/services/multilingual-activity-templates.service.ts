@@ -20,7 +20,7 @@ export class MultilingualActivityTemplates {
       13:() => this.getgroupsorterActivityTemplate(),
       14:() => this.getConversationPlayerTemplate(),
       15:() => this.getvideoplayerTemplate(),
-      17:() => this.getLetterTrackingTemplate()    
+      16:() => this.getLetterTrackingTemplate()    
     };
 
     const templateFunction = templates[activityTypeId];
