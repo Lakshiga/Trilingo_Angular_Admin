@@ -77,18 +77,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private getFullImageUrl(url: string | null | undefined): string | null {
     if (!url) return null;
-    // If it's already a full URL, return as is
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+
+    if (/^https?:\/\//i.test(url)) {
       return url;
     }
-    // If it's a relative URL starting with /uploads, convert to full URL
-    if (url.startsWith('/uploads/')) {
-      // Get base URL from environment (remove /api if present)
-      const apiUrl = environment.apiUrl || 'http://localhost:5166/api';
-      const baseUrl = apiUrl.replace('/api', '');
-      return `${baseUrl}${url}`;
-    }
-    return url;
+
+    const cleanedUrl = url.replace(/\\/g, '/');
+    const normalisedPath = cleanedUrl.startsWith('/') ? cleanedUrl : `/${cleanedUrl}`;
+
+    const baseFromEnv = (environment.awsBaseUrl || environment.apiUrl || '')
+      .replace(/\/api$/, '')
+      .replace(/\/$/, '');
+    const runtimeOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+    const baseUrl = baseFromEnv || runtimeOrigin;
+
+    return `${baseUrl}${normalisedPath}`;
   }
 
   loadProfile(): void {

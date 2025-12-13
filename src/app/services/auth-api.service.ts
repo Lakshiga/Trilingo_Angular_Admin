@@ -29,8 +29,13 @@ export class AuthApiService {
     this.isAuthenticatedSubject.next(false);
   }
 
+  /**
+   * Get profile with a cache-busting query so CloudFront/S3 cached responses
+   * don't return stale profileImageUrl after upload.
+   */
   getProfile(): Observable<AuthResponse> {
-    return this.httpClient.get<AuthResponse>(`${this.endpoint}/profile`);
+    const cacheBuster = `?_=${Date.now()}`;
+    return this.httpClient.get<AuthResponse>(`${this.endpoint}/profile${cacheBuster}`);
   }
 
   updateProfile(profileData: UpdateProfileRequest): Observable<AuthResponse> {
