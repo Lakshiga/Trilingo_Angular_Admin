@@ -1,0 +1,104 @@
+<!-- Chatbot Floating Button -->
+<button 
+  *ngIf="!isOpen"
+  class="chatbot-toggle-btn"
+  (click)="toggleChat()"
+  type="button"
+  aria-label="Open chatbot"
+  title="AI Assistant"
+>
+  <mat-icon>chat</mat-icon>
+  <span class="chatbot-badge" *ngIf="messages.length > 1">1</span>
+</button>
+
+<!-- Chatbot Window -->
+<div class="chatbot-container" *ngIf="isOpen" [@slideIn]>
+  <!-- Chatbot Header -->
+  <div class="chatbot-header">
+    <div class="chatbot-header-content">
+      <div class="chatbot-avatar">
+        <mat-icon>smart_toy</mat-icon>
+      </div>
+      <div class="chatbot-header-text">
+        <h3 class="chatbot-title">AI Assistant</h3>
+        <p class="chatbot-subtitle">How can I help you?</p>
+      </div>
+    </div>
+    <div class="chatbot-header-actions">
+      <button 
+        class="chatbot-icon-btn" 
+        (click)="clearChat()" 
+        type="button"
+        title="Clear chat"
+        aria-label="Clear chat"
+      >
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+      <button 
+        class="chatbot-icon-btn" 
+        (click)="closeChat()" 
+        type="button"
+        title="Close"
+        aria-label="Close chatbot"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages Container -->
+  <div class="chatbot-messages" #messagesContainer>
+    <div 
+      *ngFor="let message of messages" 
+      class="chatbot-message"
+      [class.user-message]="message.role === 'user'"
+      [class.assistant-message]="message.role === 'assistant'"
+    >
+      <div class="message-avatar" *ngIf="message.role === 'assistant'">
+        <mat-icon>smart_toy</mat-icon>
+      </div>
+      <div class="message-content">
+        <div class="message-text">{{ message.content }}</div>
+        <div class="message-time">{{ message.timestamp | date:'short' }}</div>
+      </div>
+      <div class="message-avatar user-avatar" *ngIf="message.role === 'user'">
+        <mat-icon>person</mat-icon>
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="chatbot-loading" *ngIf="isLoading">
+      <div class="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="chatbot-input-area">
+    <div class="chatbot-input-wrapper">
+      <input
+        #messageInput
+        type="text"
+        class="chatbot-input"
+        [(ngModel)]="currentMessage"
+        (keydown)="onKeyPress($event)"
+        placeholder="Type your message..."
+        [disabled]="isLoading"
+      />
+      <button
+        class="chatbot-send-btn"
+        (click)="sendMessage()"
+        [disabled]="!currentMessage.trim() || isLoading"
+        type="button"
+        aria-label="Send message"
+      >
+        <mat-icon *ngIf="!isLoading">send</mat-icon>
+        <mat-spinner *ngIf="isLoading" diameter="20" class="inline-spinner"></mat-spinner>
+      </button>
+    </div>
+  </div>
+</div>
+

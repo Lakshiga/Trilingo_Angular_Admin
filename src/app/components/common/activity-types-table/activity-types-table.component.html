@@ -54,6 +54,7 @@
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">English</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Tamil</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Sinhala</th>
+            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">JSON Method</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-right">Actions</th>
           </tr>
         </thead>
@@ -91,6 +92,10 @@
             <td class="px-6 py-3">
               <input type="text" [(ngModel)]="newActivityType.name_si" 
                      class="modern-input font-noto-sans-sinhala" placeholder="Enter Sinhala Name">
+            </td>
+            
+            <td class="px-6 py-3">
+              <span class="text-gray-500 text-xs italic">Auto-generated on save</span>
             </td>
             
             <td class="px-6 py-3 text-right">
@@ -165,6 +170,66 @@
                      class="modern-input">
             </td>
 
+            <!-- JSON Method -->
+            <td class="px-6 py-3">
+              <!-- View Mode -->
+              <div *ngIf="editingJsonId !== type.id && editRowId !== type.id" class="flex items-center gap-2">
+                <button 
+                  (click)="startEditingJson(type)"
+                  class="text-[#346E8C] hover:text-[#2a5a73] hover:underline text-xs font-semibold flex items-center gap-1"
+                  [disabled]="isAdding || isLoading"
+                  matTooltip="Edit JSON Method">
+                  <mat-icon class="!w-4 !h-4">code</mat-icon>
+                  <span>{{ type.jsonMethod ? 'View/Edit' : 'Add JSON' }}</span>
+                </button>
+              </div>
+
+              <!-- Edit Mode (Inline JSON Editor) -->
+              <div *ngIf="editingJsonId === type.id" class="space-y-2">
+                <textarea
+                  [(ngModel)]="editedJsonMethod"
+                  (blur)="validateJson(editedJsonMethod)"
+                  class="modern-input font-mono text-xs min-h-[120px] resize-y"
+                  placeholder='Enter JSON method, e.g., {"type": "flashcard", "data": []}'
+                ></textarea>
+                <div *ngIf="jsonError" class="text-red-600 text-xs font-semibold bg-red-50 p-2 rounded">
+                  {{ jsonError }}
+                </div>
+                <div class="flex items-center gap-2">
+                  <button 
+                    (click)="saveJsonMethod(type)"
+                    class="action-btn-save text-xs px-3 py-1"
+                    [disabled]="isLoading || !!jsonError">
+                    <mat-icon class="!w-4 !h-4">check</mat-icon>
+                    Save
+                  </button>
+                  <button 
+                    (click)="cancelJsonEdit()"
+                    class="action-btn-cancel text-xs px-3 py-1">
+                    <mat-icon class="!w-4 !h-4">close</mat-icon>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+
+              <!-- Show JSON in edit mode (for name fields) -->
+              <div *ngIf="editRowId === type.id && editingJsonId !== type.id" class="space-y-2">
+                <div class="text-xs text-gray-600 mb-2">
+                  <button 
+                    (click)="startEditingJson(type)"
+                    class="text-[#346E8C] hover:text-[#2a5a73] hover:underline font-semibold flex items-center gap-1">
+                    <mat-icon class="!w-4 !h-4">code</mat-icon>
+                    {{ editedActivityType?.jsonMethod ? 'Edit JSON' : 'Add JSON' }}
+                  </button>
+                </div>
+                <pre *ngIf="editedActivityType?.jsonMethod" class="text-xs bg-gray-50 p-2 rounded max-h-32 overflow-auto font-mono">{{ formatJson(editedActivityType?.jsonMethod) }}</pre>
+                <input 
+                  *ngIf="editRowId === type.id"
+                  type="hidden"
+                  [(ngModel)]="editedActivityType!.jsonMethod">
+              </div>
+            </td>
+
             <!-- Actions -->
             <td class="px-6 py-3 text-right">
               <!-- View Mode Actions -->
@@ -202,7 +267,7 @@
 
           <!-- Empty State -->
           <tr *ngIf="activityTypes.length === 0 && !isAdding && !isLoading">
-            <td colspan="6" class="py-32 text-center">
+            <td colspan="7" class="py-32 text-center">
               <div class="flex flex-col items-center justify-center">
                 <div class="bg-gradient-to-br from-gray-50 to-blue-50 p-8 rounded-3xl mb-8 shadow-lg">
                   <mat-icon class="text-gray-400 !w-16 !h-16 !text-[64px]">extension</mat-icon>
