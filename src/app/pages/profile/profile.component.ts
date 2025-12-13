@@ -62,18 +62,26 @@ export class ProfileComponent implements OnInit {
 
   private getFullImageUrl(url: string | null | undefined): string | null {
     if (!url) return null;
-    // If it's already a full URL, return as is
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+
+    // Handle already absolute URLs
+    if (/^https?:\/\//i.test(url)) {
       return url;
     }
-    // If it's a relative URL starting with /uploads, convert to full URL
-    if (url.startsWith('/uploads/')) {
-      // Get base URL from environment (remove /api if present)
-      const apiUrl = environment.apiUrl || 'http://localhost:5166/api';
-      const baseUrl = apiUrl.replace('/api', '');
-      return `${baseUrl}${url}`;
-    }
-    return url;
+
+    // Replace backslashes from APIs that might return Windows-style paths
+    const cleanedUrl = url.replace(/\\/g, '/');
+
+    // Normalise relative paths like "uploads/..." or "/uploads/..."
+    const normalisedPath = cleanedUrl.startsWith('/') ? cleanedUrl : `/${cleanedUrl}`;
+
+    // Prefer CloudFront/base API host, fallback to current origin
+    const baseFromEnv = (environment.awsBaseUrl || environment.apiUrl || '')
+      .replace(/\/api$/, '')
+      .replace(/\/$/, '');
+    const runtimeOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+    const baseUrl = baseFromEnv || runtimeOrigin;
+
+    return `${baseUrl}${normalisedPath}`;
   }
 
   loadProfile(): void {
@@ -87,6 +95,9 @@ export class ProfileComponent implements OnInit {
           // Only set to null if response doesn't have it, otherwise use the database value
           if (response.profileImageUrl) {
             this.profileImageUrl = this.getFullImageUrl(response.profileImageUrl);
+          } else if (this.profileImageUrl) {
+            // Keep existing image if API didn’t return one
+            this.profileImageUrl = this.getFullImageUrl(this.profileImageUrl);
           } else {
             this.profileImageUrl = null;
           }
@@ -168,8 +179,10 @@ export class ProfileComponent implements OnInit {
       next: (response) => {
         this.isUploadingImage = false;
         if (response.isSuccess) {
-          // Update profile image URL immediately with full URL
-          this.profileImageUrl = this.getFullImageUrl(response.profileImageUrl);
+          // Update profile image URL immediately with full URL (if returned)
+          if (response.profileImageUrl) {
+            this.profileImageUrl = this.getFullImageUrl(response.profileImageUrl);
+          }
           this.previewImageUrl = null;
           this.selectedFile = null;
           this.showSuccess('Profile image uploaded successfully');

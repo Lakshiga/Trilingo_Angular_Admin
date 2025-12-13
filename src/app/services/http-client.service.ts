@@ -11,6 +11,11 @@ export class HttpClientService {
   private baseUrl: string;
 
   constructor(private http: HttpClient) {
+    const envApi = (environment.apiUrl || 'http://localhost:5166/api').replace(/\/$/, '');
+    const envAwsApi = environment.awsBaseUrl
+      ? `${environment.awsBaseUrl.replace(/\/$/, '')}/api`
+      : '';
+
     // Detect if running on CloudFront (runtime detection takes priority)
     const isCloudFront = typeof window !== 'undefined' && 
                         (window.location.hostname.includes('cloudfront.net') || 
@@ -19,27 +24,26 @@ export class HttpClientService {
 
     // Determine base URL based on environment and runtime conditions
     if (isCloudFront || environment.production) {
-      // Production or CloudFront: Always use CloudFront API
-      this.baseUrl = 'https://d3v81eez8ecmto.cloudfront.net/api';
+      // Production or CloudFront: prefer CloudFront API, fallback to envApi
+      this.baseUrl = envAwsApi || envApi;
       console.info(`[HttpClientService] CloudFront/Production mode detected. Using: ${this.baseUrl}`);
     } else {
-      // Development: Use local backend or allow runtime overrides
-      this.baseUrl = environment.apiUrl || 'http://localhost:5166/api';
-      
-      // Allow runtime override via localStorage (helps when backend runs on a different port)
-      // Key: "apiUrl" e.g. http://localhost:64288/api
+      // Development: prefer local override, else envApi, else CloudFront API
       const storedUrl = (typeof window !== 'undefined') ? localStorage.getItem('apiUrl') : null;
       if (storedUrl && storedUrl.startsWith('http')) {
         this.baseUrl = storedUrl.replace(/\/$/, '').replace(/\/api$/, '') + '/api';
         console.info(`[HttpClientService] Using apiUrl from localStorage: ${this.baseUrl}`);
-      } else if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname;
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          // If running on localhost but not the Angular dev port (4200), prefer same-origin API.
-          // This covers cases where the admin app is hosted by the backend (e.g., http://localhost:64288).
-          const port = window.location.port;
-          if (port && port !== '4200') {
-            this.baseUrl = `${window.location.origin.replace(/\/$/, '')}/api`;
+      } else {
+        this.baseUrl = envApi || envAwsApi || 'http://localhost:5166/api';
+        if (typeof window !== 'undefined') {
+          const hostname = window.location.hostname;
+          if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            // If running on localhost but not the Angular dev port (4200), prefer same-origin API.
+            // This covers cases where the admin app is hosted by the backend (e.g., http://localhost:64288).
+            const port = window.location.port;
+            if (port && port !== '4200') {
+              this.baseUrl = `${window.location.origin.replace(/\/$/, '')}/api`;
+            }
           }
         }
       }
