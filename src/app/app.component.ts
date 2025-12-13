@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { AuthApiService } from './services/auth-api.service';
 import { NavbarComponent } from './components/layout/navbar/navbar.component';
+import { ChatbotComponent } from './components/chatbot/chatbot.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { filter, take } from 'rxjs/operators';
 import { Observable, combineLatest } from 'rxjs';
@@ -24,6 +25,7 @@ import { map } from 'rxjs/operators';
     CommonModule,
     RouterOutlet,
     NavbarComponent,
+    ChatbotComponent,
     MatProgressSpinnerModule
   ],
   templateUrl: './app.component.html',

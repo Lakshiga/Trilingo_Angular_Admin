@@ -49,7 +49,12 @@ export class ActivityTypesTableComponent implements OnInit, OnDestroy {
   selectedMainActivityId: number | null = null;
   editedMainActivityId: number | null = null;
   
-  displayedColumns: string[] = ['id', 'mainActivity', 'name_en', 'name_ta', 'name_si', 'actions'];
+  // JSON editing
+  editingJsonId: number | null = null;
+  editedJsonMethod: string = '';
+  jsonError: string | null = null;
+  
+  displayedColumns: string[] = ['id', 'mainActivity', 'name_en', 'name_ta', 'name_si', 'jsonMethod', 'actions'];
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -123,7 +128,8 @@ export class ActivityTypesTableComponent implements OnInit, OnDestroy {
     this.editedActivityType = {
       name_en: type.name_en,
       name_ta: type.name_ta,
-      name_si: type.name_si
+      name_si: type.name_si,
+      jsonMethod: type.jsonMethod || ''
     };
   }
 
@@ -134,6 +140,9 @@ export class ActivityTypesTableComponent implements OnInit, OnDestroy {
     this.selectedMainActivityId = null;
     this.editedMainActivityId = null;
     this.newActivityType = {};
+    this.editingJsonId = null;
+    this.editedJsonMethod = '';
+    this.jsonError = null;
   }
 
   saveActivityType(type?: ActivityTypeResponse): void {
@@ -199,6 +208,11 @@ export class ActivityTypesTableComponent implements OnInit, OnDestroy {
       name_si: this.editedActivityType.name_si
     };
 
+    // Include jsonMethod if it was edited
+    if (this.editedActivityType.jsonMethod !== undefined) {
+      updateDto.jsonMethod = this.editedActivityType.jsonMethod;
+    }
+
     // Include mainActivityId if it was changed
     if (this.editedMainActivityId !== null && this.editedMainActivityId !== type.mainActivityId) {
       updateDto.mainActivityId = this.editedMainActivityId;
@@ -218,6 +232,72 @@ export class ActivityTypesTableComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
+  }
+
+  startEditingJson(type: ActivityTypeResponse): void {
+    this.editingJsonId = type.id;
+    this.editedJsonMethod = type.jsonMethod || '';
+    this.jsonError = null;
+  }
+
+  cancelJsonEdit(): void {
+    this.editingJsonId = null;
+    this.editedJsonMethod = '';
+    this.jsonError = null;
+  }
+
+  validateJson(jsonString: string): boolean {
+    if (!jsonString || !jsonString.trim()) {
+      this.jsonError = 'JSON cannot be empty';
+      return false;
+    }
+    try {
+      JSON.parse(jsonString);
+      this.jsonError = null;
+      return true;
+    } catch (e) {
+      this.jsonError = `Invalid JSON: ${(e as Error).message}`;
+      return false;
+    }
+  }
+
+  saveJsonMethod(type: ActivityTypeResponse): void {
+    if (!this.validateJson(this.editedJsonMethod)) {
+      return;
+    }
+
+    const updateDto: Partial<ActivityTypeCreateDto> = {
+      name_en: type.name_en,
+      name_ta: type.name_ta,
+      name_si: type.name_si,
+      jsonMethod: this.editedJsonMethod,
+      mainActivityId: type.mainActivityId
+    };
+
+    this.isLoading = true;
+    this.apiService.update(type.id, updateDto)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.cancelJsonEdit();
+          this.loadActivityTypes();
+        },
+        error: (err) => {
+          console.error('Error updating JSON method:', err);
+          this.error = 'Failed to update JSON method';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  formatJson(jsonString: string | undefined): string {
+    if (!jsonString) return '';
+    try {
+      const parsed = JSON.parse(jsonString);
+      return JSON.stringify(parsed, null, 2);
+    } catch {
+      return jsonString;
+    }
   }
 
   getMainActivityName(mainActivityId: number): string {
