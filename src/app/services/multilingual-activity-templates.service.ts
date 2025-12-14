@@ -694,50 +694,47 @@ export class MultilingualActivityTemplates {
   }  
 
   private static getLetterTrackingTemplate(): string {
-    return JSON.stringify({
+  return JSON.stringify({
+      "activityId": "LT001",
       "title": {
         "en": "Learn Letters",
         "ta": "எழுத்துக்கள் கற்போம்",
         "si": "අකුරු ඉගෙන ගන්න"
       },
-      "subtitle": {
-        "en": "Choose a language and letter to practice",
-        "ta": "மொழியும் எழுத்தும் தேர்ந்து பயிற்சி செய்யுங்கள்",
-        "si": "භාෂාවක් සහ අකුරක් තෝරන්න"
+      "instruction": {
+        "en": "Select a language and trace the letters.",
+        "ta": "மொழியைத் தேர்ந்தெடுத்து எழுத்துக்களை வரையவும்.",
+        "si": "භාෂාවක් තෝරා අකුරු ලියන්න."
       },
-      "languages": [
-        {
-          "code": "en",
-          "label": "English",
-          "subtitle": "English Letters",
-          "letters": "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').map((ch: string) => ({
-            "id": `en-${ch}`,
-            "glyph": { "en": ch, "ta": ch, "si": ch }
-          }))
+      "contentType": "text", // அல்லது 'letter'
+      "data": [
+        // --- English Data ---
+        { "id": "en_A", "content": { "en": "A", "ta": "A", "si": "A" } },
+        { "id": "en_B", "content": { "en": "B", "ta": "B", "si": "B" } },
+        { "id": "en_C", "content": { "en": "C", "ta": "C", "si": "C" } },
+        
+        // --- Tamil Data ---
+        { "id": "ta_a", "content": { "en": "a", "ta": "அ", "si": "අ" } },
+        { "id": "ta_aa", "content": { "en": "aa", "ta": "ஆ", "si": "ආ" } },
+        { "id": "ta_i", "content": { "en": "i", "ta": "இ", "si": "ඉ" } },
+
+        // --- Sinhala Data ---
+        { "id": "si_a", "content": { "en": "a", "ta": "அ", "si": "අ" } },
+        { "id": "si_b", "content": { "en": "b", "ta": "ஆ", "si": "ආ" } }
+      ],
+      // 💡 Answers Array-ஐ நாம் இங்கு Grouping-காக பயன்படுத்துகிறோம்
+      "answers": [
+        { 
+          "groupId": "en", 
+          "tileIds": ["en_A", "en_B", "en_C"] 
         },
-        {
-          "code": "ta",
-          "label": "Tamil",
-          "subtitle": "Tamil Letters",
-          "letters": [
-            "அ","ஆ","இ","ஈ","உ","ஊ","எ","ஏ","ஐ","ஒ","ஓ","ஔ",
-            "க","ங","ச","ஞ","ட","ண","த","ந","ப","ம","ய","ர","ல"
-          ].map((ch: string) => ({
-            "id": `ta-${ch}`,
-            "glyph": { "ta": ch, "en": ch, "si": ch }
-          }))
+        { 
+          "groupId": "ta", 
+          "tileIds": ["ta_a", "ta_aa", "ta_i"] 
         },
-        {
-          "code": "si",
-          "label": "Sinhala",
-          "subtitle": "Sinhala Letters",
-          "letters": [
-            "අ","ආ","ඇ","ඈ","ඉ","ඊ","උ","ඌ","ඍ","ඎ","එ","ඒ","ඔ","ඕ","ඖ",
-            "ක","ඛ","ග","ඝ","ච","ඡ","ජ","ඣ","ට","ඩ"
-          ].map((ch: string) => ({
-            "id": `si-${ch}`,
-            "glyph": { "si": ch, "en": ch, "ta": ch }
-          }))
+        { 
+          "groupId": "si", 
+          "tileIds": ["si_a", "si_b"] 
         }
       ]
     }, null, 2);

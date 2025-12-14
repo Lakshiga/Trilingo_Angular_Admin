@@ -1,60 +1,62 @@
 <div class="lt-screen">
   <div class="lt-frame">
+    <!-- Header Section -->
     <div class="lt-header">
       <div class="lt-back">
         <span class="lt-arrow">←</span>
-        <span class="lt-pencil">✏️</span>
       </div>
       <div class="lt-title-wrap">
-        <div class="lt-title">{{ headerTitle }}</div>
-        <div class="lt-subtitle">{{ headerSubtitle }}</div>
+        <h1 class="lt-title">{{ text(content?.title) }}</h1>
+        <p class="lt-subtitle">{{ text(content?.instruction) }}</p>
       </div>
-      <div class="lt-books">📚</div>
     </div>
 
+    <!-- Language Tabs Section (Derived from Answers) -->
     <div class="lt-section">
       <div class="lt-section-title">Select Language</div>
       <div class="lt-lang-toggle">
-        @for (lang of languages; track lang.code) {
+        @for (tab of languageTabs(); track tab.code) {
           <button
             class="lt-lang-btn"
             type="button"
-            [class.active]="lang.code === selectedLang"
-            (click)="selectLanguage(lang.code)"
+            [class.active]="tab.code === selectedLangTab()"
+            (click)="selectTab(tab.code)"
           >
-            {{ lang.label }}
+            {{ tab.label }}
           </button>
         }
       </div>
     </div>
 
+    <!-- Letters Grid -->
     <div class="lt-letters">
-      <div class="lt-section-title center">{{ activeLanguage?.subtitle }}</div>
       <div class="lt-letter-grid">
-        @for (letter of letters; track letter.id) {
+        @for (tile of currentTiles(); track tile.id) {
           <button
             type="button"
             class="lt-letter-card"
-            [class.active]="letter.id === selectedLetter?.id"
-            (click)="selectLetter(letter)"
+            [class.active]="tile.id === activeTile()?.id"
+            (click)="selectTile(tile)"
           >
-            <span>{{ glyph(letter, activeLanguage?.code || selectedLang) }}</span>
-            <small *ngIf="letter.exampleWord">{{ text(letter.exampleWord) }}</small>
+            <!-- getGlyph uses the current Tab to pick correct char from content -->
+            <span>{{ getGlyph(tile) }}</span> 
           </button>
         }
       </div>
     </div>
 
+    <!-- Tracing Area -->
     <div class="lt-trace-pane">
       <div class="lt-trace-header">
-        <div class="lt-chip">{{ glyph(selectedLetter) || '⋯' }}</div>
+        <div class="lt-chip">{{ getGlyph(activeTile()) }}</div>
         <div class="lt-trace-meta">
           <div class="lt-trace-title">Trace Here</div>
-          <div class="lt-trace-sub">Draw over the guide like on mobile.</div>
+          <div class="lt-trace-sub">வரைந்து பழகவும்</div>
         </div>
-        <div class="lt-score">Score: {{ score }} / 10</div>
+        <div class="lt-score">Score: {{ score() }} / 10</div>
         <button class="lt-reset" type="button" (click)="clearDrawing()">Reset</button>
       </div>
+      
       <div class="lt-canvas-wrap">
         <canvas
           #traceCanvas
