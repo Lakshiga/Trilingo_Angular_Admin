@@ -44,7 +44,16 @@ export class AuthApiService {
 
   uploadProfileImage(file: File): Observable<AuthResponse> {
     const formData = new FormData();
-    formData.append('file', file);
+    // Append file with the exact parameter name expected by backend: 'file'
+    formData.append('file', file, file.name);
+    
+    console.log('Preparing FormData for upload:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      parameterName: 'file'
+    });
+    
     return this.httpClient.postFormData<AuthResponse>(`${this.endpoint}/upload-profile-image`, formData);
   }
 }

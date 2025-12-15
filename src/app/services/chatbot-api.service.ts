@@ -12,6 +12,8 @@ export interface ChatbotResponse {
   message: string;
   conversationId?: string;
   error?: string;
+  imageData?: string; // Base64 encoded image data
+  hasImage?: boolean; // Indicates if response contains an image
 }
 
 @Injectable({

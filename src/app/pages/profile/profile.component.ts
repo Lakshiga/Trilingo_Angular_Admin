@@ -65,7 +65,9 @@ export class ProfileComponent implements OnInit {
 
     // Handle already absolute URLs
     if (/^https?:\/\//i.test(url)) {
-      return url;
+      // Add cache busting query parameter to force refresh
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}_t=${Date.now()}`;
     }
 
     // Replace backslashes from APIs that might return Windows-style paths
@@ -81,7 +83,9 @@ export class ProfileComponent implements OnInit {
     const runtimeOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     const baseUrl = baseFromEnv || runtimeOrigin;
 
-    return `${baseUrl}${normalisedPath}`;
+    // Add cache busting query parameter to force refresh
+    const separator = normalisedPath.includes('?') ? '&' : '?';
+    return `${baseUrl}${normalisedPath}${separator}_t=${Date.now()}`;
   }
 
   loadProfile(): void {
@@ -179,15 +183,40 @@ export class ProfileComponent implements OnInit {
       next: (response) => {
         this.isUploadingImage = false;
         if (response.isSuccess) {
+          console.log('Upload response received:', {
+            isSuccess: response.isSuccess,
+            profileImageUrl: response.profileImageUrl,
+            message: response.message
+          });
+          
           // Update profile image URL immediately with full URL (if returned)
           if (response.profileImageUrl) {
-            this.profileImageUrl = this.getFullImageUrl(response.profileImageUrl);
+            const fullUrl = this.getFullImageUrl(response.profileImageUrl);
+            this.profileImageUrl = fullUrl;
+            console.log('Updated profileImageUrl:', {
+              original: response.profileImageUrl,
+              fullUrl: fullUrl
+            });
+          } else {
+            console.warn('No profileImageUrl in upload response');
           }
+          
           this.previewImageUrl = null;
           this.selectedFile = null;
+          
+          // Reset file input to allow uploading the same file again
+          const fileInput = document.getElementById('profileImageInput') as HTMLInputElement;
+          if (fileInput) {
+            fileInput.value = '';
+          }
+          
           this.showSuccess('Profile image uploaded successfully');
-          // Reload profile to get updated data from database
-          this.loadProfile();
+          
+          // Reload profile to get updated data from database (with cache busting)
+          setTimeout(() => {
+            this.loadProfile();
+          }, 500); // Small delay to ensure backend has processed the update
+          
           // Notify navbar to refresh profile image
           window.dispatchEvent(new Event('profileUpdated'));
         } else {
@@ -197,18 +226,30 @@ export class ProfileComponent implements OnInit {
       error: (error: any) => {
         this.isUploadingImage = false;
         
-        // Backend returns AuthResponseDto in error.error for BadRequest (400)
+        // Backend now consistently returns AuthResponseDto in error.error for BadRequest (400) and other errors
         // Check if error.error has AuthResponseDto structure
         if (error?.error && typeof error.error === 'object') {
+          // Check for AuthResponseDto structure (has isSuccess property)
           if (error.error.isSuccess !== undefined) {
-            // This is an AuthResponseDto structure
             const response = error.error as AuthResponse;
-            if (!response.isSuccess) {
-              this.showError(response.message || 'Failed to upload image');
-              console.error('Image upload error (AuthResponse):', response);
-              return;
-            }
+            this.showError(response.message || 'Failed to upload image');
+            console.error('Image upload error (AuthResponse):', response);
+            return;
           }
+          
+          // Check for standard error structure with message
+          if (error.error.message) {
+            this.showError(error.error.message);
+            console.error('Image upload error:', error.error);
+            return;
+          }
+        }
+        
+        // Handle network errors (status 0)
+        if (error?.status === 0) {
+          this.showError('Cannot connect to server. Please check your network connection and ensure the backend is running.');
+          console.error('Network error - Backend connection failed:', error);
+          return;
         }
         
         // Extract error message from response
@@ -232,7 +273,8 @@ export class ProfileComponent implements OnInit {
           status: error?.status,
           statusText: error?.statusText,
           error: error?.error,
-          message: errorMessage
+          message: errorMessage,
+          url: error?.url
         });
       }
     });
