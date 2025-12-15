@@ -12,6 +12,8 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  imageData?: string; // Base64 encoded image data
+  hasImage?: boolean; // Indicates if message contains an image
 }
 
 @Component({
@@ -112,7 +114,9 @@ export class ChatbotComponent implements OnInit, AfterViewInit, OnDestroy {
           this.messages.push({
             role: 'assistant',
             content: response.message,
-            timestamp: new Date()
+            timestamp: new Date(),
+            imageData: response.imageData,
+            hasImage: response.hasImage || false
           });
         } else {
           // Handle error response (IsSuccess = false)

@@ -59,6 +59,9 @@
       </div>
       <div class="message-content">
         <div class="message-text">{{ message.content }}</div>
+        <div class="message-image" *ngIf="message.hasImage && message.imageData">
+          <img [src]="'data:image/png;base64,' + message.imageData" alt="Generated image" />
+        </div>
         <div class="message-time">{{ message.timestamp | date:'short' }}</div>
       </div>
       <div class="message-avatar user-avatar" *ngIf="message.role === 'user'">
