@@ -47,24 +47,23 @@
       <table class="w-full">
         
         <!-- Table Head -->
-        <thead class="bg-gradient-to-r from-[#346E8C] via-[#3d7ba0] to-[#346E8C] text-white shadow-lg">
+        <thead class="bg-gradient-to-r from-[#ffe4e6] via-[#fecdd3] to-[#fbcfe8] text-[#111827] shadow-lg border-b border-[#fbd5dc]/60">
           <tr>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">ID</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Main Activity</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">English</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Tamil</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Sinhala</th>
-            <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">JSON Method</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-right">Actions</th>
           </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-100">
+        <tbody class="bg-white divide-y divide-[#fbd5dc]/60">
           
           <!-- Add New Row Form -->
-          <tr *ngIf="isAdding" class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-[#346E8C] animate-slideDown shadow-sm">
+          <tr *ngIf="isAdding" class="bg-gradient-to-r from-[#fff1f2] to-[#ffe4e6] border-l-4 border-[#f43f5e] animate-slideDown shadow-sm">
             <td class="px-6 py-3">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#346E8C] to-[#4a8fb8] text-white font-bold text-xs shadow-md">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#f43f5e] to-[#fb7185] text-white font-bold text-xs shadow-md">
                 {{ getNextId() }}
               </span>
             </td>
@@ -116,18 +115,18 @@
           </tr>
 
           <!-- Data Rows -->
-          <tr *ngFor="let type of activityTypes" class="group bg-white hover:bg-[#c5d8e2] transition-all duration-200" [class.bg-blue-50]="editRowId === type.id" [class.border-l-4]="editRowId === type.id" [style.border-left-color]="editRowId === type.id ? '#346E8C' : 'transparent'">
+          <tr *ngFor="let type of activityTypes" class="group bg-white hover:bg-[#ffe7ec] transition-all duration-200" [class.bg-blue-50]="editRowId === type.id" [class.border-l-4]="editRowId === type.id" [style.border-left-color]="editRowId === type.id ? '#f43f5e' : 'transparent'">
             
             <!-- ID -->
             <td class="px-6 py-3">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#346E8C] to-[#4a8fb8] text-white font-bold text-xs shadow-md">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#f43f5e] to-[#fb7185] text-white font-bold text-xs shadow-md">
                 {{ type.id }}
               </span>
             </td>
 
             <!-- Main Activity -->
             <td class="px-6 py-3">
-              <span *ngIf="editRowId !== type.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span *ngIf="editRowId !== type.id" class="text-gray-900 font-bold group-hover:text-[#be123c] text-sm">
                 {{ getMainActivityName(type.mainActivityId) }}
               </span>
               <select *ngIf="editRowId === type.id" 
@@ -142,7 +141,7 @@
 
             <!-- English Name -->
             <td class="px-6 py-3">
-              <span *ngIf="editRowId !== type.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span *ngIf="editRowId !== type.id" class="text-gray-900 font-bold group-hover:text-[#be123c] text-sm">
                 {{ type.name_en || '-' }}
               </span>
               <input *ngIf="editRowId === type.id" 
@@ -152,7 +151,7 @@
 
             <!-- Tamil Name -->
             <td class="px-6 py-3 font-noto-sans-tamil">
-              <span *ngIf="editRowId !== type.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span *ngIf="editRowId !== type.id" class="text-gray-900 font-bold group-hover:text-[#be123c] text-sm">
                 {{ type.name_ta || '-' }}
               </span>
               <input *ngIf="editRowId === type.id" 
@@ -162,72 +161,12 @@
 
             <!-- Sinhala Name -->
             <td class="px-6 py-3 font-noto-sans-sinhala">
-              <span *ngIf="editRowId !== type.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span *ngIf="editRowId !== type.id" class="text-gray-900 font-bold group-hover:text-[#be123c] text-sm">
                 {{ type.name_si || '-' }}
               </span>
               <input *ngIf="editRowId === type.id" 
                      [(ngModel)]="editedActivityType!.name_si" 
                      class="modern-input">
-            </td>
-
-            <!-- JSON Method -->
-            <td class="px-6 py-3">
-              <!-- View Mode -->
-              <div *ngIf="editingJsonId !== type.id && editRowId !== type.id" class="flex items-center gap-2">
-                <button 
-                  (click)="startEditingJson(type)"
-                  class="text-[#346E8C] hover:text-[#2a5a73] hover:underline text-xs font-semibold flex items-center gap-1"
-                  [disabled]="isAdding || isLoading"
-                  matTooltip="Edit JSON Method">
-                  <mat-icon class="!w-4 !h-4">code</mat-icon>
-                  <span>{{ type.jsonMethod ? 'View/Edit' : 'Add JSON' }}</span>
-                </button>
-              </div>
-
-              <!-- Edit Mode (Inline JSON Editor) -->
-              <div *ngIf="editingJsonId === type.id" class="space-y-2">
-                <textarea
-                  [(ngModel)]="editedJsonMethod"
-                  (blur)="validateJson(editedJsonMethod)"
-                  class="modern-input font-mono text-xs min-h-[120px] resize-y"
-                  placeholder='Enter JSON method, e.g., {"type": "flashcard", "data": []}'
-                ></textarea>
-                <div *ngIf="jsonError" class="text-red-600 text-xs font-semibold bg-red-50 p-2 rounded">
-                  {{ jsonError }}
-                </div>
-                <div class="flex items-center gap-2">
-                  <button 
-                    (click)="saveJsonMethod(type)"
-                    class="action-btn-save text-xs px-3 py-1"
-                    [disabled]="isLoading || !!jsonError">
-                    <mat-icon class="!w-4 !h-4">check</mat-icon>
-                    Save
-                  </button>
-                  <button 
-                    (click)="cancelJsonEdit()"
-                    class="action-btn-cancel text-xs px-3 py-1">
-                    <mat-icon class="!w-4 !h-4">close</mat-icon>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-
-              <!-- Show JSON in edit mode (for name fields) -->
-              <div *ngIf="editRowId === type.id && editingJsonId !== type.id" class="space-y-2">
-                <div class="text-xs text-gray-600 mb-2">
-                  <button 
-                    (click)="startEditingJson(type)"
-                    class="text-[#346E8C] hover:text-[#2a5a73] hover:underline font-semibold flex items-center gap-1">
-                    <mat-icon class="!w-4 !h-4">code</mat-icon>
-                    {{ editedActivityType?.jsonMethod ? 'Edit JSON' : 'Add JSON' }}
-                  </button>
-                </div>
-                <pre *ngIf="editedActivityType?.jsonMethod" class="text-xs bg-gray-50 p-2 rounded max-h-32 overflow-auto font-mono">{{ formatJson(editedActivityType?.jsonMethod) }}</pre>
-                <input 
-                  *ngIf="editRowId === type.id"
-                  type="hidden"
-                  [(ngModel)]="editedActivityType!.jsonMethod">
-              </div>
             </td>
 
             <!-- Actions -->

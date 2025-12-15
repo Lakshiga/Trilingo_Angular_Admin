@@ -70,7 +70,7 @@ export class LetterTrackingComponent implements AfterViewInit {
   });
 
   // தற்போது தேர்ந்தெடுக்கப்பட்ட எழுத்து (Tile Object)
-  activeTile = computed(() => {
+  activeTile = computed<Tile | undefined>(() => {
     const id = this.selectedTileId();
     const tiles = this.currentTiles();
     if (!id && tiles.length > 0) return tiles[0]; // Default to first

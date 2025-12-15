@@ -56,7 +56,7 @@
       <table class="w-full">
         
         <!-- Table Head -->
-        <thead class="bg-gradient-to-r from-[#346E8C] via-[#3d7ba0] to-[#346E8C] text-white shadow-lg">
+        <thead class="bg-gradient-to-r from-[#ffedd5] via-[#fed7aa] to-[#fec89a] text-[#111827] shadow-lg border-b border-[#fdba74]/60">
           <tr>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">ID</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Activity Title</th>
@@ -69,42 +69,42 @@
           </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-100">
+        <tbody class="bg-white divide-y divide-[#fdba74]/60">
           
           <!-- Data Rows -->
-          <tr *ngFor="let activity of activities" class="group bg-white hover:bg-[#c5d8e2] transition-all duration-200">
+          <tr *ngFor="let activity of activities" class="group bg-white hover:bg-[#ffe8d6] transition-all duration-200">
             
             <!-- ID -->
             <td class="px-6 py-3">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#346E8C] to-[#4a8fb8] text-white font-bold text-xs shadow-md">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#f97316] to-[#fb923c] text-white font-bold text-xs shadow-md">
                 {{ activity.activityId }}
               </span>
             </td>
 
             <!-- Activity Title -->
             <td class="px-6 py-3">
-              <span class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span class="text-gray-900 font-bold group-hover:text-[#c2410c] text-sm">
                 {{ getActivityDisplayName(activity) }}
               </span>
             </td>
 
             <!-- Sequence Order -->
             <td class="px-6 py-3">
-              <span class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span class="text-gray-900 font-bold group-hover:text-[#c2410c] text-sm">
                 {{ activity.sequenceOrder }}
               </span>
             </td>
 
             <!-- Main Activity -->
             <td class="px-6 py-3">
-              <span class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span class="text-gray-900 font-bold group-hover:text-[#c2410c] text-sm">
                 {{ mainActivityMap[activity.mainActivityId] || activity.mainActivityId }}
               </span>
             </td>
 
             <!-- Activity Type -->
             <td class="px-6 py-3">
-              <span class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span class="text-gray-900 font-bold group-hover:text-[#c2410c] text-sm">
                 {{ activityTypeMap[activity.activityTypeId] || activity.activityTypeId }}
               </span>
             </td>
