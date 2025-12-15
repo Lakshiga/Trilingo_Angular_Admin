@@ -267,66 +267,83 @@ export class MultilingualActivityTemplates {
 
   private static getSongPlayerTemplate(): string {
     return JSON.stringify({
-        "title": { 
-          "ta": "பாடல் பயிற்சி", 
-          "en": "Song Activity", 
-          "si": "ගීත පුහුණුව" 
+      "title": {
+        "ta": "பாடல் பயிற்சி",
+        "en": "Song Activity",
+        "si": "ගීත පුහුණුව"
         },
-        "instruction": { 
-          "ta": "பாடல் வரிகளைப் பின்பற்றிப் பாடுங்கள்.", 
-          "en": "Follow the lyrics and sing along.", 
-          "si": "පද රචනය අනුගමනය කරන්න." 
+        "instruction": {
+          "ta": "பாடல் வரிகளைப் பின்பற்றிப் பாடுங்கள்.",
+          "en": "Follow the lyrics and sing along.",
+          "si": "පද රචනය අනුගමනය කරන්න."
         },
         "songData": {
-          "title": { 
-            "ta": "நிலா நிலா ஓடி வா", 
-            "en": "Moon, Moon, Come Running", 
-            "si": "සඳ සඳ දුව එන්න" 
+          "title": {
+            "ta": "நிலா நிலா ஓடி வா",
+            "en": "Moon, Moon, Come Running",
+            "si": "සඳ සඳ දුව එන්න"
           },
           "artist": "Traditional",
           "albumArtUrl": "/images/nila_nila_album_art.jpg",
-          "audioUrl": { 
-            "ta": "/audio/nila_ta.mp3", 
+          "audioUrl": {
+            "ta": "/audio/nila_ta.mp3",
             "en": "/audio/nila_en.mp3",
             "si": "/audio/nila_si.mp3"
           },
           "lyrics": [
-            { 
-              "content": { 
-                "ta": "நிலா நிலா ஓடி வா", 
+            {
+              "content": {
+                "ta": "நிலா நிலா ஓடி வா",
                 "en": "Moon, moon, come running",
                 "si": "සඳ සඳ දුව එන්න"
-              }, 
-              "timestamp": 2.5 
+              },
+              "timestamp": {
+                "ta": 2.5,
+                "en": 2.5,
+                "si": 2.5
+              }
             },
-            { 
-              "content": { 
-                "ta": "நில்லாமல் ஓடி வா", 
+            {
+              "content": {
+                "ta": "நில்லாமல் ஓடி வா",
                 "en": "Run without stopping",
                 "si": "නවතින්නේ නැතුව දුව එන්න"
-              }, 
-              "timestamp": 5.0 
+              },
+              "timestamp": {
+                "ta": 5.0,
+                "en": 5.0,
+                "si": 5.0
+              }
             },
-            { 
-              "content": { 
-                "ta": "மலை மேலே ஏறி வா", 
+            {
+              "content": {
+                "ta": "மலை மேலே ஏறி வா",
                 "en": "Climb up the mountain and come",
                 "si": "කන්ද උඩ නැග එන්න"
-              }, 
-              "timestamp": 7.8 
+              },
+              "timestamp": {
+                "ta": 7.8,
+                "en": 7.8,
+                "si": 7.8
+              }
             },
-            { 
-              "content": { 
-                "ta": "மல்லிகைப் பூ கொண்டு வா", 
+            {
+              "content": {
+                "ta": "மல்லிகைப் பூ கொண்டு வா",
                 "en": "Bring jasmine flowers and come",
                 "si": "මල්ලිගා මල් ගෙන එන්න"
-              }, 
-              "timestamp": 10.5
+              },
+              "timestamp": {
+                "ta": 10.5,
+                "en": 10.5,
+                "si": 10.5
+              }
             }
           ]
         }
       }, null, 2);
     }
+  
 
     private static getStoryPlayerTemplate(): string {
       return JSON.stringify({
