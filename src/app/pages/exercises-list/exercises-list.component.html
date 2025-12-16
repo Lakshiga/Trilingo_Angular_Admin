@@ -56,7 +56,7 @@
       <table class="w-full">
         
         <!-- Table Head -->
-        <thead class="bg-gradient-to-r from-[#346E8C] via-[#3d7ba0] to-[#346E8C] text-white shadow-lg">
+        <thead class="bg-gradient-to-r from-[#ede9fe] via-[#ddd6fe] to-[#c7d2fe] text-[#1f2937] shadow-lg border-b border-[#c4b5fd]/60">
           <tr>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Sequence</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">Preview</th>
@@ -66,14 +66,14 @@
           </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-100">
+        <tbody class="bg-white divide-y divide-[#c4b5fd]/60">
           
           <!-- Data Rows -->
-          <tr *ngFor="let exercise of exercises" class="group bg-white hover:bg-[#c5d8e2] transition-all duration-200">
+          <tr *ngFor="let exercise of exercises" class="group bg-white hover:bg-[#eee7ff] transition-all duration-200">
             
             <!-- Sequence Order -->
             <td class="px-6 py-3">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#346E8C] to-[#4a8fb8] text-white font-bold text-xs shadow-md">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#8b5cf6] to-[#a78bfa] text-white font-bold text-xs shadow-md">
                 {{ exercise.sequenceOrder }}
               </span>
             </td>
@@ -81,7 +81,7 @@
             <!-- Preview -->
             <td class="px-6 py-3">
               <button (click)="handlePreview(exercise)"
-                      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#346E8C] text-white text-sm font-semibold hover:bg-[#2a5a73] transition-all shadow-md hover:shadow-lg"
+                      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#7c3aed] text-white text-sm font-semibold hover:bg-[#6d28d9] transition-all shadow-md hover:shadow-lg"
                       matTooltip="Preview Exercise">
                 <mat-icon class="!w-4 !h-4">visibility</mat-icon>
                 Preview
@@ -97,7 +97,7 @@
 
             <!-- Created At -->
             <td class="px-6 py-3">
-              <span class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">{{ formatDate(exercise.createdAt) }}</span>
+              <span class="text-gray-900 font-bold group-hover:text-[#6d28d9] text-sm">{{ formatDate(exercise.createdAt) }}</span>
             </td>
 
             <!-- Actions -->

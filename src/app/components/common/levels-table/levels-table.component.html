@@ -47,7 +47,7 @@
       <table class="w-full">
         
         <!-- Table Head -->
-        <thead class="bg-gradient-to-r from-[#346E8C] via-[#3d7ba0] to-[#346E8C] text-white shadow-lg">
+        <thead class="bg-gradient-to-r from-[#fef9c3] via-[#fde68a] to-[#fef08a] text-[#111827] shadow-lg border-b border-[#fcd34d]/60">
           <tr>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">ID</th>
             <th class="px-6 py-3 text-sm font-bold uppercase tracking-wider text-left">English</th>
@@ -58,12 +58,12 @@
           </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-gray-100">
+        <tbody class="bg-white divide-y divide-[#fcd34d]/60">
           
           <!-- Add New Row Form -->
-          <tr *ngIf="isAdding" class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-[#346E8C] animate-slideDown shadow-sm">
+          <tr *ngIf="isAdding" class="bg-gradient-to-r from-[#fffbeb] to-[#fef3c7] border-l-4 border-[#f59e0b] animate-slideDown shadow-sm">
             <td class="px-6 py-3">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#346E8C] to-[#4a8fb8] text-white font-bold text-xs shadow-md">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#f59e0b] to-[#fbbf24] text-white font-bold text-xs shadow-md">
                 {{ getNextId() }}
               </span>
             </td>
@@ -102,18 +102,18 @@
           </tr>
 
           <!-- Data Rows -->
-          <tr *ngFor="let level of levels" class="group bg-white hover:bg-[#c5d8e2] transition-all duration-200" [class.bg-blue-50]="editRowId === level.id" [class.border-l-4]="editRowId === level.id" [style.border-left-color]="editRowId === level.id ? '#346E8C' : 'transparent'">
+          <tr *ngFor="let level of levels" class="group bg-white hover:bg-[#fff7d6] transition-all duration-200" [class.bg-blue-50]="editRowId === level.id" [class.border-l-4]="editRowId === level.id" [style.border-left-color]="editRowId === level.id ? '#f59e0b' : 'transparent'">
             
             <!-- ID -->
             <td class="px-6 py-3">
-              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#346E8C] to-[#4a8fb8] text-white font-bold text-xs shadow-md">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-[#f59e0b] to-[#fbbf24] text-white font-bold text-xs shadow-md">
                 {{ level.id }}
               </span>
             </td>
 
             <!-- English Name -->
             <td class="px-6 py-3">
-              <span *ngIf="editRowId !== level.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span *ngIf="editRowId !== level.id" class="text-gray-900 font-bold group-hover:text-[#b45309] text-sm">
                 {{ level.name_en || '-' }}
               </span>
               <input *ngIf="editRowId === level.id" 
@@ -123,7 +123,7 @@
 
             <!-- Tamil Name -->
             <td class="px-6 py-3 font-noto-sans-tamil">
-              <span *ngIf="editRowId !== level.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span *ngIf="editRowId !== level.id" class="text-gray-900 font-bold group-hover:text-[#b45309] text-sm">
                 {{ level.name_ta || '-' }}
               </span>
               <input *ngIf="editRowId === level.id" 
@@ -133,7 +133,7 @@
 
             <!-- Sinhala Name -->
             <td class="px-6 py-3 font-noto-sans-sinhala">
-              <span *ngIf="editRowId !== level.id" class="text-gray-900 font-bold group-hover:text-[#346E8C] text-sm">
+              <span *ngIf="editRowId !== level.id" class="text-gray-900 font-bold group-hover:text-[#b45309] text-sm">
                 {{ level.name_si || '-' }}
               </span>
               <input *ngIf="editRowId === level.id" 

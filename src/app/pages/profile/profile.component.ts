@@ -95,20 +95,14 @@ export class ProfileComponent implements OnInit {
         this.isLoading = false;
         if (response.isSuccess) {
           this.profileData = response;
-          // Always update profileImageUrl from database response (never use hardcoded)
-          // Only set to null if response doesn't have it, otherwise use the database value
-          if (response.profileImageUrl) {
-            this.profileImageUrl = this.getFullImageUrl(response.profileImageUrl);
-          } else if (this.profileImageUrl) {
-            // Keep existing image if API didn’t return one
-            this.profileImageUrl = this.getFullImageUrl(this.profileImageUrl);
-          } else {
-            this.profileImageUrl = null;
-          }
+          // Prefer backend full URL, fallback to relative path
+          const resolvedFromApi = this.getFullImageUrl(response.fullImageUrl || response.profileImageUrl || null);
+          this.profileImageUrl = resolvedFromApi || null;
           console.log('Profile loaded from database:', {
             email: response.email,
             profileImageUrl: response.profileImageUrl,
-            fullImageUrl: this.profileImageUrl,
+            fullImageUrl: response.fullImageUrl,
+            resolved: this.profileImageUrl,
             username: response.username,
             hasProfileImage: !!response.profileImageUrl
           });
@@ -186,15 +180,17 @@ export class ProfileComponent implements OnInit {
           console.log('Upload response received:', {
             isSuccess: response.isSuccess,
             profileImageUrl: response.profileImageUrl,
+          fullImageUrl: response.fullImageUrl,
             message: response.message
           });
           
           // Update profile image URL immediately with full URL (if returned)
-          if (response.profileImageUrl) {
-            const fullUrl = this.getFullImageUrl(response.profileImageUrl);
+        const uploadedUrl = response.fullImageUrl || response.profileImageUrl;
+        if (uploadedUrl) {
+          const fullUrl = this.getFullImageUrl(uploadedUrl);
             this.profileImageUrl = fullUrl;
             console.log('Updated profileImageUrl:', {
-              original: response.profileImageUrl,
+            original: uploadedUrl,
               fullUrl: fullUrl
             });
           } else {

@@ -376,7 +376,11 @@ export class MultilingualActivityTemplates {
                 "en": "A crow was very thirsty. It flew everywhere looking for water.",
                 "si": "කපුටෙකුට මහත් පිපාසයක් ඇති විය. එය වතුර සොයා හැම තැනම පියාසර කළේය."
               },
-              "timestamp": 0.5 
+              "timestamp": {
+                "ta": 0.5,
+                "en": 0.5,
+                "si": 0.5
+              }
             },
             {
               "imageUrl": "/images/crow_finds_pebbles.jpg",
@@ -385,7 +389,11 @@ export class MultilingualActivityTemplates {
                 "en": "Suddenly, it saw a pot. But there was very little water in the pot.",
                 "si": "හදිසියේම එයට මුට්ටියක් පෙනුණි. නමුත් මුට්ටියේ වතුර තිබුණේ අඩුවෙනි."
               },
-              "timestamp": 8.2
+              "timestamp": {
+                "ta": 8.2,
+                "en": 8.2,
+                "si": 8.2
+              }
             },
             {
               "imageUrl": "/images/crow_drops_pebbles.jpg",
@@ -394,7 +402,11 @@ export class MultilingualActivityTemplates {
                 "en": "The crow thought. It picked up pebbles nearby and dropped them into the pot.",
                 "si": "කපුටා කල්පනා කළේය. එය ළඟ තිබූ ගල් කැට ගෙන මුට්ටියට දැම්මේය."
               },
-              "timestamp": 15.6
+              "timestamp": {
+                "ta": 15.6,
+                "en": 15.6,
+                "si": 15.6
+              }
             },
             {
               "imageUrl": "/images/crow_drinks_water.jpg",
@@ -403,12 +415,17 @@ export class MultilingualActivityTemplates {
                 "en": "The water level rose. The crow happily drank the water.",
                 "si": "වතුර මට්ටම ඉහළට ආවේය. කපුටා සතුටින් වතුර බිව්වේය."
               },
-              "timestamp": 23.0
+              "timestamp": {
+                "ta": 23.0,
+                "en": 23.0,
+                "si": 23.0
+              }
             }
           ]
         }
       }, null, 2);
     }
+    
 
     private static getPronunciationActivityTemplate(): string {
       return JSON.stringify({
@@ -691,24 +708,30 @@ export class MultilingualActivityTemplates {
     private static getvideoplayerTemplate(): string {
       return JSON.stringify({
         "title": {
-        "ta": "தாகமுள்ள காகம் வீடியோ",
-        "en": "The Thirsty Crow Video",
-        "si": "පිපාසිත කපුටා වීඩියෝව"
-      },
-      "description": {
-        "ta": "வீடியோவைப் பார்த்து கதை புரிந்துகொள்ளுங்கள்.",
-        "en": "Watch the video to understand the story.",
-        "si": "වීඩියෝව බැලීමෙන් කතාව තේරුම් ගන්න."
-      },
-      "videoData": {
-        "videoUrl": {
-          "ta": "/videos/ta/thirsty_crow.mp4",
-          "en": "/videos/en/thirsty_crow.mp4",
-          "si": "/videos/si/thirsty_crow.mp4"
+          "ta": "தாகமுள்ள காகம் வீடியோ",
+          "en": "The Thirsty Crow Video",
+          "si": "පිපාසිත කපුටා වීඩියෝව"
+        },
+        "description": {
+          "ta": "வீடியோவைப் பார்த்து கதை புரிந்துகொள்ளுங்கள்.",
+          "en": "Watch the video to understand the story.",
+          "si": "වීඩියෝව බැලීමෙන් කතාව තේරුම් ගන්න."
+        },
+        "videoData": {
+          "videoUrl": {
+            "ta": "/videos/ta/thirsty_crow.mp4",
+            "en": "/videos/en/thirsty_crow.mp4",
+            "si": "/videos/si/thirsty_crow.mp4"
+          },
+          "thumbnailUrl": {
+            "ta": "/thumbnails/ta/thirsty_crow.jpg",
+            "en": "/thumbnails/en/thirsty_crow.jpg",
+            "si": "/thumbnails/si/thirsty_crow.jpg"
+          }
         }
-      }
-    },null ,2);
-  }  
+      }, null, 2);
+    }
+      
 
   private static getLetterTrackingTemplate(): string {
   return JSON.stringify({

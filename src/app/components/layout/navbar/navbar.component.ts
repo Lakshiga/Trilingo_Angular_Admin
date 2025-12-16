@@ -78,8 +78,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private getFullImageUrl(url: string | null | undefined): string | null {
     if (!url) return null;
 
+    const cacheBuster = `_t=${Date.now()}`;
+
+    // Absolute URL – just append cache buster
     if (/^https?:\/\//i.test(url)) {
-      return url;
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}${cacheBuster}`;
     }
 
     const cleanedUrl = url.replace(/\\/g, '/');
@@ -91,19 +95,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const runtimeOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     const baseUrl = baseFromEnv || runtimeOrigin;
 
-    return `${baseUrl}${normalisedPath}`;
+    const separator = normalisedPath.includes('?') ? '&' : '?';
+    return `${baseUrl}${normalisedPath}${separator}${cacheBuster}`;
   }
 
   loadProfile(): void {
     this.authApiService.getProfile().subscribe({
       next: (response) => {
         if (response.isSuccess) {
-          this.profileImageUrl = this.getFullImageUrl(response.profileImageUrl);
+          // Prefer backend-provided full URL if available, else build from relative path
+          this.profileImageUrl = this.getFullImageUrl(response.fullImageUrl || response.profileImageUrl);
           this.username = response.username || null;
           this.email = response.email || null;
           console.log('Navbar profile loaded:', {
             profileImageUrl: response.profileImageUrl,
-            fullImageUrl: this.profileImageUrl
+            fullImageUrl: response.fullImageUrl,
+            resolved: this.profileImageUrl
           });
         }
       },

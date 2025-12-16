@@ -17,6 +17,7 @@ export interface AuthResponse {
   username?: string | null;
   email?: string | null;
   profileImageUrl?: string | null;
+  fullImageUrl?: string | null;
   role?: string | null;
   refreshToken?: string | null;
   user?: User | null;
