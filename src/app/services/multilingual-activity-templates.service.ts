@@ -427,37 +427,40 @@ export class MultilingualActivityTemplates {
     }
     
 
-    private static getPronunciationActivityTemplate(): string {
-      return JSON.stringify({
-        "title": { 
-        "ta": "உச்சரிப்புப் பயிற்சி", 
-        "en": "Pronunciation Practice", 
-        "si": "උච්චාරණ පුහුණුව" 
+private static getPronunciationActivityTemplate(): string {
+  return JSON.stringify({
+    "title": { 
+      "ta": "உச்சரிப்புப் பயிற்சி", 
+      "en": "Pronunciation Practice", 
+      "si": "උච්චාරණ පුහුණුව" 
+    },
+    "instruction": { 
+      "ta": "கீழே உள்ள வார்த்தையைச் சரியாகச் சொல்லவும்.", 
+      "en": "Pronounce the following word correctly.", 
+      "si": "වචනය නිවැරදිව උච්චාරණය කරන්න." 
+    },
+    "task": {
+      "content": {
+        "word": { 
+          "ta": "வணக்கம்", 
+          "en": "Hello", 
+          "si": "ආයුබෝවන්" 
         },
-        "instruction": { 
-          "ta": "கீழே உள்ள வார்த்தையைச் சரியாகச் சொல்லவும்.", 
-          "en": "Pronounce the following word correctly.", 
-          "si": "වචනය නිවැරදිව උච්චාරණය කරන්න." 
+        "audioUrl": {
+          "ta": "audio/ta/vanakkam.mp3",
+          "en": "audio/en/hello.mp3",
+          "si": "audio/si/ayubowan.mp3"
         },
-        "task": {
-          "taskId": "T2",
-          "taskType": "pronunciation",
-          "content": {
-            "word": { 
-              "ta": "வணக்கம்", 
-              "en": "Hello", 
-              "si": "ආයුබෝවන්" 
-            },
-            "audioUrl": null,
-            "imageUrl": null
-          },
-          "userResponse": {
-            "recordedAudio": null,
-            "score": null
-          }
+        "imageUrl": {
+          "ta": "images/ta/vanakkam.png",
+          "en": "images/en/hello.png",
+          "si": "images/si/ayubowan.png"
         }
-      }, null, 2);
+      }
     }
+  }, null, 2);
+}
+
 
     private static getScrumbleActivityTemplate(): string {
       return JSON.stringify({
